@@ -34,10 +34,16 @@ export function Sidebar() {
 
     return (
         <div className="h-full w-[16rem]">
-            <div 
-                className="font-bold text-3xl bg-gradient-to-r from-[#abc4ff] to-[#6072ff] bg-clip-text text-transparent m-6"> 
-                spaces 
-            </div>
+            <Link href="/home"> 
+                <p
+                    className="font-bold text-3xl bg-clip-text text-transparent m-6 
+                        bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] 
+                        bg-[length:200%_100%] bg-left transition-all duration-500 ease-in-out
+                        hover:bg-right"
+                >
+                    spaces 
+                </p>
+            </Link>
             <section className="flex justify-center">
                 <div className="flex flex-col gap-4 w-[90%] mt-5">
                     <div className="w-full">
