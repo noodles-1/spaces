@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 
-import { AppSidebar } from "@/components/custom/app-sidebar";
+import { Sidebar } from "@/components/custom/sidebar/sidebar";
 import { Topbar } from "@/components/custom/topbar/topbar";
 import { ProfileButton } from "@/components/custom/topbar/profile-button";
 
@@ -18,20 +18,20 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`antialiased dark h-screen p-20 flex gap-4`}
+                className={`antialiased dark h-screen flex`}
             >
-                <AppSidebar />
-                <section className="flex flex-col gap-4 grow">
-                    <section className="h-[5rem] flex gap-4">
-                        <Topbar />
-                        <ProfileButton />
-                    </section>
-                    <div className="bg-transparent backdrop-blur-sm outline-1 rounded-md h-full">
-                        <div className="grow">
+                <main className="h-full w-full bg-transparent backdrop-blur-[4px] flex">
+                    <Sidebar />
+                    <section className="grow flex flex-col">
+                        <div className="flex items-center h-[6rem]">
+                            <Topbar />
+                            <ProfileButton />
+                        </div>
+                        <div className="bg-zinc-800 grow p-6 rounded-tl-2xl">
                             {children}
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </main>
             </body>
         </html>
     );

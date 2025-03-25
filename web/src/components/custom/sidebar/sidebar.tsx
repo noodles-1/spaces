@@ -29,11 +29,11 @@ const items = [
     },
 ];
 
-export function AppSidebar() {
+export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="h-full w-[16rem] bg-transparent backdrop-blur-sm outline-1 rounded-md">
+        <div className="h-full w-[16rem]">
             <div 
                 className="font-bold text-3xl bg-gradient-to-r from-[#abc4ff] to-[#6072ff] bg-clip-text text-transparent m-6"> 
                 spaces 
