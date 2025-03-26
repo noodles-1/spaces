@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { StorageCapacity } from "@/components/custom/sidebar/storage-capacity";
 import { Home, Star, Database, Trash, Plus } from "lucide-react";
 
 const items = [
@@ -61,14 +62,27 @@ export function Sidebar() {
                         <Button 
                             variant="outline" 
                             key={idx} 
-                            className={`w-full p-0 rounded-xl ${idx % 2 === 0 ? "mt-5" : ""}`}
+                            className={`
+                                w-full p-0 rounded-xl 
+                                ${idx % 2 === 0 && "mt-5"}
+                                ${item.title === "Storage" && "h-fit"}
+                            `}
                         >
                             <Link 
                                 href={item.url} 
-                                className={`flex items-center gap-4 w-full h-full px-6 ${pathname === item.url ? "text-[#bfc7ff]" : ""}`}
+                                className={`
+                                    flex w-full h-full px-6 
+                                    ${pathname === item.url && "text-[#bfc7ff]"}
+                                    ${item.title === "Storage" && "flex-col items-start justify-center my-3 gap-2"}
+                                `}
                             >
-                                <item.icon/>
-                                <span> {item.title} </span>
+                                <div className="flex items-center gap-4">
+                                    <item.icon/>
+                                    <span className="font-normal"> {item.title} </span>
+                                </div>
+                                {item.title === "Storage" &&
+                                    <StorageCapacity />
+                                }
                             </Link>
                         </Button>
                     ))}
