@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 
+import { DataViewStoreProvider } from "@/zustand/providers/data-view-store-provider";
+
 import { Sidebar } from "@/components/custom/sidebar/sidebar";
 import { Topbar } from "@/components/custom/topbar/topbar";
 import { ProfileButton } from "@/components/custom/topbar/profile-button";
@@ -28,7 +30,9 @@ export default function RootLayout({
                             <ProfileButton />
                         </div>
                         <div className="bg-zinc-800 grow p-6 rounded-tl-2xl">
-                            {children}
+                            <DataViewStoreProvider>
+                                {children}
+                            </DataViewStoreProvider>
                         </div>
                     </section>
                 </main>
