@@ -1,7 +1,9 @@
 const Storage = () => {
     return (
         <div>
-            Storage page
+            <section className="flex justify-between items-center">
+                <span className="text-xl"> Storage </span>
+            </section>
         </div>
     );
 }

@@ -1,7 +1,12 @@
+import { DataViews } from "@/components/custom/data/data-views";
+
 const Starred = () => {
     return (
         <div>
-            Starred page
+            <section className="flex justify-between items-center">
+                <span className="text-xl"> Starred </span>
+                <DataViews />
+            </section>
         </div>
     );
 }

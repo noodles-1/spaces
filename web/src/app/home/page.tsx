@@ -1,7 +1,12 @@
+import { DataViews } from "@/components/custom/data/data-views";
+
 const Home = () => {
     return (
         <div>
-            Home page
+            <section className="flex justify-between items-center">
+                <span className="text-xl"> Home </span>
+                <DataViews />
+            </section>
         </div>
     );
 }
