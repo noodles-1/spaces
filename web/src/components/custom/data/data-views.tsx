@@ -1,9 +1,10 @@
 'use client'
 
 import { AlignJustify, LayoutGrid } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
+
+import { Button } from "@/components/ui/button";
 
 export function DataViews() {
     const { view, setGridView, setListView } = useDataViewStore(state => state)
