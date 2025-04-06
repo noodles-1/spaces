@@ -5,7 +5,9 @@ import {
     Copy,
     Download,
     FolderInput,
+    Info,
     PenLine,
+    Trash,
 } from "lucide-react";
 
 export const FOLDERS = [
@@ -83,9 +85,16 @@ export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
             onClick: () => {},
         },
         {
-            label: "Move",
-            icon: FolderInput,
+            label: "Folder information",
+            icon: Info,
             onClick: () => {},
         },
     ],
+    [
+        {
+            label: "Move to trash",
+            icon: Trash,
+            onClick: () => {},
+        }
+    ]
 ];
