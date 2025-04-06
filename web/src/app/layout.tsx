@@ -19,17 +19,15 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={`antialiased dark h-screen flex`}
-            >
-                <main className="h-full w-full bg-transparent backdrop-blur-[4px] flex">
+            <body className={`dark flex h-screen antialiased`}>
+                <main className="flex h-full w-full bg-transparent backdrop-blur-[4px]">
                     <Sidebar />
-                    <section className="grow flex flex-col">
-                        <div className="flex items-center h-[6rem]">
+                    <section className="flex grow flex-col">
+                        <div className="flex h-[6rem] items-center">
                             <Topbar />
                             <ProfileButton />
                         </div>
-                        <div className="bg-zinc-800 grow p-6 rounded-tl-2xl">
+                        <div className="grow rounded-tl-2xl bg-zinc-800 p-6">
                             <DataViewStoreProvider>
                                 {children}
                             </DataViewStoreProvider>
