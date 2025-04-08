@@ -1,9 +1,6 @@
 import { FileType } from "@/types/file-types";
 
-import { 
-    ContextMenu, 
-    ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
@@ -19,26 +16,29 @@ interface FileItem {
 
 export function File({ fileItem }: { fileItem: FileItem }) {
     return (
-        <div className="h-44 w-[230px] relative">
+        <div className="relative h-44 w-[230px]">
             <ContextMenu>
                 <ContextMenuTrigger>
                     <Button
                         variant="outline"
-                        className="flex flex-col w-full h-full gap-0 p-0 rounded-xl"
+                        className="flex h-full w-full flex-col gap-0 rounded-xl p-0"
                     >
-                        <div className="flex items-center w-full">
-                            <FileIcon fileType={fileItem.type} className="m-4" />
+                        <div className="flex w-full items-center">
+                            <FileIcon
+                                fileType={fileItem.type}
+                                className="m-4"
+                            />
                             {fileItem.name}
                         </div>
-                        <div className="flex-1 w-full px-4 pb-4">
-                            <div className="w-full h-full rounded bg-zinc-700" />
+                        <div className="w-full flex-1 px-4 pb-4">
+                            <div className="h-full w-full rounded bg-zinc-700" />
                         </div>
                     </Button>
                 </ContextMenuTrigger>
-                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS} />
             </ContextMenu>
             <EllipsisDropdown
-                itemGroups={DROPDOWN_ITEM_GROUPS} 
+                itemGroups={DROPDOWN_ITEM_GROUPS}
                 className="absolute top-3 right-3"
             />
         </div>

@@ -34,7 +34,7 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="h-full w-[16rem]">
+        <div className="h-full min-w-[16rem]">
             <Link href="/home">
                 <p className="m-6 bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] bg-[length:200%_100%] bg-clip-text bg-left text-3xl font-bold text-transparent transition-all duration-500 ease-in-out hover:bg-right">
                     spaces

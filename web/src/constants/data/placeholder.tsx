@@ -1,5 +1,6 @@
 import { DropdownItem } from "@/types/dropdown-items-type";
 import { FileType } from "@/types/file-types";
+import { ListItemType } from "@/types/list-item-type";
 import {
     ArrowLeftRight,
     Copy,
@@ -53,6 +54,10 @@ export const FILES: { name: string; type: FileType }[] = [
         name: "file 5",
         type: "video",
     },
+    {
+        name: "file 5",
+        type: "compressed",
+    },
 ];
 
 export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
@@ -95,6 +100,43 @@ export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
             label: "Move to trash",
             icon: Trash,
             onClick: () => {},
-        }
-    ]
+        },
+    ],
+];
+
+function getDateFromToday(days: number) {
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    return date;
+}
+
+export const LIST_ITEMS: ListItemType[] = [
+    {
+        name: "item 1",
+        type: "audio",
+        owner: "Chowlong",
+        lastModified: new Date(),
+        size: "3.2 MB"
+    },
+    {
+        name: "item 2",
+        type: "folder",
+        owner: "Chowlong",
+        lastModified: getDateFromToday(2),
+        size: "-"
+    },
+    {
+        name: "item 3",
+        type: "image",
+        owner: "Chowlong",
+        lastModified: getDateFromToday(15),
+        size: "725 KB"
+    },
+    {
+        name: "item 4",
+        type: "document",
+        owner: "Chowlong",
+        lastModified: getDateFromToday(7),
+        size: "75 KB"
+    },
 ];

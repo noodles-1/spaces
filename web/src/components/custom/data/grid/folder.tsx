@@ -1,9 +1,6 @@
 import { Folder as FolderIcon } from "lucide-react";
 
-import { 
-    ContextMenu, 
-    ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Button } from "@/components/ui/button";
 
 import { EllipsisDropdown } from "@/components/custom/data/ellipsis-dropdown";
@@ -17,23 +14,26 @@ interface FolderItem {
 
 export function Folder({ folderItem }: { folderItem: FolderItem }) {
     return (
-        <div className="h-14 w-[230px] relative">
+        <div className="relative h-14 w-[230px]">
             <ContextMenu>
-                <ContextMenuTrigger className="w-full h-full">
-                    <Button variant="outline" className="w-full h-full p-0 rounded-xl">
-                        <section className="flex items-center justify-between w-full h-full mx-4">
-                            <div className="flex items-center w-full h-full gap-4">
+                <ContextMenuTrigger className="h-full w-full">
+                    <Button
+                        variant="outline"
+                        className="h-full w-full rounded-xl p-0"
+                    >
+                        <section className="mx-4 flex h-full w-full items-center justify-between">
+                            <div className="flex h-full w-full items-center gap-4">
                                 <FolderIcon fill="white" />
                                 {folderItem.name}
                             </div>
                         </section>
                     </Button>
                 </ContextMenuTrigger>
-                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS} />
             </ContextMenu>
-            <EllipsisDropdown 
-                itemGroups={DROPDOWN_ITEM_GROUPS} 
-                className="absolute -translate-y-1/2 top-1/2 right-3"
+            <EllipsisDropdown
+                itemGroups={DROPDOWN_ITEM_GROUPS}
+                className="absolute top-1/2 right-3 -translate-y-1/2"
             />
         </div>
     );

@@ -10,23 +10,26 @@ import {
 export function ContextMenuContentDropdown({
     itemGroups,
 }: {
-    itemGroups: DropdownItem[][],
+    itemGroups: DropdownItem[][];
 }) {
     return (
-        <ContextMenuContent>
-            {itemGroups.map((group, i) =>
+        <ContextMenuContent className="bg-transparent backdrop-blur-3xl">
+            {itemGroups.map((group, i) => (
                 <section key={i}>
-                    <ContextMenuGroup className="p-1 space-y-2">
-                        {group.map((item, j) =>
-                            <ContextMenuItem key={j} className="flex gap-3 pr-12">
+                    <ContextMenuGroup className="space-y-2 p-1">
+                        {group.map((item, j) => (
+                            <ContextMenuItem
+                                key={j}
+                                className="flex gap-3 pr-12"
+                            >
                                 <item.icon />
                                 {item.label}
                             </ContextMenuItem>
-                        )}
+                        ))}
                     </ContextMenuGroup>
                     {i < itemGroups.length - 1 && <ContextMenuSeparator />}
                 </section>
-            )}
+            ))}
         </ContextMenuContent>
     );
 }

@@ -4,6 +4,8 @@ import {
     Clapperboard,
     FileSpreadsheet,
     FileText,
+    Folder,
+    FolderArchive,
     Headphones,
     Image as ImageIcon,
 } from "lucide-react";
@@ -26,5 +28,9 @@ export function FileIcon({
             return <Headphones className={className} />;
         case "video":
             return <Clapperboard className={className} />;
+        case "folder":
+            return <Folder className={className} fill="white" />;
+        case "compressed":
+            return <FolderArchive className={className} />;
     }
 }

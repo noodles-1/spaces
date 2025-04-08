@@ -1,1 +1,8 @@
-export type FileType = "image" | "document" | "text" | "audio" | "video";
+export type FileType =
+    | "image"
+    | "document"
+    | "text"
+    | "audio"
+    | "video"
+    | "folder"
+    | "compressed";
