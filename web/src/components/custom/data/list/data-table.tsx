@@ -20,6 +20,14 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { 
+    ContextMenu, 
+    ContextMenuTrigger 
+} from "@/components/ui/context-menu";
+
+import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
+
+import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -60,12 +68,13 @@ export function DataTable<TData, TValue>({
         return () => document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
-    const handleSelect = (event: React.MouseEvent, row: Row<TData>) => {
+    const handleLeftClick = (event: React.MouseEvent, row: Row<TData>) => {
         if (event.ctrlKey && event.shiftKey) {
             return;
         }
 
         if (event.ctrlKey) {
+            setLastSelectedRowId(parseInt(row.id));
             row.toggleSelected();
             return;
         }
@@ -74,8 +83,16 @@ export function DataTable<TData, TValue>({
             const start = Math.min(lastSelectedRowId, parseInt(row.id));
             const end = Math.max(lastSelectedRowId, parseInt(row.id));
 
-            for (let i = start; i <= end; i++) {
-                table.getRow(`${i}`).toggleSelected(true);
+
+            for (let i = 0; i < table.getRowCount(); i++) {
+                const currRow = table.getRow(`${i}`);
+
+                if (start <= i && i <= end) {
+                    currRow.toggleSelected(true);
+                }
+                else {
+                    currRow.toggleSelected(false);
+                }
             }
 
             return;
@@ -85,66 +102,79 @@ export function DataTable<TData, TValue>({
         setRowSelection({ [row.id]: true });
     };
 
+    const handleRightClick = (row: Row<TData>) => {
+        if (Object.keys(rowSelection).length === 0) {
+            setLastSelectedRowId(parseInt(row.id));
+            setRowSelection({ [row.id]: true });
+        }
+    };
+
     return (
-        <div ref={ref} className="select-none">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <TableHead key={header.id} className="py-3">
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef
-                                                    .header,
-                                                header.getContext(),
-                                            )}
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                                className="hover:bg-zinc-900"
-                                onClick={(event) => handleSelect(event, row)}
-                                onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell 
-                                        key={cell.id} 
-                                        className={`
-                                            py-3 
-                                            ${row.getIsSelected() && "bg-[#79a1ff56]"}
-                                        `}
+        <ContextMenu>
+            <ContextMenuTrigger>
+                <div ref={ref} className="select-none">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id} className="py-3">
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef
+                                                            .header,
+                                                        header.getContext(),
+                                                    )}
+                                            </TableHead>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className="hover:bg-zinc-900"
+                                        onClick={(event) => handleLeftClick(event, row)}
+                                        onContextMenu={() => handleRightClick(row)}
+                                        onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
                                     >
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext(),
-                                        )}
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell 
+                                                key={cell.id} 
+                                                className={`
+                                                    py-3 
+                                                    ${row.getIsSelected() && "bg-[#79a1ff56]"}
+                                                `}
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext(),
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center"
+                                    >
+                                        No results.
                                     </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-24 text-center"
-                            >
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </ContextMenuTrigger>
+            <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+        </ContextMenu>
     );
 }
