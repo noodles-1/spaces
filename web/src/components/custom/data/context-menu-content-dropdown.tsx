@@ -13,14 +13,14 @@ export function ContextMenuContentDropdown({
     itemGroups: DropdownItem[][];
 }) {
     return (
-        <ContextMenuContent className="bg-transparent backdrop-blur-3xl">
+        <ContextMenuContent>
             {itemGroups.map((group, i) => (
                 <section key={i}>
                     <ContextMenuGroup className="space-y-2 p-1">
                         {group.map((item, j) => (
                             <ContextMenuItem
                                 key={j}
-                                className="flex gap-3 pr-12"
+                                className="flex gap-3 pr-12 hover:cursor-pointer"
                             >
                                 <item.icon />
                                 {item.label}
