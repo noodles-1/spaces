@@ -7,12 +7,12 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 export function DraggableRow<TData>({
     row,
-    dragging,
+    draggedRowId,
     handleLeftClick,
     handleRightClick,
 } : {
     row: Row<TData>
-    dragging: boolean
+    draggedRowId: string
     handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => (void)
     handleRightClick: (row: Row<TData>) => (void)
 }) {
@@ -29,7 +29,7 @@ export function DraggableRow<TData>({
             data-state={row.getIsSelected() && "selected"}
             className={`
                 hover:bg-zinc-900 transition-opacity delay-[10ms]
-                ${dragging && "opacity-20"}
+                ${draggedRowId && "opacity-20"}
             `}
             onClick={(event) => handleLeftClick(event, row)}
             onContextMenu={() => handleRightClick(row)}

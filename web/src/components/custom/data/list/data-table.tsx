@@ -10,13 +10,17 @@ import {
     SortingState,
     useReactTable,
 } from "@tanstack/react-table";
+
 import {
     DndContext,
     DragOverlay,
+    DragStartEvent,
     PointerSensor,
+    pointerWithin,
     useSensor,
     useSensors,
 } from "@dnd-kit/core";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 
 import { DataTableProps } from "@/types/data-table-type";
 
@@ -32,11 +36,14 @@ import {
     ContextMenu, 
     ContextMenuTrigger 
 } from "@/components/ui/context-menu";
-import { restrictToParentElement } from "@dnd-kit/modifiers";
+
+import { ListItemType } from "@/types/list-item-type";
 
 import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { DraggableRow } from "@/components/custom/data/list/draggable-row";
 import { StaticRow } from "@/components/custom/data/list/static-row";
+import { snapTopLeftToCursor } from "@/components/custom/data/list/modifiers/snap-top-left";
+import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
@@ -47,7 +54,7 @@ export function DataTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([]);
     const [rowSelection, setRowSelection] = useState({});
     const [lastSelectedRowId, setLastSelectedRowId] = useState<number>(-1);
-    const [dragging, setDragging] = useState<boolean>(false);
+    const [draggedRowId, setDraggedRowId] = useState<string>("");
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -124,19 +131,24 @@ export function DataTable<TData, TValue>({
         }
     };
 
-    const handleDragStart = () => {
-        setDragging(true);
+    const handleDragStart = (event: DragStartEvent) => {
+        setDraggedRowId(event.active.id as string);
     };
 
     const handleDragEnd = () => {
-        setDragging(false);
+        setDraggedRowId("");
     };
 
     return (
         <ContextMenu>
             <ContextMenuTrigger>
-                <div ref={ref} className="select-none">
-                    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <div ref={ref} className="select-none mb-[200px]">
+                    <DndContext 
+                        sensors={sensors} 
+                        collisionDetection={pointerWithin}
+                        onDragStart={handleDragStart} 
+                        onDragEnd={handleDragEnd}
+                    >
                         <Table>
                             <TableHeader>
                                 {table.getHeaderGroups().map((headerGroup) => (
@@ -164,7 +176,7 @@ export function DataTable<TData, TValue>({
                                             <DraggableRow<TData> 
                                                 key={row.id}
                                                 row={row}
-                                                dragging={dragging}
+                                                draggedRowId={draggedRowId}
                                                 handleLeftClick={handleLeftClick}
                                                 handleRightClick={handleRightClick}
                                             />
@@ -189,11 +201,20 @@ export function DataTable<TData, TValue>({
                                 )}
                             </TableBody>
                         </Table>
-                        <DragOverlay modifiers={[restrictToParentElement]} className="bg-green-500 max-w-[100px]">
-                            {dragging &&
-                                <div className="bg-red-500">
-                                    drag meeee
-                                </div>
+                        <DragOverlay 
+                            modifiers={[snapTopLeftToCursor, restrictToParentElement]}
+                            className="max-w-[150px] bg-zinc-950 rounded-lg shadow-zinc-600 shadow-xs"
+                        >
+                            {draggedRowId &&
+                                <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
+                                    <FileIcon fileType={(table.getRow(`${draggedRowId}`).original as ListItemType).type} className="w-4 h-4"/>
+                                    {(table.getRow(`${draggedRowId}`).original as ListItemType).name}
+                                    {Object.keys(rowSelection).length > 1 &&
+                                        <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
+                                            +{Object.keys(rowSelection).length - 1}
+                                        </span>
+                                    }
+                                </span>
                             }
                         </DragOverlay>
                     </DndContext>
