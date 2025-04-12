@@ -4,10 +4,7 @@ import { ListItemType } from "@/types/list-item-type";
 import { ArrowUpDown, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { EllipsisDropdown } from "@/components/custom/data/ellipsis-dropdown";
 import { FileIcon } from "@/components/custom/data/file-icon";
-
-import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
 export const columns: ColumnDef<ListItemType>[] = [
     {
@@ -82,9 +79,5 @@ export const columns: ColumnDef<ListItemType>[] = [
         accessorKey: "size",
         header: "Size",
         cell: ({ row }) => <span className="text-zinc-300"> {row.original.size} </span>
-    },
-    {
-        id: "actions",
-        cell: () => <EllipsisDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
     }
 ];
