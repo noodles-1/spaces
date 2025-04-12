@@ -13,6 +13,7 @@ import {
 
 import {
     DndContext,
+    DragEndEvent,
     DragOverlay,
     DragStartEvent,
     PointerSensor,
@@ -41,6 +42,7 @@ import { ListItemType } from "@/types/list-item-type";
 
 import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { DraggableRow } from "@/components/custom/data/list/draggable-row";
+import { DroppableFolder } from "@/components/custom/data/list/droppable-folder";
 import { StaticRow } from "@/components/custom/data/list/static-row";
 import { snapTopLeftToCursor } from "@/components/custom/data/list/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
@@ -135,8 +137,12 @@ export function DataTable<TData, TValue>({
         setDraggedRowId(event.active.id as string);
     };
 
-    const handleDragEnd = () => {
+    const handleDragEnd = (event: DragEndEvent) => {
         setDraggedRowId("");
+
+        if (event.over) {
+            console.log(event.over.id);
+        }
     };
 
     return (
@@ -181,12 +187,19 @@ export function DataTable<TData, TValue>({
                                                 handleRightClick={handleRightClick}
                                             />
                                         ) : (
-                                            <StaticRow<TData> 
-                                                key={row.id}
-                                                row={row}
-                                                handleLeftClick={handleLeftClick}
-                                                handleRightClick={handleRightClick}
-                                            />
+                                            draggedRowId && (table.getRow(row.id).original as ListItemType).type === "folder" ? (
+                                                <DroppableFolder
+                                                    key={row.id}
+                                                    row={row}
+                                                />
+                                            ) : (
+                                                <StaticRow<TData> 
+                                                    key={row.id}
+                                                    row={row}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                />
+                                            )
                                         )
                                     ))
                                 ) : (

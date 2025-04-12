@@ -139,4 +139,11 @@ export const LIST_ITEMS: ListItemType[] = [
         lastModified: getDateFromToday(7),
         size: "75 KB"
     },
+    {
+        name: "item 5",
+        type: "folder",
+        owner: "Chowlong",
+        lastModified: getDateFromToday(2),
+        size: "-"
+    },
 ];

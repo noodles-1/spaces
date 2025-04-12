@@ -22,7 +22,6 @@ export function DraggableRow<TData>({
 
     return (
         <TableRow
-            key={row.id}
             ref={setNodeRef}
             {...listeners}
             {...attributes}

@@ -1,26 +1,23 @@
-import React from "react";
-
 import { flexRender, Row } from "@tanstack/react-table";
+import { useDroppable } from "@dnd-kit/core";
 
 import { TableCell, TableRow } from "@/components/ui/table";
 
-export function StaticRow<TData>({
+export function DroppableFolder<TData>({
     row,
-    handleLeftClick,
-    handleRightClick,
-} : {
+}: {
     row: Row<TData>
-    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => (void)
-    handleRightClick: (row: Row<TData>) => (void)
 }) {
+    const { setNodeRef } = useDroppable({
+        id: row.id
+    });
+
     return (
         <TableRow
             key={row.id}
+            ref={setNodeRef}
             data-state={row.getIsSelected() && "selected"}
-            className="hover:bg-zinc-900 transition-opacity delay-[10ms]"
-            onClick={(event) => handleLeftClick(event, row)}
-            onContextMenu={() => handleRightClick(row)}
-            onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
+            className="hover:opacity-60 hover:bg-zinc-900 transition-all delay-[10ms]"
         >
             {row.getVisibleCells().map((cell) => (
                 <TableCell 
