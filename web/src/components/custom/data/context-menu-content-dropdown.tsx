@@ -16,7 +16,7 @@ export function ContextMenuContentDropdown({
         <ContextMenuContent>
             {itemGroups.map((group, i) => (
                 <section key={i}>
-                    <ContextMenuGroup className="space-y-2 p-1">
+                    <ContextMenuGroup className="p-1 space-y-2">
                         {group.map((item, j) => (
                             <ContextMenuItem
                                 key={j}
