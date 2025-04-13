@@ -1,12 +1,14 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { ListItemType } from "@/types/file-type";
+import React from "react";
 
-import { ArrowUpDown, UserRound } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { File } from "@/types/file-type";
+
+import { ArrowUpDown, Star, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
-export const columns: ColumnDef<ListItemType>[] = [
+export const columns: ColumnDef<File>[] = [
     {
         accessorKey: "name",
         header: ({ column }) => {
@@ -26,10 +28,21 @@ export const columns: ColumnDef<ListItemType>[] = [
         cell: ({ row }) => {
             const item = row.original;
 
+            const handleStarred = (event: React.MouseEvent<SVGSVGElement>) => {
+                event.stopPropagation();
+                console.log(item.name + " added to starred");
+            };
+
             return (
-                <div className="flex gap-8 items-center">
-                    <FileIcon fileType={item.type} className="h-4 w-4"/>
-                    <span> {item.name} </span>
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-8 items-center">
+                        <FileIcon fileType={item.type} className="h-4 w-4"/>
+                        <span> {item.name} </span>
+                    </div>
+                    <Star 
+                        onClick={handleStarred}
+                        className="opacity-0 group-hover:opacity-100 h-4 w-4 hover:fill-white cursor-pointer mx-4"
+                    />
                 </div>
             );
         },

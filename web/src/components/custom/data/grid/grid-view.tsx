@@ -210,7 +210,11 @@ export function GridView() {
                     </div>
                 </DndContext>
             </ContextMenuTrigger>
-            <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+            {selectedFiles.size > 0 ? (
+                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+            ) : (
+                <ContextMenuContentDropdown />
+            )}
         </ContextMenu>
     );
 }

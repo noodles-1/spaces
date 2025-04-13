@@ -230,7 +230,11 @@ export function DataTable<TData, TValue>({
                     </DndContext>
                 </div>
             </ContextMenuTrigger>
-            <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+            {Object.keys(rowSelection).length > 0 ? (
+                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+            ) : (
+                <ContextMenuContentDropdown />
+            )}
         </ContextMenu>
     );
 }

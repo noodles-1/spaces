@@ -19,7 +19,7 @@ export function DroppableFolderFile({
     return (
         <div 
             ref={setNodeRef}
-            className="relative h-14 w-[230px] transition-all rounded-lg hover:bg-zinc-600 hover:ring-2 hover:ring-gray-300 hover:ring-inset"
+            className="relative h-14 w-[230px] transition-all rounded-lg bg-zinc-700 hover:bg-zinc-600 hover:ring-2 hover:ring-gray-300 hover:ring-inset"
         >
             <Button
                 variant="outline"

@@ -27,7 +27,7 @@ export function DraggableRow<TData>({
             {...attributes}
             data-state={row.getIsSelected() && "selected"}
             className={`
-                hover:bg-zinc-900 transition-opacity delay-[10ms]
+                hover:bg-zinc-900 transition-opacity delay-[10ms] group
                 ${draggedRowId && "opacity-20"}
             `}
             onClick={event => handleLeftClick(event, row)}

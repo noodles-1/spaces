@@ -7,6 +7,7 @@ import {
     FolderInput,
     Info,
     PenLine,
+    Star,
     Trash,
 } from "lucide-react";
 
@@ -29,6 +30,11 @@ export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
         },
     ],
     [
+        {
+            label: "Add to starred",
+            icon: Star,
+            onClick: () => {},
+        },
         {
             label: "Convert",
             icon: ArrowLeftRight,

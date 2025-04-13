@@ -17,7 +17,7 @@ export function StaticRow<TData>({
         <TableRow
             key={row.id}
             data-state={row.getIsSelected() && "selected"}
-            className="hover:bg-zinc-900 transition-opacity delay-[10ms]"
+            className="hover:bg-zinc-900 transition-opacity delay-[10ms] group"
             onClick={event => handleLeftClick(event, row)}
             onContextMenu={() => handleRightClick(row)}
             onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
