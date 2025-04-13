@@ -13,8 +13,8 @@ export function DraggableRow<TData>({
 } : {
     row: Row<TData>
     draggedRowId: string
-    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => (void)
-    handleRightClick: (row: Row<TData>) => (void)
+    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => void
+    handleRightClick: (row: Row<TData>) => void
 }) {
     const { attributes, listeners, setNodeRef } = useDraggable({
         id: row.id
@@ -30,17 +30,14 @@ export function DraggableRow<TData>({
                 hover:bg-zinc-900 transition-opacity delay-[10ms]
                 ${draggedRowId && "opacity-20"}
             `}
-            onClick={(event) => handleLeftClick(event, row)}
+            onClick={event => handleLeftClick(event, row)}
             onContextMenu={() => handleRightClick(row)}
             onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
         >
             {row.getVisibleCells().map((cell) => (
                 <TableCell 
                     key={cell.id} 
-                    className={`
-                        py-3 
-                        ${row.getIsSelected() && "bg-[#79a1ff56]"}
-                    `}
+                    className="py-3 bg-[#79a1ff56]"
                 >
                     {flexRender(
                         cell.column.columnDef.cell,

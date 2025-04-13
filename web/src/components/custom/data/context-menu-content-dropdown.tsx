@@ -13,7 +13,7 @@ export function ContextMenuContentDropdown({
     itemGroups: DropdownItem[][];
 }) {
     return (
-        <ContextMenuContent>
+        <ContextMenuContent className="bg-zinc-950">
             {itemGroups.map((group, i) => (
                 <section key={i}>
                     <ContextMenuGroup className="p-1 space-y-2">

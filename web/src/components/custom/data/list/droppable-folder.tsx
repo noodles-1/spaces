@@ -17,7 +17,7 @@ export function DroppableFolder<TData>({
             key={row.id}
             ref={setNodeRef}
             data-state={row.getIsSelected() && "selected"}
-            className="hover:opacity-60 hover:bg-zinc-900 transition-all delay-[10ms]"
+            className="hover:bg-zinc-600 transition-all hover:ring-2 hover:ring-gray-300 hover:ring-inset"
         >
             {row.getVisibleCells().map((cell) => (
                 <TableCell 

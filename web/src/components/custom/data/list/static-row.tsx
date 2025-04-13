@@ -10,15 +10,15 @@ export function StaticRow<TData>({
     handleRightClick,
 } : {
     row: Row<TData>
-    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => (void)
-    handleRightClick: (row: Row<TData>) => (void)
+    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => void
+    handleRightClick: (row: Row<TData>) => void
 }) {
     return (
         <TableRow
             key={row.id}
             data-state={row.getIsSelected() && "selected"}
             className="hover:bg-zinc-900 transition-opacity delay-[10ms]"
-            onClick={(event) => handleLeftClick(event, row)}
+            onClick={event => handleLeftClick(event, row)}
             onContextMenu={() => handleRightClick(row)}
             onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
         >

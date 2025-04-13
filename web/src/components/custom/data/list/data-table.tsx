@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useEffect, useRef, useState } from "react";
 
 import {
@@ -21,9 +19,10 @@ import {
     useSensor,
     useSensors,
 } from "@dnd-kit/core";
-import { restrictToParentElement } from "@dnd-kit/modifiers";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
 import { DataTableProps } from "@/types/data-table-type";
+import { File } from "@/types/file-type";
 
 import {
     Table,
@@ -38,13 +37,11 @@ import {
     ContextMenuTrigger 
 } from "@/components/ui/context-menu";
 
-import { ListItemType } from "@/types/list-item-type";
-
 import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { DraggableRow } from "@/components/custom/data/list/draggable-row";
 import { DroppableFolder } from "@/components/custom/data/list/droppable-folder";
 import { StaticRow } from "@/components/custom/data/list/static-row";
-import { snapTopLeftToCursor } from "@/components/custom/data/list/modifiers/snap-top-left";
+import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
@@ -60,13 +57,13 @@ export function DataTable<TData, TValue>({
 
     const ref = useRef<HTMLDivElement>(null);
 
-    const pointerSensor = useSensor(PointerSensor, {
-        activationConstraint: {
-            distance: 40
-        }
-    });
-
-    const sensors = useSensors(pointerSensor);
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 40
+            }
+        }),
+    );
 
     const table = useReactTable({
         data,
@@ -177,7 +174,7 @@ export function DataTable<TData, TValue>({
                             </TableHeader>
                             <TableBody>
                                 {table.getRowModel().rows?.length ? (
-                                    table.getRowModel().rows.map((row) => (
+                                    table.getRowModel().rows.map(row => (
                                         row.id in rowSelection ? (
                                             <DraggableRow<TData> 
                                                 key={row.id}
@@ -187,7 +184,7 @@ export function DataTable<TData, TValue>({
                                                 handleRightClick={handleRightClick}
                                             />
                                         ) : (
-                                            draggedRowId && (table.getRow(row.id).original as ListItemType).type === "folder" ? (
+                                            draggedRowId && (table.getRow(row.id).original as File).type === "folder" ? (
                                                 <DroppableFolder
                                                     key={row.id}
                                                     row={row}
@@ -215,13 +212,13 @@ export function DataTable<TData, TValue>({
                             </TableBody>
                         </Table>
                         <DragOverlay 
-                            modifiers={[snapTopLeftToCursor, restrictToParentElement]}
+                            modifiers={[snapTopLeftToCursor, restrictToWindowEdges]}
                             className="max-w-[150px] bg-zinc-950 rounded-lg shadow-zinc-600 shadow-xs"
                         >
                             {draggedRowId &&
                                 <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                    <FileIcon fileType={(table.getRow(`${draggedRowId}`).original as ListItemType).type} className="w-4 h-4"/>
-                                    {(table.getRow(`${draggedRowId}`).original as ListItemType).name}
+                                    <FileIcon fileType={(table.getRow(`${draggedRowId}`).original as File).type} className="w-4 h-4"/>
+                                    {(table.getRow(`${draggedRowId}`).original as File).name}
                                     {Object.keys(rowSelection).length > 1 &&
                                         <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
                                             +{Object.keys(rowSelection).length - 1}

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ListItemType } from "@/types/list-item-type";
+import { ListItemType } from "@/types/file-type";
 
 import { ArrowUpDown, UserRound } from "lucide-react";
 

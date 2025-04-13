@@ -1,6 +1,5 @@
 import { DropdownItem } from "@/types/dropdown-items-type";
-import { FileType } from "@/types/file-types";
-import { ListItemType } from "@/types/list-item-type";
+import { File } from "@/types/file-type";
 import {
     ArrowLeftRight,
     Copy,
@@ -10,55 +9,6 @@ import {
     PenLine,
     Trash,
 } from "lucide-react";
-
-export const FOLDERS = [
-    {
-        name: "folder 1",
-    },
-    {
-        name: "folder 2",
-    },
-    {
-        name: "folder 3",
-    },
-    {
-        name: "folder 4",
-    },
-    {
-        name: "folder 5",
-    },
-];
-
-export const FILES: { name: string; type: FileType }[] = [
-    {
-        name: "file 1",
-        type: "image",
-    },
-    {
-        name: "file 2",
-        type: "document",
-    },
-    {
-        name: "file 3",
-        type: "text",
-    },
-    {
-        name: "file 1",
-        type: "document",
-    },
-    {
-        name: "file 4",
-        type: "audio",
-    },
-    {
-        name: "file 5",
-        type: "video",
-    },
-    {
-        name: "file 5",
-        type: "compressed",
-    },
-];
 
 export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
     [
@@ -110,8 +60,9 @@ function getDateFromToday(days: number) {
     return date;
 }
 
-export const LIST_ITEMS: ListItemType[] = [
+export const FILES: File[] = [
     {
+        id: "1",
         name: "item 1",
         type: "audio",
         owner: "Chowlong",
@@ -119,6 +70,7 @@ export const LIST_ITEMS: ListItemType[] = [
         size: "3.2 MB"
     },
     {
+        id: "2",
         name: "item 2",
         type: "folder",
         owner: "Chowlong",
@@ -126,6 +78,7 @@ export const LIST_ITEMS: ListItemType[] = [
         size: "-"
     },
     {
+        id: "3",
         name: "item 3",
         type: "image",
         owner: "Chowlong",
@@ -133,6 +86,7 @@ export const LIST_ITEMS: ListItemType[] = [
         size: "725 KB"
     },
     {
+        id: "4",
         name: "item 4",
         type: "document",
         owner: "Chowlong",
@@ -140,10 +94,19 @@ export const LIST_ITEMS: ListItemType[] = [
         size: "75 KB"
     },
     {
+        id: "5",
         name: "item 5",
         type: "folder",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
         size: "-"
+    },
+    {
+        id: "6",
+        name: "item 6",
+        type: "compressed",
+        owner: "Chowlong",
+        lastModified: getDateFromToday(10),
+        size: "2.8 MB"
     },
 ];
