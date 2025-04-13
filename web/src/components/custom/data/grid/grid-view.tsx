@@ -26,8 +26,8 @@ import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 import { FILES } from "@/constants/data/placeholder";
 
 export function GridView() {
-    const FOLDERS = FILES.filter(file => file.type === "folder");
-    const NON_FOLDERS = FILES.filter(file => file.type !== "folder");
+    const FOLDERS = FILES.filter(file => file.category === "folder");
+    const NON_FOLDERS = FILES.filter(file => file.category !== "folder");
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(() => new Set());
@@ -148,7 +148,7 @@ export function GridView() {
                                             handleRightClick={handleRightClick}
                                         />
                                     ) : (
-                                        draggedFileIdx >= 0 && file.type === "folder" ? (
+                                        draggedFileIdx >= 0 && file.category === "folder" ? (
                                             <DroppableFolderFile 
                                                 key={file.id} 
                                                 file={file}
@@ -197,7 +197,7 @@ export function GridView() {
                         >
                             {draggedFileIdx >= 0 &&
                                 <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                    <FileIcon fileType={ALL_FILES[draggedFileIdx].type} className="w-4 h-4"/>
+                                    <FileIcon fileCategory={ALL_FILES[draggedFileIdx].category} className="w-4 h-4"/>
                                     {ALL_FILES[draggedFileIdx].name}
                                     {selectedFiles.size > 1 &&
                                         <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">

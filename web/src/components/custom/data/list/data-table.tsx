@@ -237,7 +237,7 @@ export function DataTable<TData, TValue>({
                                                     handleRightClick={handleRightClick}
                                                 />
                                             ) : (
-                                                draggedRowId && (table.getRow(row.id).original as File).type === "folder" ? (
+                                                draggedRowId && (table.getRow(row.id).original as File).category === "folder" ? (
                                                     <DroppableFolder
                                                         key={row.id}
                                                         row={row}
@@ -270,7 +270,7 @@ export function DataTable<TData, TValue>({
                             >
                                 {draggedRowId &&
                                     <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                        <FileIcon fileType={(table.getRow(`${draggedRowId}`).original as File).type} className="w-4 h-4"/>
+                                        <FileIcon fileCategory={(table.getRow(`${draggedRowId}`).original as File).category} className="w-4 h-4"/>
                                         {(table.getRow(`${draggedRowId}`).original as File).name}
                                         {Object.keys(rowSelection).length > 1 &&
                                             <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">

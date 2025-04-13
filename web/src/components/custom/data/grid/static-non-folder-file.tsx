@@ -26,7 +26,7 @@ export function StaticNonFolderFile({
             >
                 <div className="flex items-center w-full">
                     <FileIcon
-                        fileType={file.type}
+                        fileCategory={file.category}
                         className="m-4"
                     />
                     {file.name}

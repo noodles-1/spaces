@@ -26,7 +26,7 @@ export function StaticFolderFile({
             >
                 <section className="flex items-center justify-between w-full h-full mx-4">
                     <div className="flex items-center w-full h-full gap-4">
-                        <FileIcon fileType={file.type}/>
+                        <FileIcon fileCategory={file.category}/>
                         {file.name}
                     </div>
                 </section>

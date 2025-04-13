@@ -70,7 +70,8 @@ export const FILES: File[] = [
     {
         id: "1",
         name: "item 1",
-        type: "audio",
+        category: "audio",
+        type: "mp3",
         owner: "Chowlong",
         lastModified: new Date(),
         size: "3.2 MB"
@@ -78,7 +79,8 @@ export const FILES: File[] = [
     {
         id: "2",
         name: "item 2",
-        type: "folder",
+        category: "folder",
+        type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
         size: "-"
@@ -86,7 +88,8 @@ export const FILES: File[] = [
     {
         id: "3",
         name: "item 3",
-        type: "image",
+        category: "image",
+        type: "png",
         owner: "Chowlong",
         lastModified: getDateFromToday(15),
         size: "725 KB"
@@ -94,7 +97,8 @@ export const FILES: File[] = [
     {
         id: "4",
         name: "item 4",
-        type: "document",
+        category: "document",
+        type: "docx",
         owner: "Chowlong",
         lastModified: getDateFromToday(7),
         size: "75 KB"
@@ -102,7 +106,8 @@ export const FILES: File[] = [
     {
         id: "5",
         name: "item 5",
-        type: "folder",
+        category: "folder",
+        type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
         size: "-"
@@ -110,7 +115,8 @@ export const FILES: File[] = [
     {
         id: "6",
         name: "item 6",
-        type: "compressed",
+        category: "compressed",
+        type: "zip",
         owner: "Chowlong",
         lastModified: getDateFromToday(10),
         size: "2.8 MB"

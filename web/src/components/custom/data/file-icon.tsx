@@ -1,4 +1,4 @@
-import { FileType } from "@/types/file-types";
+import { FileCategory } from "@/types/file-category-type";
 
 import {
     Clapperboard,
@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 
 export function FileIcon({
-    fileType,
+    fileCategory,
     className,
 }: {
-    fileType: FileType;
+    fileCategory: FileCategory;
     className?: string;
 }) {
-    switch (fileType) {
+    switch (fileCategory) {
         case "image":
             return <ImageIcon className={className} />;
         case "document":

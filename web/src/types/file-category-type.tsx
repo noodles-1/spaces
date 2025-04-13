@@ -1,4 +1,4 @@
-export type FileType =
+export type FileCategory =
     | "image"
     | "document"
     | "text"

@@ -36,7 +36,7 @@ export const columns: ColumnDef<File>[] = [
             return (
                 <div className="flex items-center justify-between">
                     <div className="flex gap-8 items-center">
-                        <FileIcon fileType={item.type} className="h-4 w-4"/>
+                        <FileIcon fileCategory={item.category} className="h-4 w-4"/>
                         <span> {item.name} </span>
                     </div>
                     <Star 
@@ -89,8 +89,13 @@ export const columns: ColumnDef<File>[] = [
         }
     },
     {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => <span className="text-zinc-300"> {row.original.type} </span>
+    },
+    {
         accessorKey: "size",
         header: "Size",
         cell: ({ row }) => <span className="text-zinc-300"> {row.original.size} </span>
-    }
+    },
 ];
