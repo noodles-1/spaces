@@ -23,11 +23,11 @@ export default function RootLayout({
                 <main className="flex h-full w-full bg-transparent backdrop-blur-[4px]">
                     <Sidebar />
                     <section className="flex grow flex-col">
-                        <div className="flex h-[6rem] items-center">
+                        <div className="flex min-h-[6rem] items-center">
                             <Topbar />
                             <ProfileButton />
                         </div>
-                        <div className="grow rounded-tl-2xl bg-zinc-800 p-6">
+                        <div className="grow rounded-tl-2xl bg-zinc-800 p-6 overflow-hidden">
                             <DataViewStoreProvider>
                                 {children}
                             </DataViewStoreProvider>

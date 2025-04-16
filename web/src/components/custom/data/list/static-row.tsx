@@ -6,26 +6,28 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 export function StaticRow<TData>({
     row,
+    idx,
     handleLeftClick,
     handleRightClick,
 } : {
     row: Row<TData>
-    handleLeftClick: (event: React.MouseEvent, row: Row<TData>) => void
-    handleRightClick: (row: Row<TData>) => void
+    idx: number
+    handleLeftClick: (event: React.MouseEvent, idx: number) => void
+    handleRightClick: (idx: number) => void
 }) {
     return (
         <TableRow
             key={row.id}
             data-state={row.getIsSelected() && "selected"}
-            className="hover:bg-zinc-900 transition-opacity delay-[10ms] group"
-            onClick={event => handleLeftClick(event, row)}
-            onContextMenu={() => handleRightClick(row)}
-            onDoubleClick={() => console.log(`double clicked: ${row.id}`)}
+            className="hover:bg-zinc-900 transition-opacity delay-[10ms] group grid grid-cols-5"
+            onClick={event => handleLeftClick(event, idx)}
+            onContextMenu={() => handleRightClick(idx)}
+            onDoubleClick={() => console.log(`double clicked: ${idx}`)}
         >
             {row.getVisibleCells().map((cell) => (
                 <TableCell 
                     key={cell.id} 
-                    className="py-3"
+                    className="py-3 flex items-center"
                 >
                     {flexRender(
                         cell.column.columnDef.cell,

@@ -4,7 +4,6 @@ import {
     flexRender,
     getCoreRowModel,
     getSortedRowModel,
-    Row,
     SortingState,
     VisibilityState,
     useReactTable,
@@ -64,8 +63,8 @@ export function DataTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [rowSelection, setRowSelection] = useState({});
-    const [lastSelectedRowId, setLastSelectedRowId] = useState<number>(-1);
+    const [selectedRows, setSelectedRows] = useState<Set<number>>(() => new Set());
+    const [lastSelectedRowIdx, setLastSelectedRowIdx] = useState<number>(-1);
     const [draggedRowId, setDraggedRowId] = useState<string>("");
 
     const ref = useRef<HTMLDivElement>(null);
@@ -85,12 +84,10 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
-        onRowSelectionChange: setRowSelection,
         onColumnVisibilityChange: setColumnVisibility,
         onColumnFiltersChange: setColumnFilters,
         state: {
             sorting,
-            rowSelection,
             columnVisibility,
             columnFilters,
         },
@@ -99,7 +96,7 @@ export function DataTable<TData, TValue>({
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
-                setRowSelection({});
+                setSelectedRows(() => new Set());
             }
         };
 
@@ -107,44 +104,60 @@ export function DataTable<TData, TValue>({
         return () => document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
-    const handleLeftClick = (event: React.MouseEvent, row: Row<TData>) => {
+    const selectRow = (idx: number) => {
+        setSelectedRows(prev => new Set(prev).add(idx));
+    };
+
+    const deselectRow = (idx: number) => {
+        setSelectedRows(prev => {
+            const next = new Set(prev);
+            next.delete(idx);
+            return next;
+        });
+    };
+
+    const handleLeftClick = (event: React.MouseEvent, idx: number) => {
         if (event.ctrlKey && event.shiftKey) {
             return;
         }
 
         if (event.ctrlKey) {
-            setLastSelectedRowId(parseInt(row.id));
-            row.toggleSelected();
+            setLastSelectedRowIdx(idx);
+
+            if (selectedRows.has(idx)) {
+                deselectRow(idx);
+            }
+            else {
+                selectRow(idx);
+            }
+
             return;
         }
 
-        if (event.shiftKey && 0 <= lastSelectedRowId) {
-            const start = Math.min(lastSelectedRowId, parseInt(row.id));
-            const end = Math.max(lastSelectedRowId, parseInt(row.id));
-
+        if (event.shiftKey && 0 <= lastSelectedRowIdx) {
+            const start = Math.min(lastSelectedRowIdx, idx);
+            const end = Math.max(lastSelectedRowIdx, idx);
 
             for (let i = 0; i < table.getRowCount(); i++) {
-                const currRow = table.getRow(`${i}`);
-
                 if (start <= i && i <= end) {
-                    currRow.toggleSelected(true);
+                    selectRow(i);
                 }
                 else {
-                    currRow.toggleSelected(false);
+                    deselectRow(i);
                 }
             }
 
             return;
         }
 
-        setLastSelectedRowId(parseInt(row.id));
-        setRowSelection({ [row.id]: true });
+        setLastSelectedRowIdx(idx);
+        setSelectedRows(() => new Set<number>().add(idx));
     };
 
-    const handleRightClick = (row: Row<TData>) => {
-        if (Object.keys(rowSelection).length === 0) {
-            setLastSelectedRowId(parseInt(row.id));
-            setRowSelection({ [row.id]: true });
+    const handleRightClick = (idx: number) => {
+        if (selectedRows.size === 0) {
+            setLastSelectedRowIdx(idx);
+            setSelectedRows(() => new Set<number>().add(idx));
         }
     };
 
@@ -198,20 +211,20 @@ export function DataTable<TData, TValue>({
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    <div ref={ref} className="select-none mb-[200px]">
-                        <DndContext 
-                            sensors={sensors} 
-                            collisionDetection={pointerWithin}
-                            onDragStart={handleDragStart} 
-                            onDragEnd={handleDragEnd}
-                        >
+                    <DndContext 
+                        sensors={sensors} 
+                        collisionDetection={pointerWithin}
+                        onDragStart={handleDragStart} 
+                        onDragEnd={handleDragEnd}
+                    >
+                        <div ref={ref} className="select-none">
                             <Table>
-                                <TableHeader>
+                                <TableHeader className="table table-fixed sticky top-0 w-full">
                                     {table.getHeaderGroups().map((headerGroup) => (
-                                        <TableRow key={headerGroup.id}>
+                                        <TableRow key={headerGroup.id} className="grid grid-cols-5 grid-rows-1">
                                             {headerGroup.headers.map((header) => {
                                                 return (
-                                                    <TableHead key={header.id} className="py-3">
+                                                    <TableHead key={header.id} className="flex items-center py-8 bg-zinc-800">
                                                         {header.isPlaceholder
                                                             ? null
                                                             : flexRender(
@@ -225,13 +238,14 @@ export function DataTable<TData, TValue>({
                                         </TableRow>
                                     ))}
                                 </TableHeader>
-                                <TableBody>
+                                <TableBody className="block" style={{ height: "calc(100vh - 300px)" }}>
                                     {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map(row => (
-                                            row.id in rowSelection ? (
+                                        table.getRowModel().rows.map((row, i) => (
+                                            selectedRows.has(i) ? (
                                                 <DraggableRow<TData> 
                                                     key={row.id}
                                                     row={row}
+                                                    idx={i}
                                                     draggedRowId={draggedRowId}
                                                     handleLeftClick={handleLeftClick}
                                                     handleRightClick={handleRightClick}
@@ -240,12 +254,14 @@ export function DataTable<TData, TValue>({
                                                 draggedRowId && (table.getRow(row.id).original as File).category === "folder" ? (
                                                     <DroppableFolder
                                                         key={row.id}
+                                                        file={table.getRow(row.id).original as File}
                                                         row={row}
                                                     />
                                                 ) : (
                                                     <StaticRow<TData> 
                                                         key={row.id}
                                                         row={row}
+                                                        idx={i}
                                                         handleLeftClick={handleLeftClick}
                                                         handleRightClick={handleRightClick}
                                                     />
@@ -272,18 +288,18 @@ export function DataTable<TData, TValue>({
                                     <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
                                         <FileIcon fileCategory={(table.getRow(`${draggedRowId}`).original as File).category} className="w-4 h-4"/>
                                         {(table.getRow(`${draggedRowId}`).original as File).name}
-                                        {Object.keys(rowSelection).length > 1 &&
+                                        {selectedRows.size > 1 &&
                                             <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
-                                                +{Object.keys(rowSelection).length - 1}
+                                                +{selectedRows.size - 1}
                                             </span>
                                         }
                                     </span>
                                 }
                             </DragOverlay>
-                        </DndContext>
-                    </div>
+                        </div>
+                    </DndContext>
                 </ContextMenuTrigger>
-                {Object.keys(rowSelection).length > 0 ? (
+                {selectedRows.size > 0 ? (
                     <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
                 ) : (
                     <ContextMenuContentDropdown />

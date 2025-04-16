@@ -133,7 +133,7 @@ export function GridView() {
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
-                    <div ref={ref} className="flex flex-col gap-8 select-none">
+                    <div ref={ref} className="flex flex-col gap-8 select-none overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
                         <section className="flex flex-col gap-4">
                             <span> Folders </span>
                             <div className="flex flex-wrap gap-4">
