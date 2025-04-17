@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
@@ -14,8 +14,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { 
+    ContextMenu, 
+    ContextMenuTrigger 
+} from "@/components/ui/context-menu";
 
+import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { TreeItem } from "@/components/custom/data/tree/tree-item";
+
+import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
 const ITEMS: TreeViewBaseItem[] = [
     {
@@ -41,11 +48,29 @@ export function TreeView() {
     const [sortValue, setSortValue] = useState<string>("size");
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-    const handleSelectedItemsChange = (event: React.SyntheticEvent, ids: string[]) => {
+    const ref = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const handleOutsideClick = (event: MouseEvent) => {
+            if (
+                ref.current &&
+                !ref.current.contains(event.target as Node) &&
+                event.button === 0
+            ) {
+                setSelectedItems([]);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () =>
+            document.removeEventListener("mousedown", handleOutsideClick);
+    }, []);
+
+    const handleSelectedItemsChange = (_: React.SyntheticEvent, ids: string[]) => {
         setSelectedItems(ids);
     };
 
-    console.log(selectedItems);
+    console.log(selectedItems)
 
     return (
         <main className="flex flex-col gap-2">
@@ -65,15 +90,27 @@ export function TreeView() {
                     </SelectContent>
                 </Select>
             </section>
-            <section className="overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
-                <RichTreeView
-                    defaultExpandedItems={["3"]}
-                    items={ITEMS}
-                    slots={{ item: TreeItem }}
-                    onSelectedItemsChange={handleSelectedItemsChange}
-                    multiSelect
-                />
-            </section>
+            <ContextMenu>
+                <ContextMenuTrigger>
+                    <section ref={ref} className="overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
+                        <RichTreeView
+                            defaultExpandedItems={["3"]}
+                            items={ITEMS}
+                            slots={{ item: TreeItem }}
+                            selectedItems={selectedItems}
+                            onSelectedItemsChange={handleSelectedItemsChange}
+                            multiSelect
+                        />
+                    </section>
+                </ContextMenuTrigger>
+                {selectedItems.length > 0 ?
+                    <ContextMenuContentDropdown 
+                        itemGroups={DROPDOWN_ITEM_GROUPS}
+                    />
+                :
+                    <ContextMenuContentDropdown />
+                }
+            </ContextMenu>
         </main>
     );
 }
