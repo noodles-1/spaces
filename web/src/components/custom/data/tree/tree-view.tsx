@@ -74,21 +74,24 @@ export function TreeView() {
 
     return (
         <main className="flex flex-col gap-2">
-            <section className="flex justify-end items-center gap-2">
-                <ArrowUpDown className="h-4 w-4" />
-                <span className="text-sm"> Sort by: </span>
-                <Select value={sortValue} onValueChange={value => setSortValue(value)}>
-                    <SelectTrigger className="w-[100px] cursor-pointer rounded-lg select-none">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent
-                        align="start"
-                        className="p-1"
-                    >
-                        <SelectItem value="name" className="cursor-pointer"> Name </SelectItem>
-                        <SelectItem value="size" className="cursor-pointer"> Size </SelectItem>
-                    </SelectContent>
-                </Select>
+            <section className="flex items-center justify-between">
+                <span className="font-light"> Total storage used: <strong> 14 GB (10%) </strong> </span>
+                <div className="flex items-center gap-2">
+                    <ArrowUpDown className="w-4 h-4" />
+                    <span className="text-sm"> Sort by: </span>
+                    <Select value={sortValue} onValueChange={value => setSortValue(value)}>
+                        <SelectTrigger className="w-[100px] cursor-pointer rounded-lg select-none">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent
+                            align="start"
+                            className="p-1"
+                        >
+                            <SelectItem value="name" className="cursor-pointer"> Name </SelectItem>
+                            <SelectItem value="size" className="cursor-pointer"> Size </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
