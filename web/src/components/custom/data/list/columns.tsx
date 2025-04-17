@@ -5,6 +5,8 @@ import { File } from "@/types/file-type";
 
 import { ArrowUpDown, Star, UserRound } from "lucide-react";
 
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
@@ -32,7 +34,12 @@ export const columns: ColumnDef<File>[] = [
 
             const handleStarred = (event: React.MouseEvent<SVGSVGElement>) => {
                 event.stopPropagation();
-                console.log(item.name + " added to starred");
+                toast(
+                    <div className="flex items-center gap-4">
+                        <Star className="h-4 w-4" fill="white" />
+                        <span className="text-sm font-normal"> {item.name} has been added to starred </span>
+                    </div>
+                );
             };
 
             return (
