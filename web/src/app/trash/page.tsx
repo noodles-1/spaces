@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { DataViews } from "@/components/custom/data/data-views";
 import { GridView } from "@/components/custom/data/grid/grid-view";
 import { ListView } from "@/components/custom/data/list/list-view";
+import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
+
+import { ANCESTORS } from "@/constants/data/placeholder";
 
 const Trash = () => {
     const { view } = useDataViewStore((state) => state);
@@ -25,7 +28,10 @@ const Trash = () => {
     return (
         <div className="flex flex-col flex-1 gap-6">
             <section className="flex items-center justify-between">
-                <span className="text-xl"> Trash </span>
+                <CustomBreadcrumb
+                    currentFolder="Folder D"
+                    ancestors={ANCESTORS}
+                />
                 <DataViews />
             </section>
             <div className="flex items-center justify-between px-4 rounded-lg bg-zinc-900 h-14">

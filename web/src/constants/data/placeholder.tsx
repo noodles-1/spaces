@@ -1,5 +1,3 @@
-import { DropdownItem } from "@/types/dropdown-items-type";
-import { File } from "@/types/file-type";
 import {
     ArrowLeftRight,
     Copy,
@@ -10,6 +8,10 @@ import {
     Star,
     Trash,
 } from "lucide-react";
+
+import { Ancestor } from "@/types/ancestor-type";
+import { DropdownItem } from "@/types/dropdown-items-type";
+import { File } from "@/types/file-type";
 
 export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
     [
@@ -120,5 +122,24 @@ export const FILES: File[] = [
         owner: "Chowlong",
         lastModified: getDateFromToday(10),
         size: "2.8 MB",
+    },
+];
+
+export const ANCESTORS: Ancestor[] = [
+    {
+        folderId: "home",
+        folderName: "home",
+    },
+    {
+        folderId: "folderA",
+        folderName: "Folder A",
+    },
+    {
+        folderId: "folderB",
+        folderName: "Folder B",
+    },
+    {
+        folderId: "folderC",
+        folderName: "Folder C",
     },
 ];
