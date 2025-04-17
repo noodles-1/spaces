@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
 

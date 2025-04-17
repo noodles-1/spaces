@@ -5,7 +5,7 @@ import { File } from "@/types/file-type";
 
 import { ArrowUpDown, Star, UserRound } from "lucide-react";
 
-import { toast } from "sonner";
+import { customToast } from "@/lib/custom/utils";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
@@ -24,7 +24,7 @@ export const columns: ColumnDef<File>[] = [
                         }
                         className="rounded-full hover:cursor-pointer hover:bg-zinc-700"
                     >
-                        <ArrowUpDown className="h-4 w-4" />
+                        <ArrowUpDown className="w-4 h-4" />
                     </Button>
                 </div>
             );
@@ -34,12 +34,10 @@ export const columns: ColumnDef<File>[] = [
 
             const handleStarred = (event: React.MouseEvent<SVGSVGElement>) => {
                 event.stopPropagation();
-                toast(
-                    <div className="flex items-center gap-4">
-                        <Star className="h-4 w-4" fill="white" />
-                        <span className="text-sm font-normal"> {item.name} has been added to starred </span>
-                    </div>
-                );
+                customToast({
+                    icon: <Star className="w-4 h-4" fill="white" />,
+                    message: `${item.name} has been added to starred`,
+                });
             };
 
             return (
@@ -47,13 +45,13 @@ export const columns: ColumnDef<File>[] = [
                     <div className="flex items-center gap-8">
                         <FileIcon
                             fileCategory={item.category}
-                            className="h-4 w-4"
+                            className="w-4 h-4"
                         />
                         <span> {item.name} </span>
                     </div>
                     <Star
                         onClick={handleStarred}
-                        className="mx-4 h-4 w-4 cursor-pointer opacity-0 group-hover:opacity-100 hover:fill-white"
+                        className="w-4 h-4 mx-4 opacity-0 cursor-pointer group-hover:opacity-100 hover:fill-white"
                     />
                 </div>
             );
@@ -66,7 +64,7 @@ export const columns: ColumnDef<File>[] = [
             return (
                 <div className="flex items-center gap-4">
                     <div className="rounded-full p-1.5 outline">
-                        <UserRound className="h-5 w-5" />
+                        <UserRound className="w-5 h-5" />
                     </div>
                     <span> {row.original.owner} </span>
                 </div>
@@ -86,7 +84,7 @@ export const columns: ColumnDef<File>[] = [
                         }
                         className="rounded-full hover:cursor-pointer hover:bg-zinc-700"
                     >
-                        <ArrowUpDown className="h-4 w-4" />
+                        <ArrowUpDown className="w-4 h-4" />
                     </Button>
                 </div>
             );

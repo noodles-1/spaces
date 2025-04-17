@@ -78,7 +78,7 @@ export function TreeView() {
                 <ArrowUpDown className="h-4 w-4" />
                 <span className="text-sm"> Sort by: </span>
                 <Select value={sortValue} onValueChange={value => setSortValue(value)}>
-                    <SelectTrigger className="w-[100px] cursor-pointer rounded-lg">
+                    <SelectTrigger className="w-[100px] cursor-pointer rounded-lg select-none">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent
