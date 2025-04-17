@@ -6,7 +6,6 @@ import {
     Breadcrumb,
     BreadcrumbEllipsis,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
@@ -32,13 +31,13 @@ export function CustomBreadcrumb({
         <Breadcrumb>
             <BreadcrumbList className="text-xl">
                 <BreadcrumbItem>
-                    <BreadcrumbLink href={`/${root.folderName}`} className="capitalize"> {root.folderName} </BreadcrumbLink>
+                    <Link href={`/${root.folderName}`} className="capitalize"> {root.folderName} </Link>
                 </BreadcrumbItem>
             {ancestors.length === 3 &&
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/folders/${ancestors[n - 2].folderId}`}> {ancestors[n - 2].folderName} </BreadcrumbLink>
+                        <Link href={`/folders/${ancestors[n - 2].folderId}`}> {ancestors[n - 2].folderName} </Link>
                     </BreadcrumbItem>
                 </>
             }
@@ -66,7 +65,7 @@ export function CustomBreadcrumb({
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`/folders/${ancestors[n - 1].folderId}`}> {ancestors[n - 1].folderName} </BreadcrumbLink>
+                        <Link href={`/folders/${ancestors[n - 1].folderId}`}> {ancestors[n - 1].folderName} </Link>
                     </BreadcrumbItem>
                 </>
             }
