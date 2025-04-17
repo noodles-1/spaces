@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
@@ -39,6 +39,13 @@ const ITEMS: TreeViewBaseItem[] = [
 
 export function TreeView() {
     const [sortValue, setSortValue] = useState<string>("size");
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+    const handleSelectedItemsChange = (event: React.SyntheticEvent, ids: string[]) => {
+        setSelectedItems(ids);
+    };
+
+    console.log(selectedItems);
 
     return (
         <main className="flex flex-col gap-2">
@@ -63,6 +70,8 @@ export function TreeView() {
                     defaultExpandedItems={["3"]}
                     items={ITEMS}
                     slots={{ item: TreeItem }}
+                    onSelectedItemsChange={handleSelectedItemsChange}
+                    multiSelect
                 />
             </section>
         </main>
