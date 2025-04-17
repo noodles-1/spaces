@@ -138,11 +138,11 @@ body {
     width: 8px;
     background: transparent;
 }
-  
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
-  
+
 ::-webkit-scrollbar-thumb {
     background-color: #555; /* or any color */
     border-radius: 4px;

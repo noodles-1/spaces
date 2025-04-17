@@ -9,11 +9,11 @@ export function DroppableFolder<TData>({
     row,
     file,
 }: {
-    row: Row<TData>
-    file: File
+    row: Row<TData>;
+    file: File;
 }) {
     const { setNodeRef } = useDroppable({
-        id: file.name
+        id: file.name,
     });
 
     return (
@@ -21,17 +21,11 @@ export function DroppableFolder<TData>({
             key={row.id}
             ref={setNodeRef}
             data-state={row.getIsSelected() && "selected"}
-            className="bg-zinc-700 hover:bg-zinc-600 transition-all hover:ring-2 hover:ring-gray-300 hover:ring-inset grid grid-cols-5"
+            className="grid grid-cols-5 bg-zinc-700 transition-all hover:bg-zinc-600 hover:ring-2 hover:ring-gray-300 hover:ring-inset"
         >
             {row.getVisibleCells().map((cell) => (
-                <TableCell 
-                    key={cell.id} 
-                    className="py-3 flex items-center"
-                >
-                    {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                    )}
+                <TableCell key={cell.id} className="flex items-center py-3">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
             ))}
         </TableRow>

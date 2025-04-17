@@ -74,7 +74,7 @@ export const FILES: File[] = [
         type: "mp3",
         owner: "Chowlong",
         lastModified: new Date(),
-        size: "3.2 MB"
+        size: "3.2 MB",
     },
     {
         id: "2",
@@ -83,7 +83,7 @@ export const FILES: File[] = [
         type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
-        size: "-"
+        size: "-",
     },
     {
         id: "3",
@@ -92,7 +92,7 @@ export const FILES: File[] = [
         type: "png",
         owner: "Chowlong",
         lastModified: getDateFromToday(15),
-        size: "725 KB"
+        size: "725 KB",
     },
     {
         id: "4",
@@ -101,7 +101,7 @@ export const FILES: File[] = [
         type: "docx",
         owner: "Chowlong",
         lastModified: getDateFromToday(7),
-        size: "75 KB"
+        size: "75 KB",
     },
     {
         id: "5",
@@ -110,7 +110,7 @@ export const FILES: File[] = [
         type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
-        size: "-"
+        size: "-",
     },
     {
         id: "6",
@@ -119,6 +119,6 @@ export const FILES: File[] = [
         type: "zip",
         owner: "Chowlong",
         lastModified: getDateFromToday(10),
-        size: "2.8 MB"
+        size: "2.8 MB",
     },
 ];

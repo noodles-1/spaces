@@ -11,8 +11,7 @@ export function StorageCapacity() {
                 className="h-1 w-full bg-zinc-700"
             />
             <span className="text-[0.8rem] font-light">
-                {" "}
-                {used} GB of {capacity} GB used{" "}
+                {used} GB of {capacity} GB used
             </span>
         </div>
     );

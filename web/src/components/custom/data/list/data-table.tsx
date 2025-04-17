@@ -34,10 +34,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { 
-    ContextMenu, 
-    ContextMenuTrigger 
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -61,9 +58,13 @@ export function DataTable<TData, TValue>({
     data,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {},
+    );
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [selectedRows, setSelectedRows] = useState<Set<number>>(() => new Set());
+    const [selectedRows, setSelectedRows] = useState<Set<number>>(
+        () => new Set(),
+    );
     const [lastSelectedRowIdx, setLastSelectedRowIdx] = useState<number>(-1);
     const [draggedRowId, setDraggedRowId] = useState<string>("");
 
@@ -72,8 +73,8 @@ export function DataTable<TData, TValue>({
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 40
-            }
+                distance: 40,
+            },
         }),
     );
 
@@ -95,21 +96,26 @@ export function DataTable<TData, TValue>({
 
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
-            if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
+            if (
+                ref.current &&
+                !ref.current.contains(event.target as Node) &&
+                event.button === 0
+            ) {
                 setSelectedRows(() => new Set());
             }
         };
 
         document.addEventListener("mousedown", handleOutsideClick);
-        return () => document.removeEventListener("mousedown", handleOutsideClick);
+        return () =>
+            document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
     const selectRow = (idx: number) => {
-        setSelectedRows(prev => new Set(prev).add(idx));
+        setSelectedRows((prev) => new Set(prev).add(idx));
     };
 
     const deselectRow = (idx: number) => {
-        setSelectedRows(prev => {
+        setSelectedRows((prev) => {
             const next = new Set(prev);
             next.delete(idx);
             return next;
@@ -126,8 +132,7 @@ export function DataTable<TData, TValue>({
 
             if (selectedRows.has(idx)) {
                 deselectRow(idx);
-            }
-            else {
+            } else {
                 selectRow(idx);
             }
 
@@ -141,8 +146,7 @@ export function DataTable<TData, TValue>({
             for (let i = 0; i < table.getRowCount(); i++) {
                 if (start <= i && i <= end) {
                     selectRow(i);
-                }
-                else {
+                } else {
                     deselectRow(i);
                 }
             }
@@ -178,11 +182,17 @@ export function DataTable<TData, TValue>({
             <section className="flex items-center gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="cursor-pointer rounded-lg px-6">
+                        <Button
+                            variant="outline"
+                            className="cursor-pointer rounded-lg px-6"
+                        >
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="space-y-2 p-2">
+                    <DropdownMenuContent
+                        align="start"
+                        className="space-y-2 p-2"
+                    >
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())
@@ -190,84 +200,126 @@ export function DataTable<TData, TValue>({
                                 return (
                                     <DropdownMenuCheckboxItem
                                         key={column.id}
-                                        className="capitalize cursor-pointer"
+                                        className="cursor-pointer capitalize"
                                         checked={column.getIsVisible()}
-                                        onCheckedChange={value => column.toggleVisibility(!!value)}
-                                        onSelect={event => event.preventDefault()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                        onSelect={(event) =>
+                                            event.preventDefault()
+                                        }
                                     >
                                         {column.id}
                                     </DropdownMenuCheckboxItem>
-                                )
-                            }
-                        )}
+                                );
+                            })}
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <Input
                     placeholder="Filter names..."
-                    value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                    onChange={event => table.getColumn("name")?.setFilterValue(event.target.value)}
+                    value={
+                        (table.getColumn("name")?.getFilterValue() as string) ??
+                        ""
+                    }
+                    onChange={(event) =>
+                        table
+                            .getColumn("name")
+                            ?.setFilterValue(event.target.value)
+                    }
                     className="w-[15rem]"
                 />
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    <DndContext 
-                        sensors={sensors} 
+                    <DndContext
+                        sensors={sensors}
                         collisionDetection={pointerWithin}
-                        onDragStart={handleDragStart} 
+                        onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                     >
                         <div ref={ref} className="select-none">
                             <Table>
-                                <TableHeader className="table table-fixed sticky top-0 w-full">
-                                    {table.getHeaderGroups().map((headerGroup) => (
-                                        <TableRow key={headerGroup.id} className="grid grid-cols-5 grid-rows-1">
-                                            {headerGroup.headers.map((header) => {
-                                                return (
-                                                    <TableHead key={header.id} className="flex items-center py-8 bg-zinc-800">
-                                                        {header.isPlaceholder
-                                                            ? null
-                                                            : flexRender(
-                                                                header.column.columnDef
-                                                                    .header,
-                                                                header.getContext(),
-                                                            )}
-                                                    </TableHead>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    ))}
+                                <TableHeader className="sticky top-0 table w-full table-fixed">
+                                    {table
+                                        .getHeaderGroups()
+                                        .map((headerGroup) => (
+                                            <TableRow
+                                                key={headerGroup.id}
+                                                className="grid grid-cols-5 grid-rows-1"
+                                            >
+                                                {headerGroup.headers.map(
+                                                    (header) => {
+                                                        return (
+                                                            <TableHead
+                                                                key={header.id}
+                                                                className="flex items-center bg-zinc-800 py-8"
+                                                            >
+                                                                {header.isPlaceholder
+                                                                    ? null
+                                                                    : flexRender(
+                                                                          header
+                                                                              .column
+                                                                              .columnDef
+                                                                              .header,
+                                                                          header.getContext(),
+                                                                      )}
+                                                            </TableHead>
+                                                        );
+                                                    },
+                                                )}
+                                            </TableRow>
+                                        ))}
                                 </TableHeader>
-                                <TableBody className="block" style={{ height: "calc(100vh - 300px)" }}>
+                                <TableBody
+                                    className="block"
+                                    style={{ height: "calc(100vh - 300px)" }}
+                                >
                                     {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row, i) => (
-                                            selectedRows.has(i) ? (
-                                                <DraggableRow<TData> 
-                                                    key={row.id}
-                                                    row={row}
-                                                    idx={i}
-                                                    draggedRowId={draggedRowId}
-                                                    handleLeftClick={handleLeftClick}
-                                                    handleRightClick={handleRightClick}
-                                                />
-                                            ) : (
-                                                draggedRowId && (table.getRow(row.id).original as File).category === "folder" ? (
-                                                    <DroppableFolder
-                                                        key={row.id}
-                                                        file={table.getRow(row.id).original as File}
-                                                        row={row}
-                                                    />
-                                                ) : (
-                                                    <StaticRow<TData> 
+                                        table
+                                            .getRowModel()
+                                            .rows.map((row, i) =>
+                                                selectedRows.has(i) ? (
+                                                    <DraggableRow<TData>
                                                         key={row.id}
                                                         row={row}
                                                         idx={i}
-                                                        handleLeftClick={handleLeftClick}
-                                                        handleRightClick={handleRightClick}
+                                                        draggedRowId={
+                                                            draggedRowId
+                                                        }
+                                                        handleLeftClick={
+                                                            handleLeftClick
+                                                        }
+                                                        handleRightClick={
+                                                            handleRightClick
+                                                        }
                                                     />
-                                                )
+                                                ) : draggedRowId &&
+                                                  (
+                                                      table.getRow(row.id)
+                                                          .original as File
+                                                  ).category === "folder" ? (
+                                                    <DroppableFolder
+                                                        key={row.id}
+                                                        file={
+                                                            table.getRow(row.id)
+                                                                .original as File
+                                                        }
+                                                        row={row}
+                                                    />
+                                                ) : (
+                                                    <StaticRow<TData>
+                                                        key={row.id}
+                                                        row={row}
+                                                        idx={i}
+                                                        handleLeftClick={
+                                                            handleLeftClick
+                                                        }
+                                                        handleRightClick={
+                                                            handleRightClick
+                                                        }
+                                                    />
+                                                ),
                                             )
-                                        ))
                                     ) : (
                                         <TableRow>
                                             <TableCell
@@ -280,27 +332,46 @@ export function DataTable<TData, TValue>({
                                     )}
                                 </TableBody>
                             </Table>
-                            <DragOverlay 
-                                modifiers={[snapTopLeftToCursor, restrictToWindowEdges]}
-                                className="max-w-[150px] bg-zinc-950 rounded-lg shadow-zinc-600 shadow-xs"
+                            <DragOverlay
+                                modifiers={[
+                                    snapTopLeftToCursor,
+                                    restrictToWindowEdges,
+                                ]}
+                                className="max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
                             >
-                                {draggedRowId &&
-                                    <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                        <FileIcon fileCategory={(table.getRow(`${draggedRowId}`).original as File).category} className="w-4 h-4"/>
-                                        {(table.getRow(`${draggedRowId}`).original as File).name}
-                                        {selectedRows.size > 1 &&
-                                            <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
+                                {draggedRowId && (
+                                    <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
+                                        <FileIcon
+                                            fileCategory={
+                                                (
+                                                    table.getRow(
+                                                        `${draggedRowId}`,
+                                                    ).original as File
+                                                ).category
+                                            }
+                                            className="h-4 w-4"
+                                        />
+                                        {
+                                            (
+                                                table.getRow(`${draggedRowId}`)
+                                                    .original as File
+                                            ).name
+                                        }
+                                        {selectedRows.size > 1 && (
+                                            <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
                                                 +{selectedRows.size - 1}
                                             </span>
-                                        }
+                                        )}
                                     </span>
-                                }
+                                )}
                             </DragOverlay>
                         </div>
                     </DndContext>
                 </ContextMenuTrigger>
                 {selectedRows.size > 0 ? (
-                    <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+                    <ContextMenuContentDropdown
+                        itemGroups={DROPDOWN_ITEM_GROUPS}
+                    />
                 ) : (
                     <ContextMenuContentDropdown />
                 )}

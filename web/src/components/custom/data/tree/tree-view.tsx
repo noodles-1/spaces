@@ -1,0 +1,70 @@
+"use client"
+
+import { useState } from "react";
+
+import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
+import { TreeViewBaseItem } from "@mui/x-tree-view/models";
+
+import { ArrowUpDown } from "lucide-react";
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import { TreeItem } from "@/components/custom/data/tree/tree-item";
+
+const ITEMS: TreeViewBaseItem[] = [
+    {
+        id: "1",
+        label: "Amelia Hart",
+        children: [{ id: "2", label: "Jane Fisher" }],
+    },
+    {
+        id: "3",
+        label: "Bailey Monroe",
+        children: [
+            { id: "4", label: "Freddie Reed" },
+            {
+                id: "5",
+                label: "Georgia Johnson",
+                children: [{ id: "6", label: "Samantha Malone" }],
+            },
+        ],
+    },
+];
+
+export function TreeView() {
+    const [sortValue, setSortValue] = useState<string>("size");
+
+    return (
+        <main className="flex flex-col gap-2">
+            <section className="flex justify-end items-center gap-2">
+                <ArrowUpDown className="h-4 w-4" />
+                <span className="text-sm"> Sort by: </span>
+                <Select value={sortValue} onValueChange={value => setSortValue(value)}>
+                    <SelectTrigger className="w-[100px] cursor-pointer rounded-lg">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent
+                        align="start"
+                        className="p-1"
+                    >
+                        <SelectItem value="name" className="cursor-pointer"> Name </SelectItem>
+                        <SelectItem value="size" className="cursor-pointer"> Size </SelectItem>
+                    </SelectContent>
+                </Select>
+            </section>
+            <section className="overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
+                <RichTreeView
+                    defaultExpandedItems={["3"]}
+                    items={ITEMS}
+                    slots={{ item: TreeItem }}
+                />
+            </section>
+        </main>
+    );
+}

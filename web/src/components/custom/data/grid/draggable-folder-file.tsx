@@ -13,19 +13,19 @@ export function DraggableFolderFile({
     draggedFileIdx,
     handleLeftClick,
     handleRightClick,
-} : {
-    idx: number
-    file: File
-    draggedFileIdx: number
-    handleLeftClick: (event: React.MouseEvent, idx: number) => void
-    handleRightClick: (idx: number) => void
+}: {
+    idx: number;
+    file: File;
+    draggedFileIdx: number;
+    handleLeftClick: (event: React.MouseEvent, idx: number) => void;
+    handleRightClick: (idx: number) => void;
 }) {
     const { attributes, listeners, setNodeRef } = useDraggable({
-        id: idx
+        id: idx,
     });
 
     return (
-        <div 
+        <div
             ref={setNodeRef}
             {...attributes}
             {...listeners}
@@ -33,16 +33,13 @@ export function DraggableFolderFile({
         >
             <Button
                 variant="outline"
-                className={`
-                    w-full h-full p-0 rounded-xl ring-2 ring-[#79a1ffc2]
-                    ${draggedFileIdx >= 0 && "opacity-20"}    
-                `}
-                onClick={event => handleLeftClick(event, idx)}
+                className={`h-full w-full rounded-xl p-0 ring-2 ring-[#79a1ffc2] ${draggedFileIdx >= 0 && "opacity-20"} `}
+                onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >
-                <section className="flex items-center justify-between w-full h-full mx-4">
-                    <div className="flex items-center w-full h-full gap-4">
-                        <FileIcon fileCategory={file.category}/>
+                <section className="mx-4 flex h-full w-full items-center justify-between">
+                    <div className="flex h-full w-full items-center gap-4">
+                        <FileIcon fileCategory={file.category} />
                         {file.name}
                     </div>
                 </section>

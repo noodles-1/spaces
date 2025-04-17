@@ -24,7 +24,7 @@ export function EllipsisDropdown({
             <DropdownMenuTrigger asChild className={className}>
                 <Button
                     variant="secondary"
-                    className="h-7 w-7 rounded-full bg-transparent hover:bg-zinc-700 hover:cursor-pointer"
+                    className="h-7 w-7 rounded-full bg-transparent hover:cursor-pointer hover:bg-zinc-700"
                 >
                     <EllipsisVertical />
                 </Button>

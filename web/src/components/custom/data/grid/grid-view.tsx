@@ -26,11 +26,13 @@ import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 import { FILES } from "@/constants/data/placeholder";
 
 export function GridView() {
-    const FOLDERS = FILES.filter(file => file.category === "folder");
-    const NON_FOLDERS = FILES.filter(file => file.category !== "folder");
+    const FOLDERS = FILES.filter((file) => file.category === "folder");
+    const NON_FOLDERS = FILES.filter((file) => file.category !== "folder");
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
-    const [selectedFiles, setSelectedFiles] = useState<Set<number>>(() => new Set());
+    const [selectedFiles, setSelectedFiles] = useState<Set<number>>(
+        () => new Set(),
+    );
     const [lastSelectedFileIdx, setLastSelectedFileIdx] = useState<number>(-1);
     const [draggedFileIdx, setDraggedFileIdx] = useState<number>(-1);
 
@@ -39,28 +41,33 @@ export function GridView() {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 40
-            }
+                distance: 40,
+            },
         }),
     );
 
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
-            if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
+            if (
+                ref.current &&
+                !ref.current.contains(event.target as Node) &&
+                event.button === 0
+            ) {
                 setSelectedFiles(() => new Set());
             }
         };
 
         document.addEventListener("mousedown", handleOutsideClick);
-        return () => document.removeEventListener("mousedown", handleOutsideClick);
+        return () =>
+            document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
-    
+
     const selectFile = (idx: number) => {
-        setSelectedFiles(prev => new Set(prev).add(idx));
+        setSelectedFiles((prev) => new Set(prev).add(idx));
     };
 
     const deselectFile = (idx: number) => {
-        setSelectedFiles(prev => {
+        setSelectedFiles((prev) => {
             const next = new Set(prev);
             next.delete(idx);
             return next;
@@ -74,11 +81,10 @@ export function GridView() {
 
         if (event.ctrlKey) {
             setLastSelectedFileIdx(idx);
-            
+
             if (selectedFiles.has(idx)) {
                 deselectFile(idx);
-            }
-            else {
+            } else {
                 selectFile(idx);
             }
 
@@ -92,8 +98,7 @@ export function GridView() {
             for (let i = 0; i < FILES.length; i++) {
                 if (start <= i && i <= end) {
                     selectFile(i);
-                }
-                else {
+                } else {
                     deselectFile(i);
                 }
             }
@@ -133,13 +138,17 @@ export function GridView() {
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
-                    <div ref={ref} className="flex flex-col gap-8 select-none overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
+                    <div
+                        ref={ref}
+                        className="flex flex-col gap-8 overflow-y-auto select-none"
+                        style={{ height: "calc(100vh - 200px)" }}
+                    >
                         <section className="flex flex-col gap-4">
                             <span> Folders </span>
                             <div className="flex flex-wrap gap-4">
-                                {FOLDERS.map((file, i) => (
+                                {FOLDERS.map((file, i) =>
                                     selectedFiles.has(i) ? (
-                                        <DraggableFolderFile 
+                                        <DraggableFolderFile
                                             key={i}
                                             idx={i}
                                             file={file}
@@ -147,71 +156,78 @@ export function GridView() {
                                             handleLeftClick={handleLeftClick}
                                             handleRightClick={handleRightClick}
                                         />
+                                    ) : draggedFileIdx >= 0 &&
+                                      file.category === "folder" ? (
+                                        <DroppableFolderFile
+                                            key={file.id}
+                                            file={file}
+                                        />
                                     ) : (
-                                        draggedFileIdx >= 0 && file.category === "folder" ? (
-                                            <DroppableFolderFile 
-                                                key={file.id} 
-                                                file={file}
-                                            />
-                                        ) : (
-                                            <StaticFolderFile 
-                                                key={file.id} 
-                                                idx={i}
-                                                file={file}
-                                                handleLeftClick={handleLeftClick}
-                                                handleRightClick={handleRightClick}
-                                            />
-                                        )
-                                    )
-                                ))}
+                                        <StaticFolderFile
+                                            key={file.id}
+                                            idx={i}
+                                            file={file}
+                                            handleLeftClick={handleLeftClick}
+                                            handleRightClick={handleRightClick}
+                                        />
+                                    ),
+                                )}
                             </div>
                         </section>
                         <section className="flex flex-col gap-4">
                             <span> Files </span>
                             <div className="flex flex-wrap gap-4">
-                                {NON_FOLDERS.map((file, i) => (
-                                    selectedFiles.has(i + FOLDERS.length) ? (                                    
-                                        <DraggableNonFolderFile 
+                                {NON_FOLDERS.map((file, i) =>
+                                    selectedFiles.has(i + FOLDERS.length) ? (
+                                        <DraggableNonFolderFile
                                             key={file.id}
                                             idx={i + FOLDERS.length}
-                                            file={file} 
+                                            file={file}
                                             draggedFileIdx={draggedFileIdx}
                                             handleLeftClick={handleLeftClick}
                                             handleRightClick={handleRightClick}
                                         />
                                     ) : (
-                                        <StaticNonFolderFile 
-                                            key={file.id} 
+                                        <StaticNonFolderFile
+                                            key={file.id}
                                             idx={i + FOLDERS.length}
-                                            file={file} 
+                                            file={file}
                                             handleLeftClick={handleLeftClick}
                                             handleRightClick={handleRightClick}
                                         />
-                                    )
-                                ))}
+                                    ),
+                                )}
                             </div>
                         </section>
-                        <DragOverlay 
-                            modifiers={[snapTopLeftToCursor, restrictToWindowEdges]}
-                            className="max-w-[150px] max-h-[50px] bg-zinc-950 rounded-lg shadow-zinc-600 shadow-xs"
+                        <DragOverlay
+                            modifiers={[
+                                snapTopLeftToCursor,
+                                restrictToWindowEdges,
+                            ]}
+                            className="max-h-[50px] max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
                         >
-                            {draggedFileIdx >= 0 &&
-                                <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                    <FileIcon fileCategory={ALL_FILES[draggedFileIdx].category} className="w-4 h-4"/>
+                            {draggedFileIdx >= 0 && (
+                                <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
+                                    <FileIcon
+                                        fileCategory={
+                                            ALL_FILES[draggedFileIdx].category
+                                        }
+                                        className="h-4 w-4"
+                                    />
                                     {ALL_FILES[draggedFileIdx].name}
-                                    {selectedFiles.size > 1 &&
-                                        <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
+                                    {selectedFiles.size > 1 && (
+                                        <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
                                             +{selectedFiles.size - 1}
                                         </span>
-                                    }
+                                    )}
                                 </span>
-                            }
+                            )}
                         </DragOverlay>
                     </div>
                 </DndContext>
             </ContextMenuTrigger>
             {selectedFiles.size > 0 ? (
-                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS}/>
+                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS} />
             ) : (
                 <ContextMenuContentDropdown />
             )}

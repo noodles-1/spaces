@@ -5,28 +5,28 @@ import { File } from "@/types/file-type";
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
-export function StaticFolderFile({ 
+export function StaticFolderFile({
     idx,
     file,
     handleLeftClick,
     handleRightClick,
-} : { 
-    idx: number
-    file: File
-    handleLeftClick: (event: React.MouseEvent, idx: number) => void
-    handleRightClick: (idx: number) => void
+}: {
+    idx: number;
+    file: File;
+    handleLeftClick: (event: React.MouseEvent, idx: number) => void;
+    handleRightClick: (idx: number) => void;
 }) {
     return (
         <div className="relative h-14 w-[230px]">
             <Button
                 variant="outline"
-                className="w-full h-full p-0 rounded-xl"
-                onClick={event => handleLeftClick(event, idx)}
+                className="h-full w-full rounded-xl p-0"
+                onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >
-                <section className="flex items-center justify-between w-full h-full mx-4">
-                    <div className="flex items-center w-full h-full gap-4">
-                        <FileIcon fileCategory={file.category}/>
+                <section className="mx-4 flex h-full w-full items-center justify-between">
+                    <div className="flex h-full w-full items-center gap-4">
+                        <FileIcon fileCategory={file.category} />
                         {file.name}
                     </div>
                 </section>

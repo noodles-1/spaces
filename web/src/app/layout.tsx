@@ -27,7 +27,7 @@ export default function RootLayout({
                             <Topbar />
                             <ProfileButton />
                         </div>
-                        <div className="grow rounded-tl-2xl bg-zinc-800 p-6 overflow-hidden">
+                        <div className="grow overflow-hidden rounded-tl-2xl bg-zinc-800 p-6">
                             <DataViewStoreProvider>
                                 {children}
                             </DataViewStoreProvider>
