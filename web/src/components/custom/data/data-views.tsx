@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { AlignJustify, LayoutGrid } from "lucide-react";
 

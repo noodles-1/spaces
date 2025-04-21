@@ -1,4 +1,4 @@
-import { FolderPage } from "@/app/folders/[folderId]/folder-page";
+import { FolderPage } from "@/app/spaces/folders/[folderId]/folder-page";
 
 const Folder = async ({
     params,

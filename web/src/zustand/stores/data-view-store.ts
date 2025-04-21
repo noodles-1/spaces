@@ -20,7 +20,7 @@ export const createDataViewStore = (
 ) => {
     return createStore<DataViewStore>()((set) => ({
         ...initState,
-        setGridView: () => set((state) => ({ view: "grid" })),
-        setListView: () => set((state) => ({ view: "list" })),
+        setGridView: () => set(() => ({ view: "grid" })),
+        setListView: () => set(() => ({ view: "list" })),
     }));
 };

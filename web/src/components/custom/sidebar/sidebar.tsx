@@ -10,22 +10,22 @@ import { Home, Star, Database, Trash, Plus } from "lucide-react";
 const items = [
     {
         title: "Home",
-        url: "/home",
+        url: "/spaces/home",
         icon: Home,
     },
     {
         title: "Starred",
-        url: "/starred",
+        url: "/spaces/starred",
         icon: Star,
     },
     {
         title: "Trash",
-        url: "/trash",
+        url: "/spaces/trash",
         icon: Trash,
     },
     {
         title: "Storage",
-        url: "/storage",
+        url: "/spaces/storage",
         icon: Database,
     },
 ];

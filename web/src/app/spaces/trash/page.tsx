@@ -13,7 +13,7 @@ import { GridView } from "@/components/custom/data/grid/grid-view";
 import { ListView } from "@/components/custom/data/list/list-view";
 
 const Trash = () => {
-    const { view } = useDataViewStore((state) => state);
+    const { view } = useDataViewStore(state => state);
 
     const handleEmptyTrash = () => {
         customToast({
