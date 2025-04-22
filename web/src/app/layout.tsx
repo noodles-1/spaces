@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
-import { EmailInputStoreProvider } from "@/zustand/providers/email-input-store-provider";
 
 export const metadata: Metadata = {
     title: "Home - Spaces Cloud Storage",
@@ -15,9 +14,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`dark flex h-screen antialiased`}>
-                <EmailInputStoreProvider>
-                    {children}
-                </EmailInputStoreProvider>
+                {children}
             </body>
         </html>
     );
