@@ -1,6 +1,9 @@
 server:
   port: 8080
 
+env:
+  client-url: ${API_GATEWAY_CLIENT_URL}
+
 spring:
   application:
     name: API-GATEWAY
