@@ -1,4 +1,8 @@
+"use client"
+
 import React from "react";
+
+import { SessionProvider } from "next-auth/react";
 
 import { DataViewStoreProvider } from "@/zustand/providers/data-view-store-provider";
 
@@ -19,7 +23,9 @@ export default function SpacesLayout({
                 <section className="flex flex-col grow">
                     <div className="flex min-h-[6rem] items-center">
                         <Topbar />
-                        <ProfileButton />
+                        <SessionProvider>
+                            <ProfileButton />
+                        </SessionProvider>
                     </div>
                     <div className="p-6 overflow-hidden grow rounded-tl-2xl bg-zinc-800">
                         <DataViewStoreProvider>

@@ -7,16 +7,15 @@ import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { status } = useSession();
 
     const handleRedirect = (provider: string) => {
-        if (status === "authenticated")
-            router.push("/spaces/home");
-        else if (status === "unauthenticated")
+        if (status === "unauthenticated")
             router.push(`/login/auth/${provider}`);
     };
 
-    console.log(session?.user);
+    if (status === "authenticated")
+        document.location.href = "/spaces/home"
 
     return (
         <main className="flex flex-1">

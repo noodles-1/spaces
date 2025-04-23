@@ -1,3 +1,7 @@
+"use client"
+
+import { signOut, useSession } from "next-auth/react";
+
 import { PenLine, UserRound } from "lucide-react";
 
 import {
@@ -14,6 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function ProfileButton() {
+    const { data: session } = useSession();
+
+    const handleLogout = () => {
+        signOut({ callbackUrl: "/login" });
+    };
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -23,7 +33,7 @@ export function ProfileButton() {
                             <div className="flex h-8 w-8 items-center justify-center rounded-full outline-2 outline-zinc-500 group-hover:outline-[#7076a7]">
                                 <UserRound />
                             </div>
-                            <span className="group-hover:text-[#bfc7ff]"> Username </span>
+                            <span className="group-hover:text-[#bfc7ff]"> {session?.user?.name} </span>
                         </div>
                     </Button>
                 </div>
@@ -58,7 +68,7 @@ export function ProfileButton() {
                     </section>
                 </section>
                 <DialogFooter>
-                    <Button variant="outline" className="cursor-pointer hover:text-red-300"> Logout </Button>
+                    <Button variant="outline" className="cursor-pointer hover:text-red-300" onClick={() => handleLogout()}> Logout </Button>
                     <Button className="cursor-pointer"> Save changes </Button>
                 </DialogFooter>
             </DialogContent>
