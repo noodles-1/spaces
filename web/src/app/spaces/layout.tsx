@@ -16,12 +16,12 @@ export default function SpacesLayout({
         <section className="w-screen">
             <main className="flex h-full w-full bg-transparent backdrop-blur-[4px]">
                 <Sidebar />
-                <section className="flex grow flex-col">
+                <section className="flex flex-col grow">
                     <div className="flex min-h-[6rem] items-center">
                         <Topbar />
                         <ProfileButton />
                     </div>
-                    <div className="grow overflow-hidden rounded-tl-2xl bg-zinc-800 p-6">
+                    <div className="p-6 overflow-hidden grow rounded-tl-2xl bg-zinc-800">
                         <DataViewStoreProvider>
                             {children}
                         </DataViewStoreProvider>

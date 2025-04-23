@@ -40,7 +40,7 @@ export function ProfileButton() {
                             <PenLine color="white" height={40} width={40} opacity={70} />
                         </div>
                     </div>
-                    <section className="text-sm space-y-1">
+                    <section className="space-y-1 text-sm">
                         <section className="space-y-4 ">
                             <div className="flex flex-col gap-2">
                                 <span className="font-medium text-zinc-300"> Username: </span>
