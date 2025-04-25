@@ -1,10 +1,12 @@
 package me.chowlong.userservice.auth;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.Valid;
 import me.chowlong.userservice.auth.dto.LoginRequestDTO;
 import me.chowlong.userservice.exceptions.AccessTokenNotExpiredException;
 import me.chowlong.userservice.exceptions.AccessTokenNotFoundException;
+import me.chowlong.userservice.exceptions.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
 import me.chowlong.userservice.jwt.refreshToken.RefreshToken;
 import me.chowlong.userservice.jwt.refreshToken.RefreshTokenService;
@@ -29,60 +31,52 @@ public class AuthController {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
+    @RateLimiter(name = "USER-SERVICE")
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
-        try {
-            Map<String, Object> responseData = new HashMap<>();
-            User user;
+        Map<String, Object> responseData = new HashMap<>();
+        User user;
 
-            if (!this.userService.userExistsByProviderEmail(loginRequestDTO.getProviderEmail())) {
-                user = this.userService.createUser(loginRequestDTO);
-            }
-            else {
-                user = this.userService.getUserByProviderEmail(loginRequestDTO.getProviderEmail());
-            }
-
-            String accessToken = this.jwtService.generateAccessToken(user);
-            String refreshToken = this.jwtService.generateRefreshToken(user);
-            this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
-
-            responseData.put("user", user);
-            responseData.put("accessToken", accessToken);
-            return ResponseHandler.generateResponse("User logged-in successfully.", HttpStatus.OK, responseData);
+        if (!this.userService.userExistsByProviderEmail(loginRequestDTO.getProviderEmail())) {
+            user = this.userService.createUser(loginRequestDTO);
         }
-        catch (Exception e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        else {
+            user = this.userService.getUserByProviderEmail(loginRequestDTO.getProviderEmail());
         }
+
+        String accessToken = this.jwtService.generateAccessToken(user);
+        String refreshToken = this.jwtService.generateRefreshToken(user);
+        this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
+
+        responseData.put("user", user);
+        responseData.put("accessToken", accessToken);
+        return ResponseHandler.generateResponse("User logged-in successfully.", HttpStatus.OK, responseData);
     }
 
+    @RateLimiter(name = "USER-SERVICE")
     @PostMapping("/token/refresh")
-    public ResponseEntity<Object> generateNewTokens(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String accessToken = authHeader.substring(7);
+    public ResponseEntity<Object> generateNewTokens(@RequestHeader("Authorization") String authHeader) throws AccessTokenNotExpiredException, AccessTokenNotFoundException, UserNotFoundException {
+        String accessToken = authHeader.substring(7);
 
-            if (!this.jwtService.isTokenExpiredAllowExpired(accessToken)) {
-                throw new AccessTokenNotExpiredException();
-            }
-            if (!this.refreshTokenService.refreshTokenExistsByAccessToken(accessToken)) {
-                throw new AccessTokenNotFoundException();
-            }
-
-            String userId = this.jwtService.extractUserIdAllowExpired(accessToken);
-            User user = this.userService.getUserById(userId);
-            Map<String, Object> responseData = new HashMap<>();
-
-            RefreshToken refreshToken = this.refreshTokenService.getRefreshTokenByAccessToken(accessToken);
-            this.refreshTokenService.deleteRefreshToken(refreshToken);
-
-            String newAccessToken = this.jwtService.generateAccessToken(user);
-            String newRefreshToken = this.jwtService.generateRefreshToken(user);
-            this.refreshTokenService.createRefreshToken(newAccessToken, newRefreshToken);
-
-            responseData.put("newAccessToken", newAccessToken);
-            return ResponseHandler.generateResponse("Tokens successfully refreshed.", HttpStatus.OK, responseData);
+        if (!this.jwtService.isTokenExpiredAllowExpired(accessToken)) {
+            throw new AccessTokenNotExpiredException();
         }
-        catch(Exception e) {
-            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        if (!this.refreshTokenService.refreshTokenExistsByAccessToken(accessToken)) {
+            throw new AccessTokenNotFoundException();
         }
+
+        String userId = this.jwtService.extractUserIdAllowExpired(accessToken);
+        User user = this.userService.getUserById(userId);
+        Map<String, Object> responseData = new HashMap<>();
+
+        RefreshToken refreshToken = this.refreshTokenService.getRefreshTokenByAccessToken(accessToken);
+        this.refreshTokenService.deleteRefreshToken(refreshToken);
+
+        String newAccessToken = this.jwtService.generateAccessToken(user);
+        String newRefreshToken = this.jwtService.generateRefreshToken(user);
+        this.refreshTokenService.createRefreshToken(newAccessToken, newRefreshToken);
+
+        responseData.put("newAccessToken", newAccessToken);
+        return ResponseHandler.generateResponse("Tokens successfully refreshed.", HttpStatus.OK, responseData);
     }
 }

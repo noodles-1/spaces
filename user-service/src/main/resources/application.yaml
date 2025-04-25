@@ -26,3 +26,12 @@ security:
     secret-key: ${SPACES_JWT_SECRET_KEY}
     access-token-expiration: 1800000  # 15 minutes
     refresh-token-expiration: 60480000  # 7 days
+
+resilience4j:
+  ratelimiter:
+    instances:
+      USER-SERVICE:
+        limit-for-period: 5
+        limit-refresh-period: 60s
+        timeout-duration: 10s
+        register-health-indicator: true
