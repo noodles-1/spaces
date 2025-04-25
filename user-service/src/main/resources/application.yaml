@@ -20,3 +20,9 @@ eureka:
       defaultZone: ${EUREKA_SERVICE_URL}
   instance:
     hostname: ${EUREKA_HOSTNAME}
+
+security:
+  jwt:
+    secret-key: ${SPACES_JWT_SECRET_KEY}
+    access-token-expiration: 1800000  # 15 minutes
+    refresh-token-expiration: 60480000  # 7 days
