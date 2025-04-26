@@ -1,4 +1,4 @@
-package me.chowlong.userservice.principals;
+package me.chowlong.userservice.principal;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

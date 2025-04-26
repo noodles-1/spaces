@@ -1,14 +1,20 @@
-package me.chowlong.userservice.configs;
+package me.chowlong.userservice.config;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import me.chowlong.userservice.exceptions.UserNotFoundException;
+import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
+import me.chowlong.userservice.exception.cookie.MissingCookieException;
+import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
-import me.chowlong.userservice.principals.UserPrincipal;
+import me.chowlong.userservice.jwt.cookie.CookieService;
+import me.chowlong.userservice.principal.UserPrincipal;
 import me.chowlong.userservice.user.User;
 import me.chowlong.userservice.user.UserRepository;
+import me.chowlong.userservice.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,16 +25,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private HandlerExceptionResolver handlerExceptionResolver;
+
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private CookieService cookieService;
 
     @Override
     protected void doFilterInternal(
@@ -41,21 +52,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
-            final String accessToken = authHeader.substring(7);
+            final String accessToken = this.cookieService.getSessionCookie(request);
             final String userId = this.jwtService.extractUserId(accessToken);
-            User user = this.userRepository.findById(userId)
-                    .orElseThrow(UserNotFoundException::new);
+            User user = this.userService.getUserById(userId);
 
-            if (!this.jwtService.isTokenValid(accessToken, user)) {
-                return;
+            if (!this.jwtService.isTokenValidAllowExpired(accessToken, user)) {
+                throw new SignatureException("Access token signature is invalid.");
             }
 
             UserPrincipal userPrincipal = new UserPrincipal(user, accessToken);

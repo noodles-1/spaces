@@ -1,4 +1,4 @@
-package me.chowlong.userservice.configs;
+package me.chowlong.userservice.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package me.chowlong.userservice.exceptions;
+package me.chowlong.userservice.exception.accessToken;
 
 public class AccessTokenNotFoundException extends Exception {
     @Override

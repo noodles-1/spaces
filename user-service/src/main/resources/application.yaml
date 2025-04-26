@@ -24,14 +24,19 @@ eureka:
 security:
   jwt:
     secret-key: ${SPACES_JWT_SECRET_KEY}
-    access-token-expiration: 1800000  # 15 minutes
-    refresh-token-expiration: 60480000  # 7 days
+    access-token-expiration: 1_800_000  # 15 minutes
+    refresh-token-expiration: 604_800_000  # 7 days
 
 resilience4j:
   ratelimiter:
     instances:
-      USER-SERVICE:
+      auth-controller:
         limit-for-period: 5
         limit-refresh-period: 60s
         timeout-duration: 10s
+        register-health-indicator: true
+      user-controller:
+        limit-for-period: 20
+        limit-refresh-period: 40s
+        timeout-duration: 5s
         register-health-indicator: true

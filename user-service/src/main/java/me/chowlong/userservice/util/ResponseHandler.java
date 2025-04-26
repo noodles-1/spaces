@@ -1,4 +1,4 @@
-package me.chowlong.userservice.utils;
+package me.chowlong.userservice.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

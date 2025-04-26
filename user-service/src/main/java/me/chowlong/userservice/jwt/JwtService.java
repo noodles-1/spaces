@@ -19,7 +19,7 @@ public class JwtService {
     private String secretKey;
 
     @Value("${security.jwt.access-token-expiration}")
-    private long accessTokenExpiration;
+    public long accessTokenExpiration;
 
     @Value("${security.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
@@ -51,6 +51,11 @@ public class JwtService {
     public boolean isTokenValid(String token, User user) {
         final String tokenUserId = extractUserId(token);
         return tokenUserId.equals(user.getId()) && !isTokenExpired(token);
+    }
+
+    public boolean isTokenValidAllowExpired(String token, User user) {
+        final String tokenUserId = extractUserIdAllowExpired(token);
+        return tokenUserId.equals(user.getId()) && !isTokenExpiredAllowExpired(token);
     }
 
     public boolean isTokenExpired(String token) {

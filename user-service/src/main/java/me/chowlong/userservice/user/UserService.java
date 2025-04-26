@@ -1,7 +1,7 @@
 package me.chowlong.userservice.user;
 
 import me.chowlong.userservice.auth.dto.LoginRequestDTO;
-import me.chowlong.userservice.exceptions.UserNotFoundException;
+import me.chowlong.userservice.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

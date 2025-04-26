@@ -1,8 +1,8 @@
 package me.chowlong.userservice.user;
 
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import me.chowlong.userservice.principals.UserPrincipal;
-import me.chowlong.userservice.utils.ResponseHandler;
+import me.chowlong.userservice.principal.UserPrincipal;
+import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +16,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@RateLimiter(name = "user-controller")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @RateLimiter(name = "USER-SERVICE")
     @GetMapping("/me")
     public ResponseEntity<Object> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Map<String, Object> responseData = new HashMap<>();

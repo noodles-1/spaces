@@ -1,21 +1,25 @@
 package me.chowlong.userservice.auth;
 
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import me.chowlong.userservice.auth.dto.LoginRequestDTO;
-import me.chowlong.userservice.exceptions.AccessTokenNotExpiredException;
-import me.chowlong.userservice.exceptions.AccessTokenNotFoundException;
-import me.chowlong.userservice.exceptions.UserNotFoundException;
+import me.chowlong.userservice.exception.accessToken.AccessTokenNotExpiredException;
+import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
+import me.chowlong.userservice.exception.refreshToken.RefreshTokenExpiredException;
+import me.chowlong.userservice.exception.refreshToken.RefreshTokenInvalidException;
 import me.chowlong.userservice.jwt.JwtService;
+import me.chowlong.userservice.jwt.cookie.CookieService;
 import me.chowlong.userservice.jwt.refreshToken.RefreshToken;
 import me.chowlong.userservice.jwt.refreshToken.RefreshTokenService;
 import me.chowlong.userservice.user.User;
 import me.chowlong.userservice.user.UserService;
-import me.chowlong.userservice.utils.ResponseHandler;
+import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,6 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@RateLimiter(name = "auth-controller")
 public class AuthController {
     @Autowired
     private JwtService jwtService;
@@ -30,10 +35,14 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private RefreshTokenService refreshTokenService;
+    @Autowired
+    private CookieService cookieService;
 
-    @RateLimiter(name = "USER-SERVICE")
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<Object> login(
+            @NonNull HttpServletResponse response,
+            @Valid @RequestBody LoginRequestDTO loginRequestDTO
+    ) {
         Map<String, Object> responseData = new HashMap<>();
         User user;
 
@@ -49,14 +58,16 @@ public class AuthController {
         this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
 
         responseData.put("user", user);
-        responseData.put("accessToken", accessToken);
+        this.cookieService.setSessionCookie(response, accessToken);
         return ResponseHandler.generateResponse("User logged-in successfully.", HttpStatus.OK, responseData);
     }
 
-    @RateLimiter(name = "USER-SERVICE")
     @PostMapping("/token/refresh")
-    public ResponseEntity<Object> generateNewTokens(@RequestHeader("Authorization") String authHeader) throws AccessTokenNotExpiredException, AccessTokenNotFoundException, UserNotFoundException {
-        String accessToken = authHeader.substring(7);
+    public ResponseEntity<Object> generateNewTokens(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response
+    ) throws Exception {
+        String accessToken = this.cookieService.getSessionCookie(request);
 
         if (!this.jwtService.isTokenExpiredAllowExpired(accessToken)) {
             throw new AccessTokenNotExpiredException();
@@ -67,16 +78,23 @@ public class AuthController {
 
         String userId = this.jwtService.extractUserIdAllowExpired(accessToken);
         User user = this.userService.getUserById(userId);
-        Map<String, Object> responseData = new HashMap<>();
 
         RefreshToken refreshToken = this.refreshTokenService.getRefreshTokenByAccessToken(accessToken);
+
+        if (this.jwtService.isTokenExpiredAllowExpired(refreshToken.getRefreshToken())) {
+            throw new RefreshTokenExpiredException();
+        }
+        if (!this.jwtService.isTokenValidAllowExpired(refreshToken.getRefreshToken(), user)) {
+            throw new RefreshTokenInvalidException();
+        }
+
         this.refreshTokenService.deleteRefreshToken(refreshToken);
 
         String newAccessToken = this.jwtService.generateAccessToken(user);
         String newRefreshToken = this.jwtService.generateRefreshToken(user);
         this.refreshTokenService.createRefreshToken(newAccessToken, newRefreshToken);
 
-        responseData.put("newAccessToken", newAccessToken);
-        return ResponseHandler.generateResponse("Tokens successfully refreshed.", HttpStatus.OK, responseData);
+        this.cookieService.setSessionCookie(response, newAccessToken);
+        return ResponseHandler.generateResponse("Tokens successfully refreshed.", HttpStatus.OK, null);
     }
 }

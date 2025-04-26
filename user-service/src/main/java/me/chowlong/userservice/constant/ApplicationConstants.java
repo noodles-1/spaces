@@ -1,4 +1,4 @@
-package me.chowlong.userservice.constants;
+package me.chowlong.userservice.constant;
 
 public class ApplicationConstants {
     public static final String[] PUBLIC_URLS = {
