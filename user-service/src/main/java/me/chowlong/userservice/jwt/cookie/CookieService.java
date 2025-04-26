@@ -15,7 +15,7 @@ public class CookieService {
     public void setSessionCookie(HttpServletResponse response, String cookieValue) {
         Cookie cookie = new Cookie("session", cookieValue);
         cookie.setMaxAge(30 * 24 * 60 * 60);
-        cookie.setSecure(false); // TODO: change to true in production to support HTTPS
+        cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
@@ -37,5 +37,14 @@ public class CookieService {
         }
 
         return httpOnlyCookie.get().getValue();
+    }
+
+    public void deleteSessionCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("session", null);
+        cookie.setMaxAge(0);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }

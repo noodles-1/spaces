@@ -62,6 +62,20 @@ public class AuthController {
         return ResponseHandler.generateResponse("User logged-in successfully.", HttpStatus.OK, responseData);
     }
 
+    @PostMapping("/sign-out")
+    public ResponseEntity<Object> signOut(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response
+    ) throws Exception {
+        String accessToken = this.cookieService.getSessionCookie(request);
+        RefreshToken refreshToken = this.refreshTokenService.getRefreshTokenByAccessToken(accessToken);
+
+        this.refreshTokenService.deleteRefreshToken(refreshToken);
+        this.cookieService.deleteSessionCookie(response);
+
+        return ResponseHandler.generateResponse("User signed-out successfully.", HttpStatus.OK, null);
+    }
+
     @PostMapping("/token/refresh")
     public ResponseEntity<Object> generateNewTokens(
             @NonNull HttpServletRequest request,

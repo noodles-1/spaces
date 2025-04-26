@@ -25,9 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -47,7 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/auth")) {
+        final String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/auth/login") ||
+            requestURI.startsWith("/auth/token/refresh")) {
             filterChain.doFilter(request, response);
             return;
         }
