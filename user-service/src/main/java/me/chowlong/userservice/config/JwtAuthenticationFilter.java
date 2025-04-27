@@ -47,7 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String requestURI = request.getRequestURI();
         if (requestURI.startsWith("/auth/login") ||
-            requestURI.startsWith("/auth/token/refresh")) {
+            requestURI.startsWith("/auth/register") ||
+            requestURI.startsWith("/auth/token/refresh") ||
+            requestURI.startsWith("/users/user-exists")) {
             filterChain.doFilter(request, response);
             return;
         }

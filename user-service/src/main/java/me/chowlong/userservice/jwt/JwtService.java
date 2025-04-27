@@ -20,7 +20,6 @@ public class JwtService {
 
     @Value("${security.jwt.access-token-expiration}")
     public long accessTokenExpiration;
-
     @Value("${security.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 

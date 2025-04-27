@@ -1,6 +1,7 @@
 package me.chowlong.userservice.user;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,9 @@ public class User {
 
     @Nonnull
     private String providerEmail;
+
+    @Nullable
+    private String profilePictureUrl;
 
     @CreationTimestamp
     private Date createdAt;

@@ -4,7 +4,7 @@ import jakarta.annotation.Nonnull;
 import lombok.Getter;
 
 @Getter
-public class LoginRequestDTO {
+public class AuthRequestDTO {
     @Nonnull
     private String customUsername;
     @Nonnull

@@ -1,0 +1,25 @@
+type ErrorCode =
+    "ACCESS_DENIED" |
+    "ACCESS_TOKEN_INVALID" |
+    "ACCESS_TOKEN_MALFORMED" |
+    "ACCESS_TOKEN_EXPIRED" |
+    "ACCESS_TOKEN_NOT_EXPIRED" |
+    "ACCESS_TOKEN_NOT_FOUND" |
+    "REFRESH_TOKEN_INVALID" |
+    "REFRESH_TOKEN_EXPIRED" |
+    "AUTHORIZATION_HEADER_NOT_FOUND" |
+    "TOO_MANY_REQUESTS" |
+    "COOKIES_NOT_FOUND" |
+    "AMAZON_SDK_ERROR" |
+    "USER_NOT_FOUND" |
+    "USER_ALREADY_EXISTS" |
+    "FILE_NOT_FOUND" |
+    "INVALID_IMAGE_FILE" |
+    "DEFAULT";
+
+export interface ResponseDto {
+    status: number;
+    message: string;
+    data?: Record<string, object>;
+    errorCode?: ErrorCode;
+};

@@ -5,6 +5,8 @@ public class ApplicationConstants {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/auth/login",
-            "/auth/token/refresh"
+            "/auth/register",
+            "/auth/token/refresh",
+            "/users/user-exists/**"
     };
 }

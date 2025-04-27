@@ -15,7 +15,7 @@ export default function LoginPage() {
     };
 
     if (status === "authenticated")
-        document.location.href = "/spaces/home"
+        document.location.href = "/spaces/home";
 
     return (
         <main className="flex flex-1">
