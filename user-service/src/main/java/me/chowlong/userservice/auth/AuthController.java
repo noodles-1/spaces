@@ -66,8 +66,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Object> register(
             @NonNull HttpServletResponse response,
-            @Valid @RequestBody AuthRequestDTO authRequestDTO,
-            @Nullable @RequestParam("file") MultipartFile file
+            @Valid @RequestBody AuthRequestDTO authRequestDTO
     ) throws UserAlreadyExistsException, IOException {
         if (this.userService.userExistsByProviderEmail(authRequestDTO.getProviderEmail())) {
             throw new UserAlreadyExistsException();

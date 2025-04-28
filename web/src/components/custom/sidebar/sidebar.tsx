@@ -36,7 +36,7 @@ export function Sidebar() {
     return (
         <div className="h-full min-w-[16rem]">
             <Link href="/home">
-                <p className="m-6 bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] bg-[length:200%_100%] bg-clip-text bg-left text-3xl font-bold text-transparent transition-all duration-500 ease-in-out hover:bg-right">
+                <p className="m-6 bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] bg-[length:200%_100%] bg-clip-text bg-right text-3xl font-bold text-transparent transition-all duration-500 ease-in-out hover:bg-left">
                     spaces
                 </p>
             </Link>
@@ -45,9 +45,9 @@ export function Sidebar() {
                     <div className="w-full">
                         <Button
                             variant="secondary"
-                            className="w-full rounded-xl p-0 hover:cursor-pointer"
+                            className="w-full p-0 rounded-xl hover:cursor-pointer"
                         >
-                            <div className="flex w-full items-center gap-4 px-6 text-left">
+                            <div className="flex items-center w-full gap-4 px-6 text-left">
                                 <Plus className="stroke-[4px]" />
                                 <span> New folder </span>
                             </div>

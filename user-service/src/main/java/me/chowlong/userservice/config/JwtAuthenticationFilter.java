@@ -46,10 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         final String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/auth/login") ||
-            requestURI.startsWith("/auth/register") ||
-            requestURI.startsWith("/auth/token/refresh") ||
-            requestURI.startsWith("/users/user-exists")) {
+        if (
+                requestURI.startsWith("/auth/login") ||
+                requestURI.startsWith("/auth/register") ||
+                requestURI.startsWith("/auth/token/refresh") ||
+                requestURI.startsWith("/users/provider-email-exists") ||
+                requestURI.startsWith("/users/custom-username-exists")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }

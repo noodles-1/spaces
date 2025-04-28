@@ -44,12 +44,20 @@ public class UserController {
         return ResponseHandler.generateResponse("Fetched current user successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/user-exists/{providerEmail}")
-    public ResponseEntity<Object> checkUserExists(@PathVariable("providerEmail") String providerEmail) {
+    @GetMapping("/provider-email-exists/{providerEmail}")
+    public ResponseEntity<Object> checkUserExistsByProviderEmail(@PathVariable("providerEmail") String providerEmail) {
         boolean userExists = this.userService.userExistsByProviderEmail(providerEmail);
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("userExists", userExists);
-        return ResponseHandler.generateResponse("Checked if user exists successfully.", HttpStatus.OK, responseData);
+        return ResponseHandler.generateResponse("Checked if user exists by provider email successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/custom-username-exists/{customUsername}")
+    public ResponseEntity<Object> checkUserExistsByCustomUsername(@PathVariable("customUsername") String customUsername) {
+        boolean userExists = this.userService.userExistsByCustomUsername(customUsername);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("userExists", userExists);
+        return ResponseHandler.generateResponse("Checked if user exists by custom username successfully.", HttpStatus.OK, responseData);
     }
 
     @PostMapping("/me/update-profile-picture")

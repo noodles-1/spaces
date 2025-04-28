@@ -1,0 +1,1 @@
+export const PROFILE_PICTURE_FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MB

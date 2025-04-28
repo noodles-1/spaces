@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 import { CircleX } from "lucide-react";
 
-import { handleRegister } from "@/actions/auth";
+import { userExistsByProviderEmail } from "@/actions/auth";
 import { customToast } from "@/lib/custom/utils";
 
 export default function AuthPage() {
@@ -49,7 +49,7 @@ export default function AuthPage() {
 
     const handleAuthenticate = async () => {
         if (session && session.user && session.user.email) {
-            const userExists = await handleRegister(session.user.email);
+            const userExists = await userExistsByProviderEmail(session.user.email);
 
             if (userExists) {
                 router.push("/spaces/home");                

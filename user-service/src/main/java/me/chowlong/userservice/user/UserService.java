@@ -25,6 +25,10 @@ public class UserService {
         return this.userRepository.existsByProviderEmail(providerEmail);
     }
 
+    public boolean userExistsByCustomUsername(String customUsername) {
+        return this.userRepository.existsByCustomUsername(customUsername);
+    }
+
     public User createUser(AuthRequestDTO authRequestDTO) {
         User user = new User();
         user.setId(UUID.randomUUID().toString());

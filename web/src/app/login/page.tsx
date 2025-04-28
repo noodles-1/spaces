@@ -14,14 +14,15 @@ export default function LoginPage() {
             router.push(`/login/auth/${provider}`);
     };
 
-    if (status === "authenticated")
+    if (status === "authenticated") {
         document.location.href = "/spaces/home";
+    }
 
     return (
         <main className="flex flex-1">
             <section className="flex items-center justify-center flex-1">
                 <div className="w-[80%] flex flex-col">
-                    <p className="w-fit bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] bg-[length:200%_100%] bg-clip-text bg-left text-[5rem] lg:text-[6rem] font-bold text-transparent transition-all duration-500 ease-in-out hover:bg-right">
+                    <p className="w-fit bg-[linear-gradient(to_right,#81a7ff,#abc4ff,#c3adff)] bg-[length:200%_100%] bg-clip-text bg-right text-[5rem] lg:text-[6rem] font-bold text-transparent transition-all duration-500 ease-in-out hover:bg-left">
                         spaces
                     </p>
                     <span className="text-2xl"> Your personal cloud storage </span>
