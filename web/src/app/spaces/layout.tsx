@@ -6,7 +6,6 @@ import { SessionProvider } from "next-auth/react";
 
 import { DataViewStoreProvider } from "@/zustand/providers/data-view-store-provider";
 
-import { Toaster } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/custom/sidebar/sidebar";
 import { Topbar } from "@/components/custom/topbar/topbar";
 import { ProfileButton } from "@/components/custom/topbar/profile-button";
@@ -34,7 +33,6 @@ export default function SpacesLayout({
                     </div>
                 </section>
             </main>
-            <Toaster />
         </section>
     );
 }

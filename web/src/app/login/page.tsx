@@ -1,22 +1,42 @@
 "use client"
 
+import { useEffect } from "react";
+
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import { AxiosError } from "axios";
+import axiosClient from "@/lib/axios-client";
+
 import { Button } from "@/components/ui/button";
+import { ResponseDto } from "@/dto/response-dto";
 
 export default function LoginPage() {
     const router = useRouter();
     const { status } = useSession();
 
     const handleRedirect = (provider: string) => {
-        if (status === "unauthenticated")
-            router.push(`/login/auth/${provider}`);
+        router.push(`/login/auth/${provider}`);
     };
 
-    if (status === "authenticated") {
-        document.location.href = "/spaces/home";
-    }
+    useEffect(() => {
+        const tryRedirect = async () => {
+            try {
+                const response = await axiosClient.get("/user/ping");
+
+                if (status === "authenticated" && response.status === 200) {
+                    router.push("/spaces/home");
+                }
+            }
+            catch (err) {
+                const axiosError = err as AxiosError;
+                const data = axiosError.response?.data as ResponseDto;
+                console.log(data.errorCode);
+            }
+        };
+
+        tryRedirect();
+    }, [status]);
 
     return (
         <main className="flex flex-1">

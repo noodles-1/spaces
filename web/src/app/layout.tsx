@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 
+import TanstackProvider from "@/tanstack/provider";
+
+import { Toaster } from "@/components/ui/sonner";
+
 export const metadata: Metadata = {
     title: "Login - Spaces Cloud Storage",
     description: "Spaces Personal Cloud Storage",
@@ -17,7 +21,10 @@ export default function RootLayout({
                 <link rel="icon" href="/favicon.ico" sizes="any"/>
             </head>
             <body className={`dark flex h-screen antialiased`}>
-                {children}
+                <TanstackProvider>
+                    {children}
+                    <Toaster />
+                </TanstackProvider>
             </body>
         </html>
     );

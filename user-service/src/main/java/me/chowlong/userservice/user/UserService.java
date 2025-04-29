@@ -1,6 +1,6 @@
 package me.chowlong.userservice.user;
 
-import me.chowlong.userservice.auth.dto.AuthRequestDTO;
+import me.chowlong.userservice.auth.dto.RegisterRequestDTO;
 import me.chowlong.userservice.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class UserService {
         return this.userRepository.existsByCustomUsername(customUsername);
     }
 
-    public User createUser(AuthRequestDTO authRequestDTO) {
+    public User createUser(RegisterRequestDTO authRequestDTO) {
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setCustomUsername(authRequestDTO.getCustomUsername());
@@ -40,6 +40,11 @@ public class UserService {
 
     public void updateProfilePicture(User user, String profilePictureUrl) {
         user.setProfilePictureUrl(profilePictureUrl);
+        this.userRepository.save(user);
+    }
+
+    public void updateCustomUsername(User user, String newCustomUsername) {
+        user.setCustomUsername(newCustomUsername);
         this.userRepository.save(user);
     }
 }

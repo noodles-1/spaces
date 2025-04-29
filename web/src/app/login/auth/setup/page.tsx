@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react";
+
+import { useMutation } from "@tanstack/react-query";
 
 import { CircleX, Loader2, PenLine, Trash, UserRound } from "lucide-react";
 
@@ -20,6 +22,9 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { AxiosError } from "axios";
+import axiosClient from "@/lib/axios-client";
 
 import { registerUser, updateProfilePicture } from "@/actions/user";
 
@@ -48,6 +53,7 @@ const formSchema = z.object({
     customUsername: z
         .string()
         .min(4, { message: "Username cannot be less than 4 characters." })
+        .max(20, { message: "Username cannot be more than 20 characters." })
         .refine(value => {
             if (value === "")
                 return true;
@@ -63,8 +69,8 @@ const formSchema = z.object({
             if (value.includes(";"))
                 return true;
 
-            const response = await fetch(`${SERVER_URL}/user/users/custom-username-exists/${value}`);
-            const responseData: ResponseDto = await response.json();
+            const response = await axiosClient.get(`${SERVER_URL}/user/users/custom-username-exists/${value}`);
+            const responseData: ResponseDto = response.data;
             
             if (responseData.data) {
                 return !responseData.data.userExists;
@@ -84,12 +90,43 @@ export default function AuthSetupPage() {
     const [imageFile, setImageFile] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
+    const registerUserMutation = useMutation({
+        mutationFn: registerUser
+    });
+
+    const updateProfilePictureMutation = useMutation({
+        mutationFn: updateProfilePicture
+    });
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             customUsername: ""
         }
     });
+
+    useEffect(() => {
+        const tryRedirect = async () => {
+            try {
+                const response = await axiosClient.get("/user/ping");
+
+                if (status === "authenticated" && response.status === 200) {
+                    router.push("/spaces/home");
+                }
+            }
+            catch (err) {
+                const axiosError = err as AxiosError;
+                const data = axiosError.response?.data as ResponseDto;
+                console.log(data.errorCode);
+
+                if (status === "unauthenticated") {
+                    router.push("/login");
+                }
+            }
+        };
+
+        tryRedirect();
+    }, [status]);
     
     const handleImageInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files === null || event.target.files.length === 0) {
@@ -112,28 +149,30 @@ export default function AuthSetupPage() {
                 return;
 
             setLoading(true);
-            await registerUser(session, values.customUsername);
+            await registerUserMutation.mutateAsync({
+                session,
+                customUsername: values.customUsername
+            });
 
             if (values.profilePicture)
-                await updateProfilePicture(values.profilePicture);
+                await updateProfilePictureMutation.mutateAsync({ imageFile: values.profilePicture })
 
             router.push("/spaces/home");
         }
         catch (err) {
+            const axiosError = err as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
             signOut({ callbackUrl: "/login" });
             customToast({
-                icon: <CircleX className="w-4 h-4" fill="white" />,
-                message: err as string
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
             });
         }
         finally {
             setLoading(false);
         }
     };
-
-    if (status === "authenticated") {
-        // TODO: redirect to home
-    }
     
     return (
         <main className="relative flex flex-col items-center justify-center flex-1 h-screen space-y-12 bg-zinc-800">

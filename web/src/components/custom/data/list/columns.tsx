@@ -35,7 +35,7 @@ export const columns: ColumnDef<File>[] = [
             const handleStarred = (event: React.MouseEvent<SVGSVGElement>) => {
                 event.stopPropagation();
                 customToast({
-                    icon: <Star className="w-4 h-4" fill="white" />,
+                    icon: <Star className="w-4 h-4" color="white" />,
                     message: `${item.name} has been added to starred`,
                 });
             };

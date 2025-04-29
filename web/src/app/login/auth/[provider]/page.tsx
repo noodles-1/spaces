@@ -1,19 +1,28 @@
 "use client"
 
+import { useEffect } from "react";
+
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-import { CircleX } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
-import { userExistsByProviderEmail } from "@/actions/auth";
-import { customToast } from "@/lib/custom/utils";
+import { AxiosError } from "axios";
+import axiosClient from "@/lib/axios-client";
+
+import { loginUser, userExistsByProviderEmail } from "@/actions/user";
+import { ResponseDto } from "@/dto/response-dto";
 
 export default function AuthPage() {
     const router = useRouter();
     const { provider } = useParams<{ provider: string }>();
 
     const { data: session, status } = useSession();
+
+    const loginUserMutation = useMutation({
+        mutationFn: loginUser
+    });
 
     const popupCenter = (url: string, title: string) => {
         const dualScreenLeft = window.screenLeft ?? window.screenX;
@@ -47,33 +56,39 @@ export default function AuthPage() {
     const availableProviders = ["github", "discord"];
     const providerExists = availableProviders.includes(provider);
 
-    const handleAuthenticate = async () => {
-        if (session && session.user && session.user.email) {
-            const userExists = await userExistsByProviderEmail(session.user.email);
+    useEffect(() => {
+        const tryRedirect = async () => {
+            if (status === "authenticated" && session?.user?.email) {
+                try {
+                    const response = await axiosClient.get("/user/ping");
 
-            if (userExists) {
-                router.push("/spaces/home");                
-            }
-            else {
-                router.push("/login/auth/setup");
-            }
-        }
-    };
+                    if (response.status === 200) {
+                        router.push("/spaces/home");
+                    }
+                } 
+                catch (err) {
+                    const axiosError = err as AxiosError;
+                    const data = axiosError.response?.data as ResponseDto;
+                    console.log(data.errorCode);
 
-    if (status === "authenticated" && session.user && session.user.email) {
-        try {
-            handleAuthenticate();
-        }
-        catch (err) {
-            customToast({
-                icon: <CircleX className="w-4 h-4" fill="white" />,
-                message: err as string
-            });
-        }
-    }
-    else if (status === "unauthenticated" && providerExists) {
-        popupCenter(`/login/auth-window/${provider}`, "Log-in to spaces");
-    }
+                    const response: ResponseDto<{ userExists: boolean }> = await userExistsByProviderEmail(session.user.email);
+    
+                    if (response.data?.userExists) {
+                        await loginUserMutation.mutateAsync({ session });
+                        router.push("/spaces/home");
+                        return;
+                    } 
+    
+                    router.push("/login/auth/setup");
+                }
+            }
+            else if (status === "unauthenticated" && providerExists) {
+                popupCenter(`/login/auth-window/${provider}`, "Log-in to spaces");
+            }
+        };
+    
+        tryRedirect();
+    }, [status]);
 
     return (
         <main className="relative flex items-center justify-center flex-1 h-screen bg-zinc-800">

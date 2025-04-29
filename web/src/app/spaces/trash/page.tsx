@@ -17,7 +17,7 @@ const Trash = () => {
 
     const handleEmptyTrash = () => {
         customToast({
-            icon: <TrashIcon className="w-4 h-4" fill="white"/>,
+            icon: <TrashIcon className="w-4 h-4" color="white"/>,
             message: "Trash has been emptied successfully"
         });
     };

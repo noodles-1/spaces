@@ -4,11 +4,13 @@ import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import me.chowlong.userservice.auth.dto.AuthRequestDTO;
+import me.chowlong.userservice.auth.dto.LoginRequestDTO;
+import me.chowlong.userservice.auth.dto.RegisterRequestDTO;
 import me.chowlong.userservice.exception.accessToken.AccessTokenNotExpiredException;
 import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
 import me.chowlong.userservice.exception.refreshToken.RefreshTokenExpiredException;
 import me.chowlong.userservice.exception.refreshToken.RefreshTokenInvalidException;
+import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
 import me.chowlong.userservice.exception.user.UserAlreadyExistsException;
 import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
@@ -22,13 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/auth")
@@ -46,13 +47,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(
             @NonNull HttpServletResponse response,
-            @Valid @RequestBody AuthRequestDTO authRequestDTO
+            @Valid @RequestBody LoginRequestDTO loginRequestDTO
     ) throws UserNotFoundException {
-        if (!this.userService.userExistsByProviderEmail(authRequestDTO.getProviderEmail())) {
+        if (!this.userService.userExistsByProviderEmail(loginRequestDTO.getProviderEmail())) {
             throw new UserNotFoundException();
         }
 
-        User user = this.userService.getUserByProviderEmail(authRequestDTO.getProviderEmail());
+        User user = this.userService.getUserByProviderEmail(loginRequestDTO.getProviderEmail());
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
         this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
@@ -66,10 +67,20 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Object> register(
             @NonNull HttpServletResponse response,
-            @Valid @RequestBody AuthRequestDTO authRequestDTO
-    ) throws UserAlreadyExistsException, IOException {
+            @Valid @RequestBody RegisterRequestDTO authRequestDTO
+    ) throws UserAlreadyExistsException, CustomUsernameInvalidException {
         if (this.userService.userExistsByProviderEmail(authRequestDTO.getProviderEmail())) {
             throw new UserAlreadyExistsException();
+        }
+
+        String customUsername = authRequestDTO.getCustomUsername();
+        if (customUsername.length() < 4 || 20 < customUsername.length()) {
+            throw new CustomUsernameInvalidException();
+        }
+
+        Pattern customUsernamePattern = Pattern.compile("^[a-zA-Z0-9]+$");
+        if (!customUsernamePattern.matcher(customUsername).matches()) {
+            throw new CustomUsernameInvalidException();
         }
 
         User user = this.userService.createUser(authRequestDTO);
