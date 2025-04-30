@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: LOG-SERVICE
+  datasource:
+    url: jdbc:${LOG_SERVICE_DB_URL}
+    username: ${LOG_SERVICE_DB_USERNAME}
+    password: ${LOG_SERVICE_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS}
+    consumer:
+      group-id: spaces-log

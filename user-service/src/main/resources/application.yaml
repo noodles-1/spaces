@@ -15,6 +15,12 @@ spring:
     multipart:
       max-file-size: 1MB
       max-request-size: 10MB
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS}
+    producer:
+      retries: 0
+    template:
+      default-topic: spaces-log-topic
 
 eureka:
   client:

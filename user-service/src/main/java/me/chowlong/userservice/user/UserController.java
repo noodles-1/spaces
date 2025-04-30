@@ -2,6 +2,7 @@ package me.chowlong.userservice.user;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import me.chowlong.userservice.auditLog.AuditLogDto;
 import me.chowlong.userservice.aws.AwsService;
 import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
 import me.chowlong.userservice.exception.user.InvalidImageFileException;
@@ -13,6 +14,7 @@ import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +41,9 @@ public class UserController {
     private JwtService jwtService;
     @Autowired
     private AwsService awsService;
+
+    @Autowired
+    private KafkaTemplate<String, AuditLogDto> kafkaTemplate;
 
     @GetMapping("/me")
     public ResponseEntity<Object> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -93,6 +100,15 @@ public class UserController {
         String keyName = String.format("%s/%s", user.getId(), fileName);
         String profilePictureUrl = this.awsService.uploadFile(keyName, contentType, contentLength, inputStream);
         this.userService.updateProfilePicture(user, profilePictureUrl);
+
+        AuditLogDto auditLogDto = new AuditLogDto();
+        auditLogDto.setUserId(userId);
+        auditLogDto.setAction("Updated profile picture");
+        auditLogDto.setEndpoint("/me/update-profile-picture");
+        auditLogDto.setMethod("POST");
+        auditLogDto.setTimestamp(ZonedDateTime.now().toInstant());
+        this.kafkaTemplate.send("spaces-log-topic", auditLogDto);
+
         return ResponseHandler.generateResponse("Profile picture updated successfully.", HttpStatus.OK, null);
     }
 
