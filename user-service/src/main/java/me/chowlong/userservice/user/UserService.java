@@ -17,24 +17,25 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    public User getUserByProviderEmail(String providerEmail) {
-        return this.userRepository.findByProviderEmail(providerEmail);
-    }
-
-    public boolean userExistsByProviderEmail(String providerEmail) {
-        return this.userRepository.existsByProviderEmail(providerEmail);
+    public User getUserByProviderUserIdAndProviderUsername(String providerUserId, String providerUsername) {
+        return this.userRepository.findByProviderUserIdAndProviderUsername(providerUserId, providerUsername);
     }
 
     public boolean userExistsByCustomUsername(String customUsername) {
         return this.userRepository.existsByCustomUsername(customUsername);
     }
 
-    public User createUser(RegisterRequestDTO authRequestDTO) {
+    public boolean userExistsByProviderUserIdAndProviderUsername(String providerUserId, String providerUsername) {
+        return this.userRepository.existsByProviderUserIdAndProviderUsername(providerUserId, providerUsername);
+    }
+
+    public User createUser(RegisterRequestDTO registerRequestDTO) {
         User user = new User();
         user.setId(UUID.randomUUID().toString());
-        user.setCustomUsername(authRequestDTO.getCustomUsername());
-        user.setProviderUsername(authRequestDTO.getProviderUsername());
-        user.setProviderEmail(authRequestDTO.getProviderEmail());
+        user.setProvider(registerRequestDTO.getProvider());
+        user.setProviderUserId(registerRequestDTO.getProviderUserId());
+        user.setProviderUsername(registerRequestDTO.getProviderUsername());
+        user.setSetupDone(false);
         return this.userRepository.save(user);
     }
 
@@ -45,6 +46,11 @@ public class UserService {
 
     public void updateCustomUsername(User user, String newCustomUsername) {
         user.setCustomUsername(newCustomUsername);
+        this.userRepository.save(user);
+    }
+
+    public void updateSetupDone(User user) {
+        user.setSetupDone(true);
         this.userRepository.save(user);
     }
 }

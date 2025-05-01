@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 public class LoginRequestDTO {
     @Nonnull
-    private String providerEmail;
+    private String code;
 }

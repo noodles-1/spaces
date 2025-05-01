@@ -90,7 +90,7 @@ public class JwtService {
                 .getPayload();
     }
 
-    private Claims extractAllClaimsAllowExpired(String token) {
+    public Claims extractAllClaimsAllowExpired(String token) {
         try {
             return Jwts
                     .parser()

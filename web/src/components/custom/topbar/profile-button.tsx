@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -99,6 +98,8 @@ const formSchema = z.object({
 });
 
 export function ProfileButton() {
+    const router = useRouter();
+
     const { data: userData } = useQuery<ResponseDto<User>>({
         queryKey: ["current-user"],
         queryFn: () => fetcher("/user/users/me")
@@ -120,18 +121,17 @@ export function ProfileButton() {
     const updateCustomUsernameMutation = useMutation({
         mutationFn: updateCustomUsername
     });
-
-    useEffect(() => {
-        if (userData && userData.data) {
-            setImageFile(userData.data.user.profilePictureUrl);
-            form.setValue("customUsername", userData.data.user.customUsername);
-        }
-    }, [userData]);
-
-
+    
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema)
     });
+
+    useEffect(() => {
+        if (userData && userData.data && userData.data.user.customUsername) {
+            setImageFile(userData.data.user.profilePictureUrl);
+            form.setValue("customUsername", userData.data.user.customUsername);
+        }
+    }, [userData, form]);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
@@ -169,7 +169,8 @@ export function ProfileButton() {
 
     const handleLogout = async () => {
         await signOutMutation.mutateAsync();
-        signOut({ callbackUrl: "/login" });
+        queryClient.clear();
+        router.push("/login");
     };
 
     const handleImageInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +184,7 @@ export function ProfileButton() {
     };
 
     const handleDialogClose = (open: boolean) => {
-        if (!open && userData && userData.data) {
+        if (!open && userData && userData.data && userData.data.user.customUsername) {
             setImageFile(userData.data.user.profilePictureUrl);
             form.setValue("customUsername", userData.data.user.customUsername);
         }
@@ -196,14 +197,14 @@ export function ProfileButton() {
                     <Button variant="ghost" className="mx-4 h-[4rem] p-0 group cursor-pointer">
                         <div className="flex items-center w-full h-full gap-3 px-4">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full outline-2 outline-zinc-500 group-hover:outline-[#7076a7]">
-                                {userData && userData.data ?
+                                {userData && userData.data && userData.data.user.profilePictureUrl ?
                                     <img src={userData.data.user.profilePictureUrl} className="rounded-full h-full w-full object-cover" />
                                 : 
                                     <UserRound />
                                 }
                             </div>
                             {userData && userData.data &&
-                                <span className="group-hover:text-[#bfc7ff]"> {userData.data.user.customUsername as React.ReactNode} </span>
+                                <span className="group-hover:text-[#bfc7ff]"> {userData.data.user.customUsername} </span>
                             }
                         </div>
                     </Button>
@@ -248,7 +249,7 @@ export function ProfileButton() {
                                     </FormItem>
                                 )}
                             />
-                            <section className="space-y-1 text-sm">
+                            <section className="space-y-1 text-sm w-full">
                                 <section className="space-y-4 ">
                                     <div className="flex flex-col gap-2">
                                         <span className="font-medium text-zinc-300"> Username: </span>
@@ -270,10 +271,12 @@ export function ProfileButton() {
                                     </div>
                                     <div className="flex gap-1">
                                         {userData && userData.data && 
-                                            <span> 
-                                                <span className="font-medium text-zinc-300"> Primary email: </span>
-                                                {userData.data.user.providerEmail} 
-                                            </span>
+                                            <div className="flex items-center gap-1"> 
+                                                <span className="font-medium text-zinc-300"> Connected with: </span>
+                                                <div className="flex items-center gap-2">
+                                                    {userData.data.user.provider} 
+                                                </div>
+                                            </div>
                                         }
                                     </div>
                                 </section>

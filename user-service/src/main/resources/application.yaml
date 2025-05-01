@@ -54,3 +54,12 @@ aws:
   region: ${SPACES_S3_REGION}
   endpoint: ${SPACES_S3_ENDPOINT}
   cdn-endpoint: ${SPACES_S3_CDN_ENDPOINT}
+
+auth:
+  providers:
+    github:
+      client-id: ${SPACES_GITHUB_CLIENT_ID}
+      client-secret: ${SPACES_GITHUB_CLIENT_SECRET}
+    discord:
+      client-id: ${SPACES_DISCORD_CLIENT_ID}
+      client-secret: ${SPACES_DISCORD_CLIENT_SECRET}

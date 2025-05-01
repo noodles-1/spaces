@@ -43,6 +43,10 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
+
+    --color-spaces-primary: oklch(0.74 0.1348 265.5);
+    --color-spaces-secondary: oklch(0.82 0.0879 266.67);
+    --color-spaces-tertiary: oklch(0.8 0.1162 295.98);
 }
 
 :root {

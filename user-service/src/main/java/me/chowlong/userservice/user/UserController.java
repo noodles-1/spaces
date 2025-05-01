@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import me.chowlong.userservice.auditLog.AuditLogDto;
 import me.chowlong.userservice.aws.AwsService;
+import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
+import me.chowlong.userservice.exception.cookie.MissingCookieException;
 import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
 import me.chowlong.userservice.exception.user.InvalidImageFileException;
 import me.chowlong.userservice.jwt.JwtService;
@@ -50,14 +52,6 @@ public class UserController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("user", userPrincipal.getUser());
         return ResponseHandler.generateResponse("Fetched current user successfully.", HttpStatus.OK, responseData);
-    }
-
-    @GetMapping("/provider-email-exists/{providerEmail}")
-    public ResponseEntity<Object> checkUserExistsByProviderEmail(@PathVariable("providerEmail") String providerEmail) {
-        boolean userExists = this.userService.userExistsByProviderEmail(providerEmail);
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("userExists", userExists);
-        return ResponseHandler.generateResponse("Checked if user exists by provider email successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/custom-username-exists/{customUsername}")
@@ -133,5 +127,17 @@ public class UserController {
 
         this.userService.updateCustomUsername(user, newCustomUsername);
         return ResponseHandler.generateResponse("Custom username updated successfully.", HttpStatus.OK, null);
+    }
+
+    @PostMapping("/me/update-setup-done")
+    public ResponseEntity<Object> updateSetupDone(
+            @NonNull HttpServletRequest request
+    ) throws Exception {
+        String accessToken = this.cookieService.getSessionCookie(request);
+        String userId = this.jwtService.extractUserId(accessToken);
+        User user = this.userService.getUserById(userId);
+
+        this.userService.updateSetupDone(user);
+        return ResponseHandler.generateResponse("User setup has been accomplished successfully.", HttpStatus.OK, null);
     }
 }

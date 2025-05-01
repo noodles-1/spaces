@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react";
 
 import { useMutation } from "@tanstack/react-query";
 
@@ -26,11 +25,12 @@ import { z } from "zod";
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
 
-import { registerUser, updateProfilePicture } from "@/actions/user";
+import { signOutUser, updateCustomUsername, updateProfilePicture, updateSetupDone } from "@/actions/user";
 
 import { customToast } from "@/lib/custom/utils";
 
 import { ResponseDto } from "@/dto/response-dto";
+import { User } from "@/types/response/user-type";
 
 import { PROFILE_PICTURE_FILE_SIZE_LIMIT } from "@/constants/limits";
 
@@ -85,17 +85,23 @@ const formSchema = z.object({
 export default function AuthSetupPage() {
     const router = useRouter();
 
-    const { data: session, status } = useSession();
-
     const [imageFile, setImageFile] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const registerUserMutation = useMutation({
-        mutationFn: registerUser
+    const updateCustomUsernameMutation = useMutation({
+        mutationFn: updateCustomUsername
     });
 
     const updateProfilePictureMutation = useMutation({
         mutationFn: updateProfilePicture
+    });
+
+    const updateSetupDoneMutation = useMutation({
+        mutationFn: updateSetupDone
+    });
+
+    const signOutUserMutation = useMutation({
+        mutationFn: signOutUser
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -108,9 +114,10 @@ export default function AuthSetupPage() {
     useEffect(() => {
         const tryRedirect = async () => {
             try {
-                const response = await axiosClient.get("/user/ping");
+                const response = await axiosClient.get("/user/users/me");
+                const responseData: ResponseDto<User> = response.data;
 
-                if (status === "authenticated" && response.status === 200) {
+                if (responseData.data?.user.setupDone) {
                     router.push("/spaces/home");
                 }
             }
@@ -118,15 +125,12 @@ export default function AuthSetupPage() {
                 const axiosError = err as AxiosError;
                 const data = axiosError.response?.data as ResponseDto;
                 console.log(data.errorCode);
-
-                if (status === "unauthenticated") {
-                    router.push("/login");
-                }
+                router.push("/login");
             }
         };
 
         tryRedirect();
-    }, [status]);
+    }, [router]);
     
     const handleImageInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files === null || event.target.files.length === 0) {
@@ -145,12 +149,10 @@ export default function AuthSetupPage() {
     
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            if (session === null)
-                return;
-
             setLoading(true);
-            await registerUserMutation.mutateAsync({
-                session,
+
+            await updateSetupDoneMutation.mutateAsync();
+            await updateCustomUsernameMutation.mutateAsync({
                 customUsername: values.customUsername
             });
 
@@ -163,7 +165,6 @@ export default function AuthSetupPage() {
             const axiosError = err as AxiosError;
             const data = axiosError.response?.data as ResponseDto;
 
-            signOut({ callbackUrl: "/login" });
             customToast({
                 icon: <CircleX className="w-4 h-4" color="white" />,
                 message: data.message
@@ -171,6 +172,22 @@ export default function AuthSetupPage() {
         }
         finally {
             setLoading(false);
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await signOutUserMutation.mutateAsync();
+            router.push("/login");
+        }
+        catch (err) {
+            const axiosError = err as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
+            customToast({
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
+            });
         }
     };
     
@@ -257,7 +274,7 @@ export default function AuthSetupPage() {
             </Form>
             <Button 
                 variant="link" 
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={handleSignOut}
                 className="cursor-pointer text-[#c3adff]"
             > 
                 Cancel setup 

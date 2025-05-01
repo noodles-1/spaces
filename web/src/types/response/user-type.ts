@@ -1,8 +1,9 @@
 interface UserResponse {
-    customUsername: string;
-    providerEmail: string;
+    customUsername: string | null;
+    provider: string;
     providerUsername: string;
-    profilePictureUrl: string;
+    profilePictureUrl: string | null;
+    setupDone: boolean;
 };
 
 export interface User {

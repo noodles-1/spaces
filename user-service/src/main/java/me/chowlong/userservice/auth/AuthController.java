@@ -10,8 +10,6 @@ import me.chowlong.userservice.exception.accessToken.AccessTokenNotExpiredExcept
 import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
 import me.chowlong.userservice.exception.refreshToken.RefreshTokenExpiredException;
 import me.chowlong.userservice.exception.refreshToken.RefreshTokenInvalidException;
-import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
-import me.chowlong.userservice.exception.user.UserAlreadyExistsException;
 import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
 import me.chowlong.userservice.jwt.cookie.CookieService;
@@ -21,20 +19,31 @@ import me.chowlong.userservice.user.User;
 import me.chowlong.userservice.user.UserService;
 import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.lang.NonNull;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/auth")
 @RateLimiter(name = "auth-controller")
 public class AuthController {
+    @Value("${auth.providers.github.client-id}")
+    private String githubClientId;
+    @Value("${auth.providers.github.client-secret}")
+    private String githubClientSecret;
+    @Value("${auth.providers.discord.client-id}")
+    private String discordClientId;
+    @Value("${auth.providers.discord.client-secret}")
+    private String discordClientSecret;
+
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -44,54 +53,131 @@ public class AuthController {
     @Autowired
     private CookieService cookieService;
 
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(
+    @Autowired
+    @Qualifier("externalRestTemplate")
+    private RestTemplate restTemplate;
+
+    @PostMapping("/login/github")
+    public ResponseEntity<Object> githubLogin(
             @NonNull HttpServletResponse response,
             @Valid @RequestBody LoginRequestDTO loginRequestDTO
     ) throws UserNotFoundException {
-        if (!this.userService.userExistsByProviderEmail(loginRequestDTO.getProviderEmail())) {
+        String code = loginRequestDTO.getCode();
+
+        ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(
+                String.format(
+                        "https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s",
+                        this.githubClientId, this.githubClientSecret, code
+                ),
+                null,
+                Map.class
+        );
+
+        String githubAccessToken = (String) tokenResponse.getBody().get("access_token");
+
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(githubAccessToken);
+        HttpEntity<Void> userRequest = new HttpEntity<>(userHeaders);
+        ResponseEntity<Map> userResponse = restTemplate.exchange(
+                "https://api.github.com/user",
+                HttpMethod.GET,
+                userRequest,
+                Map.class
+        );
+
+        Map userDetails = userResponse.getBody();
+
+        if (userDetails == null) {
             throw new UserNotFoundException();
         }
 
-        User user = this.userService.getUserByProviderEmail(loginRequestDTO.getProviderEmail());
+        String githubUserId = userDetails.get("id").toString();
+        String githubUsername = userDetails.get("login").toString();
+
+        User user;
+        if (!this.userService.userExistsByProviderUserIdAndProviderUsername(githubUserId, githubUsername)) {
+            RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
+            registerRequestDTO.setProvider("GitHub");
+            registerRequestDTO.setProviderUserId(githubUserId);
+            registerRequestDTO.setProviderUsername(githubUsername);
+
+            user = this.userService.createUser(registerRequestDTO);
+        }
+        else {
+            user = this.userService.getUserByProviderUserIdAndProviderUsername(githubUserId, githubUsername);
+        }
+
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
         this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("user", user);
         this.cookieService.setSessionCookie(response, accessToken);
-        return ResponseHandler.generateResponse("User logged-in successfully.", HttpStatus.OK, responseData);
+
+        return ResponseHandler.generateResponse("Successfully logged user in with GitHub.", HttpStatus.OK, null);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Object> register(
+    @PostMapping("/login/discord")
+    public ResponseEntity<Object> discordLogin(
             @NonNull HttpServletResponse response,
-            @Valid @RequestBody RegisterRequestDTO authRequestDTO
-    ) throws UserAlreadyExistsException, CustomUsernameInvalidException {
-        if (this.userService.userExistsByProviderEmail(authRequestDTO.getProviderEmail())) {
-            throw new UserAlreadyExistsException();
+            @Valid @RequestBody LoginRequestDTO loginRequestDTO
+    ) throws UserNotFoundException {
+        String code = loginRequestDTO.getCode();
+        String discordApiUrl = "https://discord.com/api/v10";
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("code", code);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(this.discordClientId, this.discordClientSecret);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(
+                discordApiUrl + "/oauth2/token",
+                request,
+                Map.class
+        );
+
+        String discordAccessToken = (String) tokenResponse.getBody().get("access_token");
+
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(discordAccessToken);
+        HttpEntity<Void> userRequest = new HttpEntity<>(userHeaders);
+        ResponseEntity<Map> userResponse = restTemplate.exchange(
+                discordApiUrl + "/users/@me",
+                HttpMethod.GET,
+                userRequest,
+                Map.class
+        );
+
+        Map userDetails = userResponse.getBody();
+
+        if (userDetails == null) {
+            throw new UserNotFoundException();
         }
 
-        String customUsername = authRequestDTO.getCustomUsername();
-        if (customUsername.length() < 4 || 20 < customUsername.length()) {
-            throw new CustomUsernameInvalidException();
+        String discordUserId = userDetails.get("id").toString();
+        String discordUsername = userDetails.get("username").toString();
+
+        User user;
+        if (!this.userService.userExistsByProviderUserIdAndProviderUsername(discordUserId, discordUsername)) {
+            RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
+            registerRequestDTO.setProvider("Discord");
+            registerRequestDTO.setProviderUserId(discordUserId);
+            registerRequestDTO.setProviderUsername(discordUsername);
+
+            user = this.userService.createUser(registerRequestDTO);
+        }
+        else {
+            user = this.userService.getUserByProviderUserIdAndProviderUsername(discordUserId, discordUsername);
         }
 
-        Pattern customUsernamePattern = Pattern.compile("^[a-zA-Z0-9]+$");
-        if (!customUsernamePattern.matcher(customUsername).matches()) {
-            throw new CustomUsernameInvalidException();
-        }
-
-        User user = this.userService.createUser(authRequestDTO);
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
         this.refreshTokenService.createRefreshToken(accessToken, refreshToken);
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("user", user);
         this.cookieService.setSessionCookie(response, accessToken);
-        return ResponseHandler.generateResponse("User registered successfully.", HttpStatus.OK, responseData);
+
+        return ResponseHandler.generateResponse("Successfully logged user in with Discord.", HttpStatus.OK, null);
     }
 
     @PostMapping("/sign-out")
