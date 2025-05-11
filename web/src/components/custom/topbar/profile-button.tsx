@@ -19,10 +19,6 @@ import {
     DialogDescription,
     DialogTrigger,
 } from "@/components/ui/dialog";
-
-import { ResponseDto } from "@/dto/response-dto";
-import { User } from "@/types/response/user-type";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,9 +33,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { ResponseDto } from "@/dto/response-dto";
+import { User } from "@/types/response/user-type";
+
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
-
 import { customToast } from "@/lib/custom/utils";
 
 import { PROFILE_PICTURE_FILE_SIZE_LIMIT } from "@/constants/limits";

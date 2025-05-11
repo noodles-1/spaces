@@ -5,6 +5,7 @@ import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
 import { DataViews } from "@/components/custom/data/data-views";
 import { GridView } from "@/components/custom/data/grid/grid-view";
 import { ListView } from "@/components/custom/data/list/list-view";
+import { Dropzone } from "@/components/custom/data/dropzone";
 
 const Home = () => {
     const { view } = useDataViewStore(state => state);
@@ -15,7 +16,8 @@ const Home = () => {
                 <span className="text-xl"> Home </span>
                 <DataViews />
             </section>
-            <main>
+            <main className="relative">
+                <Dropzone />
                 {view === "grid" && <GridView />}
                 {view === "list" && <ListView />}
             </main>

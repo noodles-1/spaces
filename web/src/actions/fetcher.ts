@@ -1,19 +1,24 @@
+import { redirect } from "next/navigation";
+
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
 
+import { signOutUser } from "@/actions/user";
 import { ResponseDto } from "@/dto/response-dto";
-import { redirect } from "next/navigation";
 
 export async function fetcher(endpoint: string): Promise<ResponseDto> {
     try {
         const response = await axiosClient.get(endpoint, { headers: { "Content-Type": "application/json" } });
         return response.data as ResponseDto;
-    } 
+    }
     catch (error) {
         const responseAxiosError = error as AxiosError;
         const data = responseAxiosError.response?.data as ResponseDto;
 
         if (["COOKIES_NOT_FOUND", "ACCESS_TOKEN_NOT_FOUND", "ACCESS_TOKEN_INVALID", "ACCESS_TOKEN_MALFORMED"].includes(data.errorCode as string)) {
+            if (data.errorCode === "ACCESS_TOKEN_INVALID")
+                await signOutUser();
+
             redirect("/login");
         }
 
@@ -38,6 +43,7 @@ export async function fetcher(endpoint: string): Promise<ResponseDto> {
             const refreshTokenResponseErrorData = refreshTokenResponseAxiosError.response?.data as ResponseDto;
             
             if (["REFRESH_TOKEN_EXPIRED", "REFRESH_TOKEN_INVALID"].includes(refreshTokenResponseErrorData.errorCode as string)) {
+                await signOutUser();
                 redirect("/login");
             }
 

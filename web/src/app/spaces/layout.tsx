@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react";
 
 import { DataViewStoreProvider } from "@/zustand/providers/data-view-store-provider";

@@ -8,6 +8,7 @@ import { ListView } from "@/components/custom/data/list/list-view";
 import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
 
 import { ANCESTORS } from "@/constants/data/placeholder";
+import { Dropzone } from "@/components/custom/data/dropzone";
 
 export function FolderPage({
     folderId,
@@ -25,7 +26,8 @@ export function FolderPage({
                 />
                 <DataViews />
             </section>
-            <main>
+            <main className="relative">
+                <Dropzone />
                 {view === "grid" && <GridView />}
                 {view === "list" && <ListView />}
             </main>
