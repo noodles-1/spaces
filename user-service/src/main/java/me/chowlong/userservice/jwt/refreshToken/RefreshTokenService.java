@@ -1,12 +1,14 @@
 package me.chowlong.userservice.jwt.refreshToken;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RefreshTokenService {
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
 
     public RefreshToken getRefreshTokenByAccessToken(String accessToken) {
         return this.refreshTokenRepository.getRefreshTokenByAccessToken(accessToken);

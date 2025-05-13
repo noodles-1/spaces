@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import me.chowlong.userservice.auditLog.AuditLogDto;
 import me.chowlong.userservice.aws.AwsService;
-import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
-import me.chowlong.userservice.exception.cookie.MissingCookieException;
 import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
 import me.chowlong.userservice.exception.user.InvalidImageFileException;
 import me.chowlong.userservice.jwt.JwtService;
@@ -13,7 +11,6 @@ import me.chowlong.userservice.jwt.cookie.CookieService;
 import me.chowlong.userservice.principal.UserPrincipal;
 import me.chowlong.userservice.user.dto.UpdateCustomUsernameDto;
 import me.chowlong.userservice.util.ResponseHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -24,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,17 +31,26 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private CookieService cookieService;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private AwsService awsService;
+    private final UserService userService;
+    private final CookieService cookieService;
+    private final JwtService jwtService;
+    private final AwsService awsService;
 
-    @Autowired
-    private KafkaTemplate<String, AuditLogDto> kafkaTemplate;
+    private final KafkaTemplate<String, AuditLogDto> kafkaTemplate;
+
+    public UserController(
+            UserService userService,
+            CookieService cookieService,
+            JwtService jwtService,
+            AwsService awsService,
+            KafkaTemplate<String, AuditLogDto> kafkaTemplate
+    ) {
+        this.userService = userService;
+        this.cookieService = cookieService;
+        this.jwtService = jwtService;
+        this.awsService = awsService;
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @GetMapping("/me")
     public ResponseEntity<Object> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {

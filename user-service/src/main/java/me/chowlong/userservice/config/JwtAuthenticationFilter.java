@@ -3,19 +3,13 @@ package me.chowlong.userservice.config;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import me.chowlong.userservice.exception.accessToken.AccessTokenNotFoundException;
-import me.chowlong.userservice.exception.cookie.MissingCookieException;
-import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
 import me.chowlong.userservice.jwt.cookie.CookieService;
 import me.chowlong.userservice.principal.UserPrincipal;
 import me.chowlong.userservice.user.User;
-import me.chowlong.userservice.user.UserRepository;
 import me.chowlong.userservice.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,15 +23,23 @@ import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private HandlerExceptionResolver handlerExceptionResolver;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private CookieService cookieService;
+    private final JwtService jwtService;
+    private final UserService userService;
+    private final CookieService cookieService;
+
+    public JwtAuthenticationFilter(
+            HandlerExceptionResolver handlerExceptionResolver,
+            JwtService jwtService,
+            UserService userService,
+            CookieService cookieService
+    ) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtService = jwtService;
+        this.userService = userService;
+        this.cookieService = cookieService;
+    }
 
     @Override
     protected void doFilterInternal(

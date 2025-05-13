@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +17,11 @@ public class AwsService {
     @Value("${aws.cdn-endpoint}")
     private String cdnEndpoint;
 
-    @Autowired
-    private AmazonS3 s3Client;
+    private final AmazonS3 s3Client;
+
+    public AwsService(AmazonS3 s3Client) {
+        this.s3Client = s3Client;
+    }
 
     public String uploadFile(String keyName, String contentType, long contentLength, InputStream inputStream) {
         ObjectMetadata metadata = new ObjectMetadata();

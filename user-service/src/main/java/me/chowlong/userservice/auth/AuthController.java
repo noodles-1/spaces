@@ -28,7 +28,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -44,18 +43,26 @@ public class AuthController {
     @Value("${auth.providers.discord.client-secret}")
     private String discordClientSecret;
 
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-    @Autowired
-    private CookieService cookieService;
+    private final JwtService jwtService;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
+    private final CookieService cookieService;
 
-    @Autowired
-    @Qualifier("externalRestTemplate")
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public AuthController(
+            JwtService jwtService,
+            UserService userService,
+            RefreshTokenService refreshTokenService,
+            CookieService cookieService,
+            @Qualifier("externalRestTemplate") RestTemplate restTemplate
+    ) {
+        this.jwtService = jwtService;
+        this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
+        this.cookieService = cookieService;
+        this.restTemplate = restTemplate;
+    }
 
     @PostMapping("/login/github")
     public ResponseEntity<Object> githubLogin(

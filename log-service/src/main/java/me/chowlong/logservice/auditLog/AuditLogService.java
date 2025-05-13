@@ -1,14 +1,16 @@
 package me.chowlong.logservice.auditLog;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class AuditLogService {
-    @Autowired
-    private AuditLogRepository auditLogRepository;
+    private final AuditLogRepository auditLogRepository;
+
+    public AuditLogService(AuditLogRepository auditLogRepository) {
+        this.auditLogRepository = auditLogRepository;
+    }
 
     public void publishAuditLog(AuditLogDto auditLogDto) {
         AuditLog auditLog = new AuditLog();
