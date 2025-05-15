@@ -10,6 +10,7 @@ import me.chowlong.userservice.jwt.cookie.CookieService;
 import me.chowlong.userservice.principal.UserPrincipal;
 import me.chowlong.userservice.user.User;
 import me.chowlong.userservice.user.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CookieService cookieService;
 
     public JwtAuthenticationFilter(
-            HandlerExceptionResolver handlerExceptionResolver,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
             JwtService jwtService,
             UserService userService,
             CookieService cookieService

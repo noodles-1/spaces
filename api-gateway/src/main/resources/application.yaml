@@ -17,6 +17,12 @@ spring:
               - Path=/user/**
             filters:
               - StripPrefix=1
+          - id: STORAGE-SERVICE
+            uri: lb://STORAGE-SERVICE
+            predicates:
+              - Path=/storage/**
+            filters:
+              - StripPrefix=1
 
 eureka:
   client:

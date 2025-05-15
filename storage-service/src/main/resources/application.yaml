@@ -1,0 +1,42 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: STORAGE-SERVICE
+  neo4j:
+    uri: ${STORAGE_SERVICE_DB_URI}
+    authentication:
+      username: ${STORAGE_SERVICE_DB_USERNAME}
+      password: ${STORAGE_SERVICE_DB_PASSWORD}
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL}
+  instance:
+    hostname: ${EUREKA_HOSTNAME}
+
+security:
+  jwt:
+    secret-key: ${SPACES_JWT_SECRET_KEY}
+
+resilience4j:
+  ratelimiter:
+    instances:
+      storage-controller:
+        limit-for-period: 10
+        limit-refresh-period: 20s
+        timeout-duration: 5s
+        register-health-indicator: true
+
+aws:
+  credentials:
+    access-key: ${SPACES_S3_ACCESS_KEY}
+    secret-key: ${SPACES_S3_SECRET_KEY}
+  bucket-name: ${SPACES_S3_BUCKET_NAME}
+  region: ${SPACES_S3_REGION}
+  endpoint: ${SPACES_S3_ENDPOINT}
+  cdn-endpoint: ${SPACES_S3_CDN_ENDPOINT}

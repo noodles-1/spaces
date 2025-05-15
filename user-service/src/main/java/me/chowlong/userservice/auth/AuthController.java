@@ -18,7 +18,6 @@ import me.chowlong.userservice.jwt.refreshToken.RefreshTokenService;
 import me.chowlong.userservice.user.User;
 import me.chowlong.userservice.user.UserService;
 import me.chowlong.userservice.util.ResponseHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
