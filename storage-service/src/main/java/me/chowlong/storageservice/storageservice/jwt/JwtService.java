@@ -19,6 +19,10 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
+    public String extractUserId(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
     private Date extractExpiration(String token) {
         return extractAllClaims(token).getExpiration();
     }
