@@ -8,7 +8,7 @@ import { ListView } from "@/components/custom/data/list/list-view";
 import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
 
 import { ANCESTORS } from "@/constants/data/placeholder";
-import { Dropzone } from "@/components/custom/data/dropzone";
+import { Dropzone } from "@/components/custom/data/upload/dropzone";
 
 export function FolderPage({
     folderId,

@@ -39,7 +39,7 @@ export function DraggableFolderFile({
             >
                 <section className="mx-4 flex h-full w-full items-center justify-between">
                     <div className="flex h-full w-full items-center gap-4">
-                        <FileIcon fileCategory={file.category} />
+                        <FileIcon contentType={file.category} />
                         {file.name}
                     </div>
                 </section>

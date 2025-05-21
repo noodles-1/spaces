@@ -5,4 +5,5 @@ export type FileCategory =
     | "audio"
     | "video"
     | "folder"
-    | "compressed";
+    | "compressed"
+    | "default";

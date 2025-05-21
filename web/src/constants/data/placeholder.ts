@@ -72,7 +72,7 @@ export const FILES: File[] = [
     {
         id: "1",
         name: "item 1",
-        category: "audio",
+        category: "image/png",
         type: "mp3",
         owner: "Chowlong",
         lastModified: new Date(),
@@ -81,7 +81,6 @@ export const FILES: File[] = [
     {
         id: "2",
         name: "item 2",
-        category: "folder",
         type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),
@@ -108,7 +107,6 @@ export const FILES: File[] = [
     {
         id: "5",
         name: "item 5",
-        category: "folder",
         type: "-",
         owner: "Chowlong",
         lastModified: getDateFromToday(2),

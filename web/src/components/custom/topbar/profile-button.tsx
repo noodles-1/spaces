@@ -38,7 +38,7 @@ import { User } from "@/types/response/user-type";
 
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
-import { customToast } from "@/lib/custom/utils";
+import { customToast } from "@/lib/custom/custom-toast";
 
 import { PROFILE_PICTURE_FILE_SIZE_LIMIT } from "@/constants/limits";
 
@@ -105,6 +105,7 @@ export function ProfileButton() {
 
     const [imageFile, setImageFile] = useState<string | null>(null);
     const [submitLoading, setLoading] = useState<boolean>(false);
+    const [loggedOut, setLoggedOut] = useState<boolean>(false);
 
     const queryClient = useQueryClient();
 
@@ -166,6 +167,7 @@ export function ProfileButton() {
     };
 
     const handleLogout = async () => {
+        setLoggedOut(true);
         await signOutMutation.mutateAsync();
         queryClient.clear();
         router.push("/login");
@@ -281,8 +283,8 @@ export function ProfileButton() {
                             </section>
                         </section>
                         <DialogFooter>
-                            <Button type="button" variant="outline" className="cursor-pointer hover:text-red-300" onClick={() => handleLogout()} disabled={signOutMutation.isPending}>
-                                {signOutMutation.isPending ?
+                            <Button type="button" variant="outline" className="cursor-pointer hover:text-red-300" onClick={() => handleLogout()} disabled={loggedOut}>
+                                {loggedOut ?
                                     "Logging-out..."
                                 :
                                     "Logout"

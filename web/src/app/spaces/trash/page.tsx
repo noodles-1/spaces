@@ -4,7 +4,7 @@ import { TrashIcon } from "lucide-react";
 
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
 
-import { customToast } from "@/lib/custom/utils";
+import { customToast } from "@/lib/custom/custom-toast";
 
 import { Button } from "@/components/ui/button";
 

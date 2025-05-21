@@ -1,9 +1,7 @@
-import { FileCategory } from "@/types/file-category-type";
-
 export type File = {
     id: string;
     name: string;
-    category: FileCategory;
+    category?: string;
     type: string;
     owner: string;
     lastModified: Date;

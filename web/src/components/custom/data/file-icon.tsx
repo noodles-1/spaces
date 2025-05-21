@@ -1,7 +1,7 @@
-import { FileCategory } from "@/types/file-category-type";
-
+import { getFileCategoryFromContentType } from "@/lib/custom/content-type";
 import {
     Clapperboard,
+    File,
     FileSpreadsheet,
     FileText,
     Folder,
@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 
 export function FileIcon({
-    fileCategory,
+    contentType,
     className,
 }: {
-    fileCategory: FileCategory;
+    contentType: string;
     className?: string;
 }) {
+    const fileCategory = getFileCategoryFromContentType(contentType);
+
     switch (fileCategory) {
         case "image":
             return <ImageIcon className={className} />;
@@ -32,5 +34,8 @@ export function FileIcon({
             return <Folder className={className} fill="white" />;
         case "compressed":
             return <FolderArchive className={className} />;
+        case "default":
+        default:
+            return <File className={className} />;
     }
 }

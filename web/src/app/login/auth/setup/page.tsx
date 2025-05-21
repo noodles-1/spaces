@@ -27,7 +27,7 @@ import axiosClient from "@/lib/axios-client";
 
 import { signOutUser, updateCustomUsername, updateProfilePicture, updateSetupDone } from "@/actions/user";
 
-import { customToast } from "@/lib/custom/utils";
+import { customToast } from "@/lib/custom/custom-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";

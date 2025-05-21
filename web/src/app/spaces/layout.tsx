@@ -20,7 +20,7 @@ export default function SpacesLayout({
                         <Topbar />
                         <ProfileButton />
                     </div>
-                    <div className="p-6 overflow-hidden grow rounded-tl-2xl bg-zinc-800">
+                    <div className="overflow-hidden grow rounded-tl-2xl bg-zinc-800">
                         <DataViewStoreProvider>
                             {children}
                         </DataViewStoreProvider>

@@ -26,12 +26,10 @@ public class StorageController {
 
     @GetMapping("/generate-upload-url")
     public ResponseEntity<Object> generateUploadUrl(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @NonNull @RequestParam("fileName") String fileName,
             @NonNull @RequestParam("contentType") String contentType
     ) {
-        String keyName = String.format("%s/%s", userPrincipal.getUserId(), fileName);
-        String uploadUrl = this.awsService.generateUploadUrl(keyName, contentType);
+        String uploadUrl = this.awsService.generateUploadUrl(fileName, contentType);
 
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("uploadUrl", uploadUrl);

@@ -5,7 +5,7 @@ import { File } from "@/types/file-type";
 
 import { ArrowUpDown, Star, UserRound } from "lucide-react";
 
-import { customToast } from "@/lib/custom/utils";
+import { customToast } from "@/lib/custom/custom-toast";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
@@ -44,7 +44,7 @@ export const columns: ColumnDef<File>[] = [
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <FileIcon
-                            fileCategory={item.category}
+                            contentType={item.category}
                             className="w-4 h-4"
                         />
                         <span> {item.name} </span>

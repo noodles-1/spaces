@@ -342,7 +342,7 @@ export function DataTable<TData, TValue>({
                                 {draggedRowId && (
                                     <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
                                         <FileIcon
-                                            fileCategory={
+                                            contentType={
                                                 (
                                                     table.getRow(
                                                         `${draggedRowId}`,

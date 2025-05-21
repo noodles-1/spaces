@@ -25,7 +25,7 @@ export function StaticNonFolderFile({
                 onContextMenu={() => handleRightClick(idx)}
             >
                 <div className="flex w-full items-center">
-                    <FileIcon fileCategory={file.category} className="m-4" />
+                    <FileIcon contentType={file.category} className="m-4" />
                     {file.name}
                 </div>
                 <div className="w-full flex-1 px-4 pb-4">

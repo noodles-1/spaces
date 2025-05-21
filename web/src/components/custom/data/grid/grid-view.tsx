@@ -26,8 +26,8 @@ import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 import { FILES } from "@/constants/data/placeholder";
 
 export function GridView() {
-    const FOLDERS = FILES.filter((file) => file.category === "folder");
-    const NON_FOLDERS = FILES.filter((file) => file.category !== "folder");
+    const FOLDERS = FILES.filter((file) => file.category === undefined);
+    const NON_FOLDERS = FILES.filter((file) => file.category !== undefined);
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(
@@ -209,7 +209,7 @@ export function GridView() {
                             {draggedFileIdx >= 0 && (
                                 <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
                                     <FileIcon
-                                        fileCategory={
+                                        contentType={
                                             ALL_FILES[draggedFileIdx].category
                                         }
                                         className="h-4 w-4"
