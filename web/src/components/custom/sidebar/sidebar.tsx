@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Home, Star, Database, Trash, Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { StorageCapacity } from "@/components/custom/sidebar/storage-capacity";
-import { Home, Star, Database, Trash, Plus } from "lucide-react";
+import { NewFolder } from "@/components/custom/sidebar/new-folder";
 
 const items = [
     {
@@ -42,17 +44,7 @@ export function Sidebar() {
             </Link>
             <section className="flex justify-center">
                 <div className="mt-5 flex w-[90%] flex-col gap-4">
-                    <div className="w-full">
-                        <Button
-                            variant="secondary"
-                            className="w-full p-0 rounded-xl hover:cursor-pointer"
-                        >
-                            <div className="flex items-center w-full gap-4 px-6 text-left">
-                                <Plus className="stroke-[4px]" />
-                                <span> New folder </span>
-                            </div>
-                        </Button>
-                    </div>
+                    <NewFolder />
                     {items.map((item: (typeof items)[0], idx: number) => (
                         <Button
                             variant="outline"

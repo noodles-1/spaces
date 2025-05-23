@@ -14,7 +14,7 @@ export function FileIcon({
     contentType,
     className,
 }: {
-    contentType: string;
+    contentType?: string;
     className?: string;
 }) {
     const fileCategory = getFileCategoryFromContentType(contentType);

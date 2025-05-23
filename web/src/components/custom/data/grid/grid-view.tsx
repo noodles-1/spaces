@@ -157,7 +157,7 @@ export function GridView() {
                                             handleRightClick={handleRightClick}
                                         />
                                     ) : draggedFileIdx >= 0 &&
-                                      file.category === "folder" ? (
+                                      !file.category ? (
                                         <DroppableFolderFile
                                             key={file.id}
                                             file={file}

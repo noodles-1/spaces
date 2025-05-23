@@ -32,7 +32,7 @@ export function DraggableNonFolderFile({
         >
             <Button
                 variant="outline"
-                className={`flex h-full w-full flex-col gap-0 rounded-xl p-0 ring-2 ring-[#79a1ffc2] ${draggedFileIdx >= 0 && "opacity-20"} `}
+                className={`flex h-full w-full flex-col gap-0 rounded-xl p-0 ring-2 ring-[#79a1ffc2] ring-inset ${draggedFileIdx >= 0 && "opacity-20"} `}
                 onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >

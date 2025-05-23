@@ -275,51 +275,44 @@ export function DataTable<TData, TValue>({
                                     style={{ height: "calc(100vh - 300px)" }}
                                 >
                                     {table.getRowModel().rows?.length ? (
-                                        table
-                                            .getRowModel()
-                                            .rows.map((row, i) =>
-                                                selectedRows.has(i) ? (
-                                                    <DraggableRow<TData>
-                                                        key={row.id}
-                                                        row={row}
-                                                        idx={i}
-                                                        draggedRowId={
-                                                            draggedRowId
-                                                        }
-                                                        handleLeftClick={
-                                                            handleLeftClick
-                                                        }
-                                                        handleRightClick={
-                                                            handleRightClick
-                                                        }
-                                                    />
-                                                ) : draggedRowId &&
-                                                  (
-                                                      table.getRow(row.id)
-                                                          .original as File
-                                                  ).category === "folder" ? (
-                                                    <DroppableFolder
-                                                        key={row.id}
-                                                        file={
-                                                            table.getRow(row.id)
-                                                                .original as File
-                                                        }
-                                                        row={row}
-                                                    />
-                                                ) : (
-                                                    <StaticRow<TData>
-                                                        key={row.id}
-                                                        row={row}
-                                                        idx={i}
-                                                        handleLeftClick={
-                                                            handleLeftClick
-                                                        }
-                                                        handleRightClick={
-                                                            handleRightClick
-                                                        }
-                                                    />
-                                                ),
-                                            )
+                                        table.getRowModel().rows.map((row, i) => selectedRows.has(i) ? (
+                                            <DraggableRow<TData>
+                                                key={row.id}
+                                                row={row}
+                                                idx={i}
+                                                draggedRowId={
+                                                    draggedRowId
+                                                }
+                                                handleLeftClick={
+                                                    handleLeftClick
+                                                }
+                                                handleRightClick={
+                                                    handleRightClick
+                                                }
+                                            />
+                                        ) : draggedRowId && !(table.getRow(row.id).original as File).category ? (
+                                                <DroppableFolder
+                                                    key={row.id}
+                                                    file={
+                                                        table.getRow(row.id)
+                                                            .original as File
+                                                    }
+                                                    row={row}
+                                                />
+                                            ) : (
+                                                <StaticRow<TData>
+                                                    key={row.id}
+                                                    row={row}
+                                                    idx={i}
+                                                    handleLeftClick={
+                                                        handleLeftClick
+                                                    }
+                                                    handleRightClick={
+                                                        handleRightClick
+                                                    }
+                                                />
+                                            ),
+                                        )
                                     ) : (
                                         <TableRow>
                                             <TableCell

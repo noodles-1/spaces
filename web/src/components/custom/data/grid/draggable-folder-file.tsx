@@ -33,7 +33,7 @@ export function DraggableFolderFile({
         >
             <Button
                 variant="outline"
-                className={`h-full w-full rounded-xl p-0 ring-2 ring-[#79a1ffc2] ${draggedFileIdx >= 0 && "opacity-20"} `}
+                className={`h-full w-full rounded-xl p-0 ring-2 ring-[#79a1ffc2] ring-inset ${draggedFileIdx >= 0 && "opacity-20"} `}
                 onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >
