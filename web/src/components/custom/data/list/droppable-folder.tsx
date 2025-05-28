@@ -1,7 +1,7 @@
 import { flexRender, Row } from "@tanstack/react-table";
 import { useDroppable } from "@dnd-kit/core";
 
-import { File } from "@/types/file-type";
+import { Item } from "@/types/item-type";
 
 import { TableCell, TableRow } from "@/components/ui/table";
 
@@ -10,7 +10,7 @@ export function DroppableFolder<TData>({
     file,
 }: {
     row: Row<TData>;
-    file: File;
+    file: Item;
 }) {
     const { setNodeRef } = useDroppable({
         id: file.name,

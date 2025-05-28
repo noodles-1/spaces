@@ -1,7 +1,16 @@
-import axios from "axios";
 import { FileWithPath } from "react-dropzone";
 
+import axios from "axios";
+import axiosClient from "@/lib/axios-client";
+
 import { fetcher } from "@/actions/fetcher";
+import { ResponseDto } from "@/dto/response-dto";
+import { Item } from "@/types/item-type";
+
+export async function createMainDirectories(): Promise<ResponseDto> {
+    const response = await axiosClient.post("/storage/items/create-main-dirs");
+    return response.data;
+}
 
 interface UploadFileParams {
     file: FileWithPath;
@@ -35,4 +44,20 @@ export async function uploadFile(params: UploadFileParams): Promise<boolean> {
     }
 
     return true;
+}
+
+interface CreateItemParams {
+    name: string;
+    type: "FOLDER" | "FILE";
+    parentId?: string;
+    contentType?: string;
+    size?: number;
+}
+
+export async function createItem(params: CreateItemParams): Promise<ResponseDto<Item>> {
+    const response = await axiosClient.post(`/storage/items/create`, params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
 }

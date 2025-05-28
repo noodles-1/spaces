@@ -66,7 +66,7 @@ const formSchema = z.object({
 
             return /^[a-zA-Z0-9]+$/.test(value) && !value.includes(";");
         }, {
-            message: "Username can only contain letters or numbers"
+            message: "Username can only contain letters or numbers."
         })
         .refine(async (value) => {
             if (value === "")

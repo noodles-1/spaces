@@ -6,6 +6,7 @@ import { DataViews } from "@/components/custom/data/data-views";
 import { GridView } from "@/components/custom/data/grid/grid-view";
 import { ListView } from "@/components/custom/data/list/list-view";
 import { Dropzone } from "@/components/custom/data/upload/dropzone";
+import { Suspense } from "react";
 
 const Home = () => {
     const { view } = useDataViewStore(state => state);
@@ -19,8 +20,12 @@ const Home = () => {
             <main className="relative">
                 <Dropzone />
                 <section className="p-6">
-                    {view === "grid" && <GridView />}
-                    {view === "list" && <ListView />}
+                    <Suspense fallback={<span> Loading... </span>}>
+                        {view === "grid" && <GridView />}
+                    </Suspense>
+                    <Suspense fallback={<span> Loading... </span>}>
+                        {view === "list" && <ListView />}
+                    </Suspense>
                 </section>
             </main>
         </div>

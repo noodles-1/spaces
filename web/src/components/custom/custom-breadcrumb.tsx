@@ -31,13 +31,13 @@ export function CustomBreadcrumb({
         <Breadcrumb>
             <BreadcrumbList className="text-xl">
                 <BreadcrumbItem>
-                    <Link href={`/${root.folderName}`} className="capitalize"> {root.folderName} </Link>
+                    <Link href={`/spaces/${root.folderName}`} className="capitalize"> {root.folderName} </Link>
                 </BreadcrumbItem>
             {ancestors.length === 3 &&
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <Link href={`/folders/${ancestors[n - 2].folderId}`}> {ancestors[n - 2].folderName} </Link>
+                        <Link href={`/spaces/folders/${ancestors[n - 2].folderId}`}> {ancestors[n - 2].folderName} </Link>
                     </BreadcrumbItem>
                 </>
             }
@@ -53,7 +53,7 @@ export function CustomBreadcrumb({
                             <DropdownMenuContent align="start" className="p-2 space-y-2">
                                 {ancestors.slice(1, n - 1).map((ancestor, i) =>
                                     <DropdownMenuItem key={i} className="cursor-pointer">
-                                        <Link href={`/folders/${ancestor.folderId}`}> {ancestor.folderName} </Link>
+                                        <Link href={`/spaces/folders/${ancestor.folderId}`}> {ancestor.folderName} </Link>
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>
@@ -65,7 +65,7 @@ export function CustomBreadcrumb({
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <Link href={`/folders/${ancestors[n - 1].folderId}`}> {ancestors[n - 1].folderName} </Link>
+                        <Link href={`/spaces/folders/${ancestors[n - 1].folderId}`}> {ancestors[n - 1].folderName} </Link>
                     </BreadcrumbItem>
                 </>
             }

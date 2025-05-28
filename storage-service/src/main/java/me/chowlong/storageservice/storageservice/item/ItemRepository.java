@@ -17,4 +17,30 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN children
     """)
     List<Item> findChildrenById(@Param("parentId") String parentId);
+
+    @Query("""
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            WHERE child.name = $userId
+            WITH child
+            MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
+            RETURN grandChildren
+    """)
+    List<Item> findAccessibleRootChildren(@Param("userId") String userId);
+
+    @Query("""
+            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            WHERE child.name = $userId
+            WITH child
+            MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
+            RETURN grandChildren
+    """)
+    List<Item> findInaccessibleRootChildren(@Param("userId") String userId);
+
+    @Query("""
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            WHERE child.name = $userId
+            RETURN child
+            LIMIT 1
+    """)
+    Item findMainAccessibleDirectory(@Param("userId") String userId);
 }

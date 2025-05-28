@@ -1,6 +1,6 @@
 import React from "react";
 
-import { File } from "@/types/file-type";
+import { Item } from "@/types/item-type";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
@@ -12,7 +12,7 @@ export function StaticFolderFile({
     handleRightClick,
 }: {
     idx: number;
-    file: File;
+    file: Item;
     handleLeftClick: (event: React.MouseEvent, idx: number) => void;
     handleRightClick: (idx: number) => void;
 }) {
@@ -26,7 +26,7 @@ export function StaticFolderFile({
             >
                 <section className="mx-4 flex h-full w-full items-center justify-between">
                     <div className="flex h-full w-full items-center gap-4">
-                        <FileIcon contentType={file.category} />
+                        <FileIcon contentType={file.contentType} />
                         {file.name}
                     </div>
                 </section>

@@ -9,6 +9,7 @@ import me.chowlong.storageservice.storageservice.enums.AuthenticationErrorCode;
 import me.chowlong.storageservice.storageservice.exception.accessToken.AccessTokenExpiredException;
 import me.chowlong.storageservice.storageservice.exception.accessToken.AccessTokenNotFoundException;
 import me.chowlong.storageservice.storageservice.exception.cookie.MissingCookieException;
+import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -55,6 +56,11 @@ public class GlobalExceptionHandler {
             problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
             problemDetail.setProperty("message", "HttpOnly cookie not found in the request.");
             problemDetail.setProperty("errorCode", AuthenticationErrorCode.COOKIES_NOT_FOUND);
+        }
+        else if (exception instanceof ItemNameInvalidException) {
+            problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
+            problemDetail.setProperty("message", "Item name is invalid.");
+            problemDetail.setProperty("errorCode", ApplicationErrorCode.ITEM_NAME_INVALID);
         }
 
         if (problemDetail == null) {

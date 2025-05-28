@@ -23,12 +23,12 @@ const Trash = () => {
     };
 
     return (
-        <div className="flex flex-col flex-1 gap-6">
-            <section className="flex items-center justify-between">
+        <div className="flex flex-col flex-1 gap-2">
+            <section className="flex items-center justify-between px-6 pt-6">
                 <span className="text-xl"> Trash </span>
                 <DataViews />
             </section>
-            <div className="flex items-center justify-between px-4 rounded-lg bg-zinc-900 h-14">
+            <div className="flex items-center justify-between px-4 rounded-lg bg-zinc-900 h-14 mx-6 mt-2">
                 <span className="text-sm text-zinc-300"> Items in trash will be deleted after 30 days. </span>
                 <Button 
                     variant="link" 
@@ -39,8 +39,10 @@ const Trash = () => {
                 </Button>
             </div>
             <main>
-                {view === "grid" && <GridView />}
-                {view === "list" && <ListView />}
+                <section className="p-6">
+                    {view === "grid" && <GridView />}
+                    {view === "list" && <ListView />}
+                </section>
             </main>
         </div>
     );

@@ -5,6 +5,6 @@ import { AuthenticationErrorCode } from "@/types/auth-error-code-type";
 export interface ResponseDto<T = any> {
     status: number;
     message: string;
-    data?: T;
+    data: T;
     errorCode?: ApplicationErrorCode | AuthenticationErrorCode;
 };

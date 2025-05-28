@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Home, Star, Database, Trash, Plus } from "lucide-react";
+import { Home, Star, Database, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { StorageCapacity } from "@/components/custom/sidebar/storage-capacity";

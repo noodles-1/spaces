@@ -24,7 +24,7 @@ import {
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
 import { DataTableProps } from "@/types/data-table-type";
-import { File } from "@/types/file-type";
+import { Item } from "@/types/item-type";
 
 import {
     Table,
@@ -290,12 +290,12 @@ export function DataTable<TData, TValue>({
                                                     handleRightClick
                                                 }
                                             />
-                                        ) : draggedRowId && !(table.getRow(row.id).original as File).category ? (
+                                        ) : draggedRowId && !(table.getRow(row.id).original as Item).contentType ? (
                                                 <DroppableFolder
                                                     key={row.id}
                                                     file={
                                                         table.getRow(row.id)
-                                                            .original as File
+                                                            .original as Item
                                                     }
                                                     row={row}
                                                 />
@@ -339,15 +339,15 @@ export function DataTable<TData, TValue>({
                                                 (
                                                     table.getRow(
                                                         `${draggedRowId}`,
-                                                    ).original as File
-                                                ).category
+                                                    ).original as Item
+                                                ).contentType
                                             }
                                             className="h-4 w-4"
                                         />
                                         {
                                             (
                                                 table.getRow(`${draggedRowId}`)
-                                                    .original as File
+                                                    .original as Item
                                             ).name
                                         }
                                         {selectedRows.size > 1 && (

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { File } from "@/types/file-type";
+import { Item } from "@/types/item-type";
 
 import { ArrowUpDown, Star, UserRound } from "lucide-react";
 
@@ -9,8 +9,9 @@ import { customToast } from "@/lib/custom/custom-toast";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
+import { formatFileSize } from "@/lib/custom/file-size";
 
-export const columns: ColumnDef<File>[] = [
+export const columns: ColumnDef<Item>[] = [
     {
         accessorKey: "name",
         header: ({ column }) => {
@@ -44,7 +45,7 @@ export const columns: ColumnDef<File>[] = [
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <FileIcon
-                            contentType={item.category}
+                            contentType={item.contentType}
                             className="w-4 h-4"
                         />
                         <span> {item.name} </span>
@@ -66,7 +67,7 @@ export const columns: ColumnDef<File>[] = [
                     <div className="rounded-full p-1.5 outline">
                         <UserRound className="w-5 h-5" />
                     </div>
-                    <span> {row.original.owner} </span>
+                    <span> Chowlong </span>
                 </div>
             );
         },
@@ -90,13 +91,15 @@ export const columns: ColumnDef<File>[] = [
             );
         },
         cell: ({ row }) => {
-            const itemLastModifiedDate = row.original.lastModified;
+            const itemLastModifiedDate = new Date(row.original.updatedAt);
             const formattedDate = itemLastModifiedDate.toLocaleDateString(
                 "en-US",
                 {
                     month: "short",
                     day: "numeric",
                     year: "numeric",
+                    hour: "numeric",
+                    minute: "numeric"
                 },
             );
 
@@ -114,7 +117,13 @@ export const columns: ColumnDef<File>[] = [
         accessorKey: "size",
         header: "Size",
         cell: ({ row }) => (
-            <span className="text-zinc-300"> {row.original.size} </span>
+            <>
+                {row.original.size ?
+                    <span className="text-zinc-300"> {formatFileSize(row.original.size)} </span>
+                :
+                    <span className="text-zinc-300"> - </span>
+                }
+            </>
         ),
     },
 ];

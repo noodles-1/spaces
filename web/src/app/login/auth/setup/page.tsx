@@ -33,6 +33,7 @@ import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 
 import { PROFILE_PICTURE_FILE_SIZE_LIMIT } from "@/constants/limits";
+import { createMainDirectories } from "@/actions/storage";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -100,6 +101,10 @@ export default function AuthSetupPage() {
         mutationFn: updateSetupDone
     });
 
+    const createMainDirectoriesMutation = useMutation({
+        mutationFn: createMainDirectories
+    });
+
     const signOutUserMutation = useMutation({
         mutationFn: signOutUser
     });
@@ -151,6 +156,7 @@ export default function AuthSetupPage() {
         try {
             setLoading(true);
 
+            await createMainDirectoriesMutation.mutateAsync();
             await updateSetupDoneMutation.mutateAsync();
             await updateCustomUsernameMutation.mutateAsync({
                 customUsername: values.customUsername

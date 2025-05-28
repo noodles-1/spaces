@@ -8,7 +8,7 @@ import me.chowlong.storageservice.storageservice.enums.ItemType;
 
 @Getter
 @Setter
-public class NewItemDTO {
+public class NewItemRequestDTO {
     @Nonnull
     private String name;
     @Nonnull
@@ -17,4 +17,6 @@ public class NewItemDTO {
     private String parentId;
     @Nullable
     private String contentType;
+    @Nullable
+    private Long size;
 }

@@ -11,7 +11,7 @@ import {
 
 import { Ancestor } from "@/types/ancestor-type";
 import { DropdownItem } from "@/types/dropdown-items-type";
-import { File } from "@/types/file-type";
+import { Item } from "@/types/item-type";
 
 export const DROPDOWN_ITEM_GROUPS: DropdownItem[][] = [
     [
@@ -68,58 +68,50 @@ function getDateFromToday(days: number) {
     return date;
 }
 
-export const FILES: File[] = [
+export const FILES: Item[] = [
     {
         id: "1",
         name: "item 1",
-        category: "image/png",
+        contentType: "image/png",
         type: "mp3",
-        owner: "Chowlong",
-        lastModified: new Date(),
-        size: "3.2 MB",
+        updatedAt: new Date(),
+        size: 100,
     },
     {
         id: "2",
         name: "item 2",
         type: "-",
-        owner: "Chowlong",
-        lastModified: getDateFromToday(2),
-        size: "-",
+        updatedAt: getDateFromToday(2),
     },
     {
         id: "3",
         name: "item 3",
-        category: "image",
+        contentType: "image",
         type: "png",
-        owner: "Chowlong",
-        lastModified: getDateFromToday(15),
-        size: "725 KB",
+        updatedAt: getDateFromToday(15),
+        size: 100,
     },
     {
         id: "4",
         name: "item 4",
-        category: "document",
+        contentType: "document",
         type: "docx",
-        owner: "Chowlong",
-        lastModified: getDateFromToday(7),
-        size: "75 KB",
+        updatedAt: getDateFromToday(7),
+        size: 100,
     },
     {
         id: "5",
         name: "item 5",
         type: "-",
-        owner: "Chowlong",
-        lastModified: getDateFromToday(2),
-        size: "-",
+        updatedAt: getDateFromToday(2),
     },
     {
         id: "6",
         name: "item 6",
-        category: "compressed",
+        contentType: "compressed",
         type: "zip",
-        owner: "Chowlong",
-        lastModified: getDateFromToday(10),
-        size: "2.8 MB",
+        updatedAt: getDateFromToday(10),
+        size: 100,
     },
 ];
 

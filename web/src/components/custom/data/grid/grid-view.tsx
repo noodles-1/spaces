@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     DndContext,
@@ -22,12 +23,20 @@ import { ContextMenuContentDropdown } from "@/components/custom/data/context-men
 import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
+import { fetcher } from "@/actions/fetcher";
+import { ResponseDto } from "@/dto/response-dto";
+import { Item } from "@/types/item-type";
+
 import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
-import { FILES } from "@/constants/data/placeholder";
 
 export function GridView() {
-    const FOLDERS = FILES.filter((file) => file.category === undefined);
-    const NON_FOLDERS = FILES.filter((file) => file.category !== undefined);
+    const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+        queryKey: ["user-accessible-items"],
+        queryFn: () => fetcher("/storage/items/accessible/children")
+    });
+
+    const FOLDERS = userItems.data.children.filter((file) => file.type === "FOLDER");
+    const NON_FOLDERS = userItems.data.children.filter((file) => file.type === "FILE");
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(
@@ -95,7 +104,7 @@ export function GridView() {
             const start = Math.min(lastSelectedFileIdx, idx);
             const end = Math.max(lastSelectedFileIdx, idx);
 
-            for (let i = 0; i < FILES.length; i++) {
+            for (let i = 0; i < ALL_FILES.length; i++) {
                 if (start <= i && i <= end) {
                     selectFile(i);
                 } else {
@@ -143,62 +152,66 @@ export function GridView() {
                         className="flex flex-col gap-8 overflow-y-auto select-none"
                         style={{ height: "calc(100vh - 200px)" }}
                     >
-                        <section className="flex flex-col gap-4">
-                            <span> Folders </span>
-                            <div className="flex flex-wrap gap-4">
-                                {FOLDERS.map((file, i) =>
-                                    selectedFiles.has(i) ? (
-                                        <DraggableFolderFile
-                                            key={i}
-                                            idx={i}
-                                            file={file}
-                                            draggedFileIdx={draggedFileIdx}
-                                            handleLeftClick={handleLeftClick}
-                                            handleRightClick={handleRightClick}
-                                        />
-                                    ) : draggedFileIdx >= 0 &&
-                                      !file.category ? (
-                                        <DroppableFolderFile
-                                            key={file.id}
-                                            file={file}
-                                        />
-                                    ) : (
-                                        <StaticFolderFile
-                                            key={file.id}
-                                            idx={i}
-                                            file={file}
-                                            handleLeftClick={handleLeftClick}
-                                            handleRightClick={handleRightClick}
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </section>
-                        <section className="flex flex-col gap-4">
-                            <span> Files </span>
-                            <div className="flex flex-wrap gap-4">
-                                {NON_FOLDERS.map((file, i) =>
-                                    selectedFiles.has(i + FOLDERS.length) ? (
-                                        <DraggableNonFolderFile
-                                            key={file.id}
-                                            idx={i + FOLDERS.length}
-                                            file={file}
-                                            draggedFileIdx={draggedFileIdx}
-                                            handleLeftClick={handleLeftClick}
-                                            handleRightClick={handleRightClick}
-                                        />
-                                    ) : (
-                                        <StaticNonFolderFile
-                                            key={file.id}
-                                            idx={i + FOLDERS.length}
-                                            file={file}
-                                            handleLeftClick={handleLeftClick}
-                                            handleRightClick={handleRightClick}
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </section>
+                        {FOLDERS.length > 0 &&
+                            <section className="flex flex-col gap-4">
+                                <span> Folders </span>
+                                <div className="flex flex-wrap gap-4">
+                                    {FOLDERS.map((file, i) =>
+                                        selectedFiles.has(i) ? (
+                                            <DraggableFolderFile
+                                                key={i}
+                                                idx={i}
+                                                file={file}
+                                                draggedFileIdx={draggedFileIdx}
+                                                handleLeftClick={handleLeftClick}
+                                                handleRightClick={handleRightClick}
+                                            />
+                                        ) : draggedFileIdx >= 0 &&
+                                        !file.contentType ? (
+                                            <DroppableFolderFile
+                                                key={file.id}
+                                                file={file}
+                                            />
+                                        ) : (
+                                            <StaticFolderFile
+                                                key={file.id}
+                                                idx={i}
+                                                file={file}
+                                                handleLeftClick={handleLeftClick}
+                                                handleRightClick={handleRightClick}
+                                            />
+                                        ),
+                                    )}
+                                </div>
+                            </section>
+                        }
+                        {NON_FOLDERS.length > 0 &&
+                            <section className="flex flex-col gap-4">
+                                <span> Files </span>
+                                <div className="flex flex-wrap gap-4">
+                                    {NON_FOLDERS.map((file, i) =>
+                                        selectedFiles.has(i + FOLDERS.length) ? (
+                                            <DraggableNonFolderFile
+                                                key={file.id}
+                                                idx={i + FOLDERS.length}
+                                                file={file}
+                                                draggedFileIdx={draggedFileIdx}
+                                                handleLeftClick={handleLeftClick}
+                                                handleRightClick={handleRightClick}
+                                            />
+                                        ) : (
+                                            <StaticNonFolderFile
+                                                key={file.id}
+                                                idx={i + FOLDERS.length}
+                                                file={file}
+                                                handleLeftClick={handleLeftClick}
+                                                handleRightClick={handleRightClick}
+                                            />
+                                        ),
+                                    )}
+                                </div>
+                            </section>
+                        }
                         <DragOverlay
                             modifiers={[
                                 snapTopLeftToCursor,
@@ -210,7 +223,7 @@ export function GridView() {
                                 <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
                                     <FileIcon
                                         contentType={
-                                            ALL_FILES[draggedFileIdx].category
+                                            ALL_FILES[draggedFileIdx].contentType
                                         }
                                         className="h-4 w-4"
                                     />

@@ -18,8 +18,8 @@ export function FolderPage({
     const { view } = useDataViewStore(state => state);
 
     return (
-        <div className="flex flex-col flex-1 gap-6">
-            <section className="flex items-center justify-between">
+        <div className="flex flex-col flex-1 gap-2">
+            <section className="flex items-center justify-between px-6 pt-6">
                 <CustomBreadcrumb 
                     currentFolder={folderId}
                     ancestors={ANCESTORS}
@@ -28,8 +28,10 @@ export function FolderPage({
             </section>
             <main className="relative">
                 <Dropzone />
-                {view === "grid" && <GridView />}
-                {view === "list" && <ListView />}
+                <section className="p-6">
+                    {view === "grid" && <GridView />}
+                    {view === "list" && <ListView />}
+                </section>
             </main>
         </div>
     );

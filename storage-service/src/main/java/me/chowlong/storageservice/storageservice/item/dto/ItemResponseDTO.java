@@ -1,4 +1,4 @@
-package me.chowlong.storageservice.storageservice.item;
+package me.chowlong.storageservice.storageservice.item.dto;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -7,51 +7,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.chowlong.storageservice.storageservice.enums.ItemType;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-@Node("Item")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
-    @Id
+public class ItemResponseDTO {
+    @Nonnull
     private String id;
-
     @Nonnull
     private String name;
-
     @Nullable
     private String ownerUserId;
-
     @Nonnull
     private ItemType type;
-
     @Nullable
     private String contentType;
-
     @Nullable
     private Long size;
-
     @Nonnull
-    private boolean isRoot = false;
-
-    @Nonnull
-    @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
-    private List<Item> children = new ArrayList<>();
-
+    private boolean isRoot;
     @Nullable
     private String accessibleParentId;
-
     @Nonnull
     private Date createdAt;
-
     @Nonnull
     private Date updatedAt;
 }
