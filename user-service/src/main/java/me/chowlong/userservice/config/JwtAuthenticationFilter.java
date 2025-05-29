@@ -53,8 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/auth/login") ||
                 requestURI.startsWith("/auth/register") ||
                 requestURI.startsWith("/auth/token/refresh") ||
-                requestURI.startsWith("/users/provider-email-exists") ||
-                requestURI.startsWith("/users/custom-username-exists")
+                requestURI.startsWith("/users/custom-username-exists") ||
+                requestURI.startsWith("/users/info")
         ) {
             filterChain.doFilter(request, response);
             return;

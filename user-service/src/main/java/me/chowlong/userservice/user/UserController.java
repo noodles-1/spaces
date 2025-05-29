@@ -6,10 +6,11 @@ import me.chowlong.userservice.auditLog.AuditLogDto;
 import me.chowlong.userservice.aws.AwsService;
 import me.chowlong.userservice.exception.user.CustomUsernameInvalidException;
 import me.chowlong.userservice.exception.user.InvalidImageFileException;
+import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
 import me.chowlong.userservice.jwt.cookie.CookieService;
 import me.chowlong.userservice.principal.UserPrincipal;
-import me.chowlong.userservice.user.dto.UpdateCustomUsernameDto;
+import me.chowlong.userservice.user.dto.UpdateCustomUsernameDTO;
 import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,14 @@ public class UserController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("user", userPrincipal.getUser());
         return ResponseHandler.generateResponse("Fetched current user successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/info/{userId}")
+    public ResponseEntity<Object> getUserInfo(@PathVariable("userId") String userId) throws UserNotFoundException {
+        User user = this.userService.getUserById(userId);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("user", user);
+        return ResponseHandler.generateResponse("Fetched user information successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/custom-username-exists/{customUsername}")
@@ -114,7 +123,7 @@ public class UserController {
     @PostMapping("/me/update-custom-username")
     public ResponseEntity<Object> updateCustomUsername(
             @NonNull HttpServletRequest request,
-            @Valid @RequestBody UpdateCustomUsernameDto updateCustomUsernameDto
+            @Valid @RequestBody UpdateCustomUsernameDTO updateCustomUsernameDto
     ) throws Exception {
         String newCustomUsername = updateCustomUsernameDto.getNewCustomUsername();
         if (newCustomUsername.length() < 4 || 20 < newCustomUsername.length()) {

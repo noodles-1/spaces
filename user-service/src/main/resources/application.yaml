@@ -34,7 +34,7 @@ eureka:
 security:
   jwt:
     secret-key: ${SPACES_JWT_SECRET_KEY}
-    access-token-expiration: 1_800_000  # 15 minutes
+    access-token-expiration: 6_000_000  # 50 minutes
     refresh-token-expiration: 604_800_000  # 7 days
 
 resilience4j:

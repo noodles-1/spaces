@@ -4,7 +4,7 @@ import jakarta.annotation.Nonnull;
 import lombok.Getter;
 
 @Getter
-public class UpdateCustomUsernameDto {
+public class UpdateCustomUsernameDTO {
     @Nonnull
     private String newCustomUsername;
 }

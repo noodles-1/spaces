@@ -7,7 +7,7 @@ public class ApplicationConstants {
             "/auth/login/**",
             "/auth/register",
             "/auth/token/refresh",
-            "/users/provider-email-exists/**",
-            "/users/custom-username-exists/**"
+            "/users/custom-username-exists/**",
+            "/users/info/**"
     };
 }

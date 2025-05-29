@@ -192,7 +192,7 @@ export function DataTable<TData, TValue>({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="px-6 rounded-lg cursor-pointer"
+                            className="z-50 px-6 rounded-lg cursor-pointer"
                         >
                             Columns
                         </Button>
@@ -234,7 +234,7 @@ export function DataTable<TData, TValue>({
                             .getColumn("name")
                             ?.setFilterValue(event.target.value)
                     }
-                    className="w-[15rem]"
+                    className="w-[15rem] z-50"
                 />
             </section>
             <ContextMenu>
