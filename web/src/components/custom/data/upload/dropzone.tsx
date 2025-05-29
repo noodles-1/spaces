@@ -27,10 +27,10 @@ export function Dropzone() {
             border-4 border-dashed border-spaces-primary bg-zinc-700 rounded-2xl
             ${isDragActive && "z-50 opacity-50"}
         `}>
-            <div {...getRootProps()} className="h-screen w-screen">
+            <div {...getRootProps()} className="w-screen h-screen">
                 <input {...getInputProps()} />
             </div>
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm">
+            <span className="absolute text-sm -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
                 Drop your files here to upload.
             </span>
         </main>

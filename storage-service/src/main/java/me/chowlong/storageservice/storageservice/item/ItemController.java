@@ -81,7 +81,7 @@ public class ItemController {
             @Valid @RequestBody NewItemRequestDTO newItemDTO
     ) throws ItemNameInvalidException {
         String itemName = newItemDTO.getName();
-        if (itemName.isEmpty() || 50 < itemName.length()) {
+        if (itemName.isEmpty()) {
             throw new ItemNameInvalidException();
         }
 

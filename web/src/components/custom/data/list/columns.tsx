@@ -42,18 +42,20 @@ export const columns: ColumnDef<Item>[] = [
             };
 
             return (
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-8">
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center w-full gap-8">
                         <FileIcon
                             contentType={item.contentType}
                             className="w-4 h-4"
                         />
-                        <span> {item.name} </span>
+                        <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                            {item.name}
+                        </div>
+                        <Star
+                            onClick={handleStarred}
+                            className="w-4 h-4 mx-4 opacity-0 cursor-pointer group-hover:opacity-100 hover:fill-white"
+                        />
                     </div>
-                    <Star
-                        onClick={handleStarred}
-                        className="w-4 h-4 mx-4 opacity-0 cursor-pointer group-hover:opacity-100 hover:fill-white"
-                    />
                 </div>
             );
         },
@@ -63,11 +65,13 @@ export const columns: ColumnDef<Item>[] = [
         header: "Owner",
         cell: ({ row }) => {
             return (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center w-full gap-4">
                     <div className="rounded-full p-1.5 outline">
                         <UserRound className="w-5 h-5" />
                     </div>
-                    <span> Chowlong </span>
+                    <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                        {row.original.ownerUserId} 
+                    </div>
                 </div>
             );
         },

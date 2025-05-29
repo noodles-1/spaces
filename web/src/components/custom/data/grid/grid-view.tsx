@@ -227,7 +227,9 @@ export function GridView() {
                                         }
                                         className="h-4 w-4"
                                     />
-                                    {ALL_FILES[draggedFileIdx].name}
+                                    <div className="flex-1 text-ellipsis whitespace-nowrap overflow-x-hidden">
+                                        {ALL_FILES[draggedFileIdx].name}
+                                    </div>
                                     {selectedFiles.size > 1 && (
                                         <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
                                             +{selectedFiles.size - 1}

@@ -344,12 +344,14 @@ export function DataTable<TData, TValue>({
                                             }
                                             className="h-4 w-4"
                                         />
-                                        {
-                                            (
-                                                table.getRow(`${draggedRowId}`)
+                                        <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
+                                            {
+                                                (
+                                                    table.getRow(`${draggedRowId}`)
                                                     .original as Item
-                                            ).name
-                                        }
+                                                ).name
+                                            }
+                                        </div>
                                         {selectedRows.size > 1 && (
                                             <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
                                                 +{selectedRows.size - 1}
