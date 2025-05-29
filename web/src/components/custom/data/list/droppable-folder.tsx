@@ -21,7 +21,7 @@ export function DroppableFolder<TData>({
             key={row.id}
             ref={setNodeRef}
             data-state={row.getIsSelected() && "selected"}
-            className="grid grid-cols-5 bg-zinc-700 transition-all hover:bg-zinc-600 hover:ring-2 hover:ring-gray-300 hover:ring-inset"
+            className="grid grid-cols-5 transition-all bg-zinc-700 hover:bg-zinc-600 hover:ring-2 hover:ring-gray-300 hover:ring-inset"
         >
             {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id} className="flex items-center py-3">

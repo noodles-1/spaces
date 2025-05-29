@@ -114,7 +114,7 @@ export const columns: ColumnDef<Item>[] = [
         accessorKey: "type",
         header: "Type",
         cell: ({ row }) => (
-            <span className="text-zinc-300"> {row.original.type} </span>
+            <span className="text-zinc-300"> {row.original.contentType ?? "-"} </span>
         ),
     },
     {

@@ -1,6 +1,5 @@
 import Link from "next/link";
-
-import { Ancestor } from "@/types/ancestor-type";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     Breadcrumb,
@@ -17,31 +16,38 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { fetcher } from "@/actions/fetcher";
+import { ResponseDto } from "@/dto/response-dto";
+import { Item } from "@/types/item-type";
+
 export function CustomBreadcrumb({
-    currentFolder,
-    ancestors,
+    folderId
 }: {
-    currentFolder: string
-    ancestors: Ancestor[]
+    folderId: string
 }) {
-    const root = ancestors[0];
+    const { data: ancestorItems } = useSuspenseQuery<ResponseDto<{ ancestors: Item[] }>>({
+        queryKey: ["owner-ancestor-items", folderId],
+        queryFn: () => fetcher(`/storage/items/owner-ancestors/${folderId}`)
+    });
+
+    const ancestors = ancestorItems.data.ancestors;
     const n = ancestors.length;
 
     return (
         <Breadcrumb>
             <BreadcrumbList className="text-xl">
                 <BreadcrumbItem>
-                    <Link href={`/spaces/${root.folderName}`} className="capitalize"> {root.folderName} </Link>
+                    <Link href={`/spaces/home`} className="capitalize"> Home </Link>
                 </BreadcrumbItem>
-            {ancestors.length === 3 &&
+            {ancestors.length === 4 &&
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <Link href={`/spaces/folders/${ancestors[n - 2].folderId}`}> {ancestors[n - 2].folderName} </Link>
+                        <Link href={`/spaces/folders/${ancestors[n - 3].id}`}> {ancestors[n - 3].name} </Link>
                     </BreadcrumbItem>
                 </>
             }
-            {ancestors.length > 3 &&
+            {ancestors.length > 4 &&
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -51,9 +57,9 @@ export function CustomBreadcrumb({
                                 <span className="sr-only"> Toggle menu </span>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="start" className="p-2 space-y-2">
-                                {ancestors.slice(1, n - 1).map((ancestor, i) =>
+                                {ancestors.slice(1, n - 2).map((ancestor, i) =>
                                     <DropdownMenuItem key={i} className="cursor-pointer">
-                                        <Link href={`/spaces/folders/${ancestor.folderId}`}> {ancestor.folderName} </Link>
+                                        <Link href={`/spaces/folders/${ancestor.id}`}> {ancestor.name} </Link>
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>
@@ -61,17 +67,17 @@ export function CustomBreadcrumb({
                     </BreadcrumbItem>
                 </>
             }
-            {ancestors.length >= 2 &&
+            {ancestors.length >= 3 &&
                 <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <Link href={`/spaces/folders/${ancestors[n - 1].folderId}`}> {ancestors[n - 1].folderName} </Link>
+                        <Link href={`/spaces/folders/${ancestors[n - 2].id}`}> {ancestors[n - 2].name} </Link>
                     </BreadcrumbItem>
                 </>
             }
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-                <BreadcrumbPage> {currentFolder} </BreadcrumbPage>
+                <BreadcrumbPage> {ancestors[n - 1].name} </BreadcrumbPage>
             </BreadcrumbItem>
             </BreadcrumbList>
         </Breadcrumb>

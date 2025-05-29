@@ -20,14 +20,14 @@ export function StaticFolderFile({
         <div className="relative h-14 w-[230px]">
             <Button
                 variant="outline"
-                className="h-full w-full rounded-xl p-4"
+                className="w-full h-full p-4 rounded-xl"
                 onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >
-                <section className="flex h-full w-full items-center justify-between">
-                    <div className="flex h-full w-full items-center gap-4">
+                <section className="flex items-center justify-between w-full h-full">
+                    <div className="flex items-center w-full h-full gap-4">
                         <FileIcon contentType={file.contentType} />
-                        <div className="flex-1 text-left text-ellipsis whitespace-nowrap overflow-hidden">
+                        <div className="flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
                             {file.name}
                         </div>
                     </div>

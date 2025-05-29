@@ -177,6 +177,14 @@ export function DataTable<TData, TValue>({
         }
     };
 
+    if (data.length === 0) {
+        return (
+            <section className="flex justify-center">
+                <span className="text-sm text-zinc-400"> No items found. Upload files by dragging them into this section. </span>
+            </section>
+        );
+    }
+
     return (
         <main>
             <section className="flex items-center gap-2">
@@ -184,14 +192,14 @@ export function DataTable<TData, TValue>({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="cursor-pointer rounded-lg px-6"
+                            className="px-6 rounded-lg cursor-pointer"
                         >
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="start"
-                        className="space-y-2 p-2"
+                        className="p-2 space-y-2"
                     >
                         {table
                             .getAllColumns()
@@ -200,7 +208,7 @@ export function DataTable<TData, TValue>({
                                 return (
                                     <DropdownMenuCheckboxItem
                                         key={column.id}
-                                        className="cursor-pointer capitalize"
+                                        className="capitalize cursor-pointer"
                                         checked={column.getIsVisible()}
                                         onCheckedChange={(value) =>
                                             column.toggleVisibility(!!value)
@@ -252,7 +260,7 @@ export function DataTable<TData, TValue>({
                                                         return (
                                                             <TableHead
                                                                 key={header.id}
-                                                                className="flex items-center bg-zinc-800 py-8"
+                                                                className="flex items-center py-8 bg-zinc-800"
                                                             >
                                                                 {header.isPlaceholder
                                                                     ? null
@@ -333,7 +341,7 @@ export function DataTable<TData, TValue>({
                                 className="max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
                             >
                                 {draggedRowId && (
-                                    <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
+                                    <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
                                         <FileIcon
                                             contentType={
                                                 (
@@ -342,9 +350,9 @@ export function DataTable<TData, TValue>({
                                                     ).original as Item
                                                 ).contentType
                                             }
-                                            className="h-4 w-4"
+                                            className="w-4 h-4"
                                         />
-                                        <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
+                                        <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                                             {
                                                 (
                                                     table.getRow(`${draggedRowId}`)
@@ -353,7 +361,7 @@ export function DataTable<TData, TValue>({
                                             }
                                         </div>
                                         {selectedRows.size > 1 && (
-                                            <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
+                                            <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
                                                 +{selectedRows.size - 1}
                                             </span>
                                         )}

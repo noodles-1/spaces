@@ -8,7 +8,7 @@ import { fetcher } from "@/actions/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
-export function ListView() {
+export function RootListView() {
     const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
         queryKey: ["user-accessible-items"],
         queryFn: () => fetcher("/storage/items/accessible/children")

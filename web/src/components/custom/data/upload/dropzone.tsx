@@ -22,7 +22,7 @@ export function Dropzone() {
 
     return (
         <main className={`
-            w-full h-[98%]
+            w-full h-full
             absolute transition-all opacity-0 
             border-4 border-dashed border-spaces-primary bg-zinc-700 rounded-2xl
             ${isDragActive && "z-50 opacity-50"}

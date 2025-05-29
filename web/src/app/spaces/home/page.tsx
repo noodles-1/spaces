@@ -3,8 +3,8 @@
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
 
 import { DataViews } from "@/components/custom/data/data-views";
-import { GridView } from "@/components/custom/data/grid/grid-view";
-import { ListView } from "@/components/custom/data/list/list-view";
+import { RootGridView } from "@/components/custom/data/grid/root-grid-view";
+import { RootListView } from "@/components/custom/data/list/root-list-view";
 import { Dropzone } from "@/components/custom/data/upload/dropzone";
 import { Suspense } from "react";
 
@@ -21,10 +21,10 @@ const Home = () => {
                 <Dropzone />
                 <section className="p-6">
                     <Suspense fallback={<span> Loading... </span>}>
-                        {view === "grid" && <GridView />}
+                        {view === "grid" && <RootGridView />}
                     </Suspense>
                     <Suspense fallback={<span> Loading... </span>}>
-                        {view === "list" && <ListView />}
+                        {view === "list" && <RootListView />}
                     </Suspense>
                 </section>
             </main>

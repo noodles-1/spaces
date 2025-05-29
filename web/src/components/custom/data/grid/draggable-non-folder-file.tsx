@@ -36,14 +36,14 @@ export function DraggableNonFolderFile({
                 onClick={(event) => handleLeftClick(event, idx)}
                 onContextMenu={() => handleRightClick(idx)}
             >
-                <div className="flex gap-2 w-full items-center">
+                <div className="flex items-center w-full gap-4">
                     <FileIcon contentType={file.contentType} />
-                    <div className="flex-1 text-left text-ellipsis whitespace-nowrap overflow-hidden">
+                    <div className="flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
                         {file.name}
                     </div>
                 </div>
-                <div className="w-full flex-1">
-                    <div className="h-full w-full rounded bg-zinc-700" />
+                <div className="flex-1 w-full">
+                    <div className="w-full h-full rounded bg-zinc-700" />
                 </div>
             </Button>
         </div>

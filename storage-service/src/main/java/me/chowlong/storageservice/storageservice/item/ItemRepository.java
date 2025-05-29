@@ -43,4 +43,10 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             LIMIT 1
     """)
     Item findMainAccessibleDirectory(@Param("userId") String userId);
+
+    @Query("""
+            MATCH path = (descendant:Item {id: $descendantId})<-[:CONTAINS*]-(ancestor:Item {name: $userId})
+            RETURN reverse([n IN nodes(path) | n]) AS ancestors
+    """)
+    List<Item> findOwnerUserAncestorsByDescendantId(@Param("descendantId") String descendantId, @Param("userId") String userId);
 }

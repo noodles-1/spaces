@@ -28,6 +28,10 @@ public class ItemService {
         return this.itemRepository.findInaccessibleRootChildren(userId);
     }
 
+    public List<Item> getOwnerUserAncestorsByDescendantId(String descendantId, String userId) {
+        return this.itemRepository.findOwnerUserAncestorsByDescendantId(descendantId, userId);
+    }
+
     public void createUserMainDirectories(String userId) {
         Item userMainAccessibleDirectory = new Item();
         userMainAccessibleDirectory.setId(UUID.randomUUID().toString());

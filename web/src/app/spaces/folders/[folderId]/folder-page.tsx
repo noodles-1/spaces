@@ -1,13 +1,13 @@
 "use client"
 
+import { Suspense } from "react";
+
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
 
 import { DataViews } from "@/components/custom/data/data-views";
-import { GridView } from "@/components/custom/data/grid/grid-view";
-import { ListView } from "@/components/custom/data/list/list-view";
 import { CustomBreadcrumb } from "@/components/custom/custom-breadcrumb";
-
-import { ANCESTORS } from "@/constants/data/placeholder";
+import { FoldersGridView } from "@/components/custom/data/grid/folders-grid-view";
+import { FoldersListView } from "@/components/custom/data/list/folders-list-view";
 import { Dropzone } from "@/components/custom/data/upload/dropzone";
 
 export function FolderPage({
@@ -20,17 +20,22 @@ export function FolderPage({
     return (
         <div className="flex flex-col flex-1 gap-2">
             <section className="flex items-center justify-between px-6 pt-6">
-                <CustomBreadcrumb 
-                    currentFolder={folderId}
-                    ancestors={ANCESTORS}
-                />
+                <Suspense fallback={<span> Loading... </span>}>
+                    <CustomBreadcrumb 
+                        folderId={folderId}
+                    />
+                </Suspense>
                 <DataViews />
             </section>
-            <main className="relative">
+            <main className="relative flex flex-col flex-1">
                 <Dropzone />
-                <section className="p-6">
-                    {view === "grid" && <GridView />}
-                    {view === "list" && <ListView />}
+                <section className="flex-1 p-6">
+                    <Suspense fallback={<span> Loading... </span>}>
+                        {view === "grid" && <FoldersGridView parentId={folderId} />}
+                    </Suspense>
+                    <Suspense fallback={<span> Loading... </span>}>
+                        {view === "list" && <FoldersListView parentId={folderId} />}
+                    </Suspense>
                 </section>
             </main>
         </div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
     DndContext,
@@ -23,18 +22,16 @@ import { ContextMenuContentDropdown } from "@/components/custom/data/context-men
 import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
-import { fetcher } from "@/actions/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
 import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
-export function GridView() {
-    const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
-        queryKey: ["user-accessible-items"],
-        queryFn: () => fetcher("/storage/items/accessible/children")
-    });
-
+export function GridView({
+    userItems
+}: {
+    userItems: ResponseDto<{ children: Item[] }>
+}) {
     const FOLDERS = userItems.data.children.filter((file) => file.type === "FOLDER");
     const NON_FOLDERS = userItems.data.children.filter((file) => file.type === "FILE");
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
@@ -138,6 +135,14 @@ export function GridView() {
         }
     };
 
+    if (userItems.data.children.length === 0) {
+        return (
+            <section className="flex justify-center">
+                <span className="text-sm text-zinc-400"> No items found. Upload files by dragging them into this section. </span>
+            </section>
+        );
+    }
+
     return (
         <ContextMenu>
             <ContextMenuTrigger>
@@ -149,8 +154,7 @@ export function GridView() {
                 >
                     <div
                         ref={ref}
-                        className="flex flex-col gap-8 overflow-y-auto select-none"
-                        style={{ height: "calc(100vh - 200px)" }}
+                        className="flex flex-col h-full gap-8 overflow-y-auto select-none"
                     >
                         {FOLDERS.length > 0 &&
                             <section className="flex flex-col gap-4">
@@ -220,18 +224,18 @@ export function GridView() {
                             className="max-h-[50px] max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
                         >
                             {draggedFileIdx >= 0 && (
-                                <span className="relative flex h-full w-full items-center gap-4 px-4 text-sm">
+                                <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
                                     <FileIcon
                                         contentType={
                                             ALL_FILES[draggedFileIdx].contentType
                                         }
-                                        className="h-4 w-4"
+                                        className="w-4 h-4"
                                     />
-                                    <div className="flex-1 text-ellipsis whitespace-nowrap overflow-x-hidden">
+                                    <div className="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
                                         {ALL_FILES[draggedFileIdx].name}
                                     </div>
                                     {selectedFiles.size > 1 && (
-                                        <span className="absolute -top-2 -right-2 rounded-full bg-zinc-950 p-2 text-xs outline-1">
+                                        <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
                                             +{selectedFiles.size - 1}
                                         </span>
                                     )}

@@ -69,6 +69,22 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched inaccessible root children successfully.", HttpStatus.OK, responseData);
     }
 
+    @GetMapping("/owner-ancestors/{descendantId}")
+    public ResponseEntity<Object> getOwnerUserAncestorsByDescendantId(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("descendantId") String descendantId
+    ) {
+        List<Item> ancestors = this.itemService.getOwnerUserAncestorsByDescendantId(descendantId, userPrincipal.getUserId());
+        List<ItemResponseDTO> ancestorsResponse = ancestors
+                .stream()
+                .map(ancestor -> this.modelMapper.map(ancestor, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("ancestors", ancestorsResponse);
+        return ResponseHandler.generateResponse("Fetched owner's ancestors successfully.", HttpStatus.OK, responseData);
+    }
+
     @PostMapping("/create-main-dirs")
     public ResponseEntity<Object> createUserMainDirectories(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         this.itemService.createUserMainDirectories(userPrincipal.getUserId());

@@ -9,8 +9,8 @@ import { customToast } from "@/lib/custom/custom-toast";
 import { Button } from "@/components/ui/button";
 
 import { DataViews } from "@/components/custom/data/data-views";
-import { GridView } from "@/components/custom/data/grid/grid-view";
-import { ListView } from "@/components/custom/data/list/list-view";
+import { RootGridView } from "@/components/custom/data/grid/root-grid-view";
+import { RootListView } from "@/components/custom/data/list/root-list-view";
 
 const Trash = () => {
     const { view } = useDataViewStore(state => state);
@@ -40,8 +40,8 @@ const Trash = () => {
             </div>
             <main>
                 <section className="p-6">
-                    {view === "grid" && <GridView />}
-                    {view === "list" && <ListView />}
+                    {view === "grid" && <RootGridView />}
+                    {view === "list" && <RootListView />}
                 </section>
             </main>
         </div>
