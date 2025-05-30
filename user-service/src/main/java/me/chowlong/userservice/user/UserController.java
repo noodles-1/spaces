@@ -9,12 +9,12 @@ import me.chowlong.userservice.exception.user.InvalidImageFileException;
 import me.chowlong.userservice.exception.user.UserNotFoundException;
 import me.chowlong.userservice.jwt.JwtService;
 import me.chowlong.userservice.jwt.cookie.CookieService;
+import me.chowlong.userservice.kafka.KafkaService;
 import me.chowlong.userservice.principal.UserPrincipal;
 import me.chowlong.userservice.user.dto.UpdateCustomUsernameDTO;
 import me.chowlong.userservice.util.ResponseHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,21 +36,20 @@ public class UserController {
     private final CookieService cookieService;
     private final JwtService jwtService;
     private final AwsService awsService;
-
-    private final KafkaTemplate<String, AuditLogDto> kafkaTemplate;
+    private final KafkaService kafkaService;
 
     public UserController(
             UserService userService,
             CookieService cookieService,
             JwtService jwtService,
             AwsService awsService,
-            KafkaTemplate<String, AuditLogDto> kafkaTemplate
+            KafkaService kafkaService
     ) {
         this.userService = userService;
         this.cookieService = cookieService;
         this.jwtService = jwtService;
         this.awsService = awsService;
-        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaService = kafkaService;
     }
 
     @GetMapping("/me")
@@ -115,7 +114,7 @@ public class UserController {
         auditLogDto.setEndpoint("/me/update-profile-picture");
         auditLogDto.setMethod("POST");
         auditLogDto.setTimestamp(ZonedDateTime.now().toInstant());
-        this.kafkaTemplate.send("spaces-log-topic", auditLogDto);
+        this.kafkaService.produceLog(auditLogDto);
 
         return ResponseHandler.generateResponse("Profile picture updated successfully.", HttpStatus.OK, null);
     }

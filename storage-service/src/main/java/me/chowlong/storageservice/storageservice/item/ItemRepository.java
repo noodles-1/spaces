@@ -1,5 +1,6 @@
 package me.chowlong.storageservice.storageservice.item;
 
+import me.chowlong.storageservice.storageservice.enums.Root;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,4 +50,10 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN reverse([n IN nodes(path) | n]) AS ancestors
     """)
     List<Item> findOwnerUserAncestorsByDescendantId(@Param("descendantId") String descendantId, @Param("userId") String userId);
+
+    @Query("""
+            MATCH (item:Item {id: $itemId})<-[:CONTAINS*0..]-(root:Item {isRoot: TRUE})
+            RETURN root.name
+    """)
+    Root findItemRootNameById(@Param("itemId") String itemId);
 }

@@ -1,6 +1,7 @@
 package me.chowlong.storageservice.storageservice.item;
 
 import jakarta.validation.Valid;
+import me.chowlong.storageservice.storageservice.enums.Root;
 import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidException;
 import me.chowlong.storageservice.storageservice.item.dto.ItemResponseDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
@@ -83,6 +84,14 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("ancestors", ancestorsResponse);
         return ResponseHandler.generateResponse("Fetched owner's ancestors successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/root/{itemId}")
+    public ResponseEntity<Object> getItemRootNameById(@PathVariable("itemId") String itemId) {
+        Root root = this.itemService.getItemRootNameById(itemId);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("rootName", root.toString());
+        return ResponseHandler.generateResponse("Fetched item root name successfully.", HttpStatus.OK, responseData);
     }
 
     @PostMapping("/create-main-dirs")

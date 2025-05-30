@@ -1,6 +1,7 @@
 package me.chowlong.storageservice.storageservice.item;
 
 import me.chowlong.storageservice.storageservice.enums.ItemType;
+import me.chowlong.storageservice.storageservice.enums.Root;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,10 @@ public class ItemService {
         return this.itemRepository.findOwnerUserAncestorsByDescendantId(descendantId, userId);
     }
 
+    public Root getItemRootNameById(String itemId) {
+        return this.itemRepository.findItemRootNameById(itemId);
+    }
+
     public void createUserMainDirectories(String userId) {
         Item userMainAccessibleDirectory = new Item();
         userMainAccessibleDirectory.setId(UUID.randomUUID().toString());
@@ -51,8 +56,8 @@ public class ItemService {
         userMainInaccessibleDirectory.setCreatedAt(new Date());
         userMainInaccessibleDirectory.setUpdatedAt(new Date());
 
-        Item accessibleRoot = this.itemRepository.findItemByName("ACCESSIBLE");
-        Item inaccessibleRoot = this.itemRepository.findItemByName("INACCESSIBLE");
+        Item accessibleRoot = this.itemRepository.findItemByName(String.valueOf(Root.ACCESSIBLE));
+        Item inaccessibleRoot = this.itemRepository.findItemByName(String.valueOf(Root.INACCESSIBLE));
         accessibleRoot.getChildren().add(userMainAccessibleDirectory);
         inaccessibleRoot.getChildren().add(userMainInaccessibleDirectory);
         this.itemRepository.save(accessibleRoot);
