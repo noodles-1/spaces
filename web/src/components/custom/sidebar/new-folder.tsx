@@ -53,6 +53,7 @@ export function NewFolder() {
         folderName: z
             .string()
             .min(1, { message: "Folder name cannot be empty." })
+            .max(200, { message: "Folder name cannot be more than 200 characters." })
             .refine(value => {
                 if (value === "")
                     return true;
