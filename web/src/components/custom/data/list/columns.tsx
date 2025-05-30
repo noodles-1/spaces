@@ -3,13 +3,11 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Item } from "@/types/item-type";
 
-import { ArrowUpDown, Star } from "lucide-react";
-
-import { customToast } from "@/lib/custom/custom-toast";
+import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { FileIcon } from "@/components/custom/data/file-icon";
 import { OwnerColumn } from "@/components/custom/data/list/owner-column";
+import { StarColumn } from "@/components/custom/data/list/star-column";
 
 import { formatFileSize } from "@/lib/custom/file-size";
 
@@ -33,32 +31,10 @@ export const columns: ColumnDef<Item>[] = [
             );
         },
         cell: ({ row }) => {
-            const item = row.original;
-
-            const handleStarred = (event: React.MouseEvent<SVGSVGElement>) => {
-                event.stopPropagation();
-                customToast({
-                    icon: <Star className="w-4 h-4" color="white" />,
-                    message: `${item.name} has been added to starred`,
-                });
-            };
+            const item = row.original as Item;
 
             return (
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center w-full gap-8">
-                        <FileIcon
-                            contentType={item.contentType}
-                            className="w-4 h-4"
-                        />
-                        <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                            {item.name}
-                        </div>
-                        <Star
-                            onClick={handleStarred}
-                            className="w-4 h-4 mx-4 opacity-0 cursor-pointer group-hover:opacity-100 hover:fill-white"
-                        />
-                    </div>
-                </div>
+                <StarColumn item={item} />
             );
         },
     },

@@ -5,7 +5,8 @@ export type Item = {
     type: "FOLDER" | "FILE";
     contentType?: string;
     size?: number;
-    isRoot: boolean;
+    root: boolean;
+    starred: boolean;
     accessibleParentId?: string;
     createdAt: string;
     updatedAt: string;

@@ -61,3 +61,14 @@ export async function createItem(params: CreateItemParams): Promise<ResponseDto<
 
     return response.data;
 }
+
+interface ToggleItemStarredParams {
+    itemId: string;
+}
+
+export async function toggleItemStarred(params: ToggleItemStarredParams): Promise<ResponseDto> {
+    const { itemId } = params;
+
+    const response = await axiosClient.patch(`/storage/items/star/${itemId}`);
+    return response.data;
+}

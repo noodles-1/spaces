@@ -68,9 +68,16 @@ export function UploadFile({
                         size: upload.file.size
                     });
     
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-items"]
-                    });
+                    if (parentId) {
+                        queryClient.invalidateQueries({
+                            queryKey: ["user-accessible-items", parentId]
+                        });
+                    }
+                    else {
+                        queryClient.invalidateQueries({
+                            queryKey: ["user-accessible-items"]
+                        });
+                    }
                 }
             }
             catch (error) {

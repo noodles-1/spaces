@@ -30,6 +30,8 @@ public class ItemResponseDTO {
     @Nonnull
     private boolean isRoot;
     @Nullable
+    private boolean isStarred;
+    @Nullable
     private String accessibleParentId;
     @Nonnull
     private Date createdAt;

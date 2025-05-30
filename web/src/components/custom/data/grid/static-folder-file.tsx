@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 
 import { Item } from "@/types/item-type";
 
@@ -16,12 +17,15 @@ export function StaticFolderFile({
     handleLeftClick: (event: React.MouseEvent, idx: number) => void;
     handleRightClick: (idx: number) => void;
 }) {
+    const router = useRouter();
+
     return (
         <div className="relative h-14 w-[230px]">
             <Button
                 variant="outline"
                 className="w-full h-full p-4 rounded-xl"
                 onClick={(event) => handleLeftClick(event, idx)}
+                onDoubleClick={() => router.push(`/spaces/folders/${file.id}`)}
                 onContextMenu={() => handleRightClick(idx)}
             >
                 <section className="flex items-center justify-between w-full h-full">

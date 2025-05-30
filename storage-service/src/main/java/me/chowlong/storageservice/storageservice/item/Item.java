@@ -42,6 +42,9 @@ public class Item {
     @Nonnull
     private boolean isRoot = false;
 
+    @Nullable
+    private boolean isStarred = false;
+
     @Nonnull
     @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
     private List<Item> children = new ArrayList<>();

@@ -28,12 +28,16 @@ import { Item } from "@/types/item-type";
 import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
 
 export function GridView({
-    userItems
+    userItems,
+    starred
 }: {
     userItems: ResponseDto<{ children: Item[] }>
+    starred?: boolean
 }) {
-    const FOLDERS = userItems.data.children.filter((file) => file.type === "FOLDER");
-    const NON_FOLDERS = userItems.data.children.filter((file) => file.type === "FILE");
+    const children = userItems.data.children;
+
+    const FOLDERS = children ? children.filter((file) => file.type === "FOLDER") : [];
+    const NON_FOLDERS = children ? children.filter((file) => file.type === "FILE") : [];
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(
@@ -146,12 +150,7 @@ export function GridView({
     return (
         <ContextMenu>
             <ContextMenuTrigger>
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={pointerWithin}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                >
+                {starred ?
                     <div
                         ref={ref}
                         className="flex flex-col h-full gap-8 overflow-y-auto select-none"
@@ -216,34 +215,107 @@ export function GridView({
                                 </div>
                             </section>
                         }
-                        <DragOverlay
-                            modifiers={[
-                                snapTopLeftToCursor,
-                                restrictToWindowEdges,
-                            ]}
-                            className="max-h-[50px] max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
-                        >
-                            {draggedFileIdx >= 0 && (
-                                <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
-                                    <FileIcon
-                                        contentType={
-                                            ALL_FILES[draggedFileIdx].contentType
-                                        }
-                                        className="w-4 h-4"
-                                    />
-                                    <div className="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
-                                        {ALL_FILES[draggedFileIdx].name}
-                                    </div>
-                                    {selectedFiles.size > 1 && (
-                                        <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
-                                            +{selectedFiles.size - 1}
-                                        </span>
-                                    )}
-                                </span>
-                            )}
-                        </DragOverlay>
                     </div>
-                </DndContext>
+                :
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={pointerWithin}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <div
+                            ref={ref}
+                            className="flex flex-col h-full gap-8 overflow-y-auto select-none"
+                        >
+                            {FOLDERS.length > 0 &&
+                                <section className="flex flex-col gap-4">
+                                    <span> Folders </span>
+                                    <div className="flex flex-wrap gap-4">
+                                        {FOLDERS.map((file, i) =>
+                                            selectedFiles.has(i) ? (
+                                                <DraggableFolderFile
+                                                    key={i}
+                                                    idx={i}
+                                                    file={file}
+                                                    draggedFileIdx={draggedFileIdx}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                />
+                                            ) : draggedFileIdx >= 0 &&
+                                            !file.contentType ? (
+                                                <DroppableFolderFile
+                                                    key={file.id}
+                                                    file={file}
+                                                />
+                                            ) : (
+                                                <StaticFolderFile
+                                                    key={file.id}
+                                                    idx={i}
+                                                    file={file}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                />
+                                            ),
+                                        )}
+                                    </div>
+                                </section>
+                            }
+                            {NON_FOLDERS.length > 0 &&
+                                <section className="flex flex-col gap-4">
+                                    <span> Files </span>
+                                    <div className="flex flex-wrap gap-4">
+                                        {NON_FOLDERS.map((file, i) =>
+                                            selectedFiles.has(i + FOLDERS.length) ? (
+                                                <DraggableNonFolderFile
+                                                    key={file.id}
+                                                    idx={i + FOLDERS.length}
+                                                    file={file}
+                                                    draggedFileIdx={draggedFileIdx}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                />
+                                            ) : (
+                                                <StaticNonFolderFile
+                                                    key={file.id}
+                                                    idx={i + FOLDERS.length}
+                                                    file={file}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                />
+                                            ),
+                                        )}
+                                    </div>
+                                </section>
+                            }
+                            <DragOverlay
+                                modifiers={[
+                                    snapTopLeftToCursor,
+                                    restrictToWindowEdges,
+                                ]}
+                                className="max-h-[50px] max-w-[150px] rounded-lg bg-zinc-950 shadow-xs shadow-zinc-600"
+                            >
+                                {draggedFileIdx >= 0 && (
+                                    <span className="relative flex items-center w-full h-full gap-4 px-4 text-sm">
+                                        <FileIcon
+                                            contentType={
+                                                ALL_FILES[draggedFileIdx].contentType
+                                            }
+                                            className="w-4 h-4"
+                                        />
+                                        <div className="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
+                                            {ALL_FILES[draggedFileIdx].name}
+                                        </div>
+                                        {selectedFiles.size > 1 && (
+                                            <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
+                                                +{selectedFiles.size - 1}
+                                            </span>
+                                        )}
+                                    </span>
+                                )}
+                            </DragOverlay>
+                        </div>
+                    </DndContext>
+                }
             </ContextMenuTrigger>
             {selectedFiles.size > 0 ? (
                 <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS} />

@@ -57,6 +57,19 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched accessible root children successfully.", HttpStatus.OK, responseData);
     }
 
+    @GetMapping("/accessible/starred")
+    public ResponseEntity<Object> getAccessibleStarredItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Item> children = this.itemService.getAccessibleStarredItems(userPrincipal.getUserId());
+        List<ItemResponseDTO> childrenResponse = children
+                .stream()
+                .map(item -> this.modelMapper.map(item, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", childrenResponse);
+        return ResponseHandler.generateResponse("Fetched starred items successfully.", HttpStatus.OK, responseData);
+    }
+
     @GetMapping("/inaccessible/children")
     public ResponseEntity<Object> getInaccessibleRootChildren(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<Item> children = this.itemService.getInaccessibleRootChildren(userPrincipal.getUserId());
@@ -119,5 +132,11 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("item", this.modelMapper.map(item, ItemResponseDTO.class));
         return ResponseHandler.generateResponse("Created item successfully.", HttpStatus.OK, responseData);
+    }
+
+    @PatchMapping("/star/{itemId}")
+    public ResponseEntity<Object> toggleItemStarred(@PathVariable("itemId") String itemId) {
+        this.itemService.toggleItemStarred(itemId);
+        return ResponseHandler.generateResponse("Toggled item starred successfully.", HttpStatus.OK, null);
     }
 }

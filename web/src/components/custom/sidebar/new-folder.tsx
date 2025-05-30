@@ -91,9 +91,16 @@ export function NewFolder() {
             form.setValue("folderName", "");
             setOpen(false);
             
-            queryClient.invalidateQueries({
-                queryKey: ["user-accessible-items"]
-            });
+            if (parentId) {
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", parentId]
+                });
+            }
+            else {
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items"]
+                });
+            }
         }
         catch (error) {
             const axiosError = error as AxiosError;

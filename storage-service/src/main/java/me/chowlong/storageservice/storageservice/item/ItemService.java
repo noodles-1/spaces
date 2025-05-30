@@ -25,6 +25,10 @@ public class ItemService {
         return this.itemRepository.findAccessibleRootChildren(userId);
     }
 
+    public List<Item> getAccessibleStarredItems(String userId) {
+        return this.itemRepository.findAccessibleStarredItems(userId);
+    }
+
     public List<Item> getInaccessibleRootChildren(String userId) {
         return this.itemRepository.findInaccessibleRootChildren(userId);
     }
@@ -44,6 +48,7 @@ public class ItemService {
         userMainAccessibleDirectory.setOwnerUserId(userId);
         userMainAccessibleDirectory.setType(ItemType.FOLDER);
         userMainAccessibleDirectory.setRoot(false);
+        userMainAccessibleDirectory.setStarred(false);
         userMainAccessibleDirectory.setCreatedAt(new Date());
         userMainAccessibleDirectory.setUpdatedAt(new Date());
 
@@ -53,6 +58,7 @@ public class ItemService {
         userMainInaccessibleDirectory.setOwnerUserId(userId);
         userMainInaccessibleDirectory.setType(ItemType.FOLDER);
         userMainInaccessibleDirectory.setRoot(false);
+        userMainInaccessibleDirectory.setStarred(false);
         userMainInaccessibleDirectory.setCreatedAt(new Date());
         userMainInaccessibleDirectory.setUpdatedAt(new Date());
 
@@ -73,6 +79,7 @@ public class ItemService {
         newItem.setContentType(newItemDTO.getContentType());
         newItem.setSize(newItemDTO.getSize());
         newItem.setRoot(false);
+        newItem.setStarred(false);
         newItem.setCreatedAt(new Date());
         newItem.setUpdatedAt(new Date());
 
@@ -89,5 +96,11 @@ public class ItemService {
         this.itemRepository.save(parentItem);
 
         return newItem;
+    }
+
+    public void toggleItemStarred(String itemId) {
+        Item item = this.itemRepository.findItemById(itemId);
+        item.setStarred(!item.isStarred());
+        this.itemRepository.save(item);
     }
 }

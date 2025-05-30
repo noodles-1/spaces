@@ -20,8 +20,7 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findChildrenById(@Param("parentId") String parentId);
 
     @Query("""
-            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
-            WHERE child.name = $userId
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
             WITH child
             MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
             RETURN grandChildren
@@ -29,8 +28,15 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findAccessibleRootChildren(@Param("userId") String userId);
 
     @Query("""
-            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item)
-            WHERE child.name = $userId
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
+            WITH child
+            MATCH (child:Item)-[:CONTAINS*]->(grandChildren:Item {isStarred: TRUE})
+            RETURN grandChildren
+    """)
+    List<Item> findAccessibleStarredItems(@Param("userId") String userId);
+
+    @Query("""
+            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
             WITH child
             MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
             RETURN grandChildren
@@ -38,8 +44,7 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findInaccessibleRootChildren(@Param("userId") String userId);
 
     @Query("""
-            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
-            WHERE child.name = $userId
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
             RETURN child
             LIMIT 1
     """)
