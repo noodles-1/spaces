@@ -3,7 +3,7 @@ import { FileWithPath } from "react-dropzone";
 import axios from "axios";
 import axiosClient from "@/lib/axios-client";
 
-import { fetcher } from "@/actions/fetcher";
+import { fetcher } from "@/services/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
@@ -55,7 +55,7 @@ interface CreateItemParams {
 }
 
 export async function createItem(params: CreateItemParams): Promise<ResponseDto<Item>> {
-    const response = await axiosClient.post(`/storage/items/create`, params, {
+    const response = await axiosClient.post("/storage/items/create", params, {
         headers: { "Content-Type": "application/json" }
     });
 
@@ -70,5 +70,26 @@ export async function toggleItemStarred(params: ToggleItemStarredParams): Promis
     const { itemId } = params;
 
     const response = await axiosClient.patch(`/storage/items/star/${itemId}`);
+    return response.data;
+}
+
+interface MoveItemParams {
+    itemId: string;
+    sourceParentId?: string;
+}
+
+export async function deleteItem(params: MoveItemParams): Promise<ResponseDto> {
+    const response = await axiosClient.patch("/storage/items/delete", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
+}
+
+export async function restoreItem(params: MoveItemParams): Promise<ResponseDto> {
+    const response = await axiosClient.patch("/storage/items/restore", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
     return response.data;
 }

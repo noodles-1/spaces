@@ -7,7 +7,7 @@ import { CircleX, Star } from "lucide-react";
 
 import { FileIcon } from "@/components/custom/data/file-icon";
 
-import { toggleItemStarred } from "@/actions/storage";
+import { toggleItemStarred } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
@@ -45,20 +45,24 @@ export function StarColumn({
                 queryClient.invalidateQueries({
                     queryKey: ["user-accessible-items"]
                 });
-
-                queryClient.invalidateQueries({
-                    queryKey: ["user-accessible-starred-items"]
-                });
             }
 
-            const message = item.starred
-                ? `${item.name} has been removed from starred items.`
-                : `${item.name} has been added to starred items.`;
-
-            customToast({
-                icon: <Star className="w-4 h-4" color="white" />,
-                message,
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-starred-items"]
             });
+
+            if (item.starred) {
+                customToast({
+                    icon: <Star className="w-4 h-4" color="white" />,
+                    message: `${item.name} has been removed from starred items.`,
+                });
+            }
+            else {
+                customToast({
+                    icon: <Star className="w-4 h-4 fill-white" color="white" />,
+                    message: `${item.name} has been added to starred items.`,
+                });
+            }
         }
         catch (error) {
             const axiosError = error as AxiosError;
@@ -70,8 +74,6 @@ export function StarColumn({
             });
         }
     };
-
-    console.log(item)
 
     return (
         <div className="flex items-center justify-between w-full">

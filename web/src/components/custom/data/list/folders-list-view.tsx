@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/custom/data/list/data-table";
 import { columns } from "@/components/custom/data/list/columns";
 
-import { fetcher } from "@/actions/fetcher";
+import { fetcher } from "@/services/fetcher";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";

@@ -4,14 +4,13 @@ import jakarta.validation.Valid;
 import me.chowlong.storageservice.storageservice.enums.Root;
 import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidException;
 import me.chowlong.storageservice.storageservice.item.dto.ItemResponseDTO;
+import me.chowlong.storageservice.storageservice.item.dto.MoveItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
 import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +41,14 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", childrenResponse);
         return ResponseHandler.generateResponse("Fetched children successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/check-deleted/{parentId}")
+    public ResponseEntity<Object> checkDirectoryDeleted(@PathVariable("parentId") String parentId) {
+        Root root = this.itemService.getItemRootNameById(parentId);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("deleted", root == Root.INACCESSIBLE);
+        return ResponseHandler.generateResponse("Checked if directory is deleted successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/accessible/children")
@@ -138,5 +145,28 @@ public class ItemController {
     public ResponseEntity<Object> toggleItemStarred(@PathVariable("itemId") String itemId) {
         this.itemService.toggleItemStarred(itemId);
         return ResponseHandler.generateResponse("Toggled item starred successfully.", HttpStatus.OK, null);
+    }
+
+    @PatchMapping("/delete")
+    public ResponseEntity<Object> deleteItem(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody MoveItemRequestDTO moveItemRequestDTO
+    ) {
+        if (moveItemRequestDTO.getSourceParentId() != null) {
+            this.itemService.deleteFromAccessibleToTrash(userPrincipal.getUserId(), moveItemRequestDTO);
+        }
+        else {
+            this.itemService.deleteFromMainAccessibleToTrash(userPrincipal.getUserId(), moveItemRequestDTO);
+        }
+        return ResponseHandler.generateResponse("Moved item to trash successfully.", HttpStatus.OK, null);
+    }
+
+    @PatchMapping("/restore")
+    public ResponseEntity<Object> restoreItem(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody MoveItemRequestDTO moveItemRequestDTO
+    ) {
+        this.itemService.restoreFromTrashToAccessible(userPrincipal.getUserId(), moveItemRequestDTO);
+        return ResponseHandler.generateResponse("Restored item successfully.", HttpStatus.OK, null);
     }
 }

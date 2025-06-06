@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { GridView } from "@/components/custom/data/grid/grid-view";
 
-import { fetcher } from "@/actions/fetcher";
+import { fetcher } from "@/services/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 

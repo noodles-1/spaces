@@ -1,10 +1,8 @@
-import { LucideProps } from "lucide-react";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import React from "react";
 
 export interface DropdownItem {
+    id: string;
     label: string;
-    icon: ForwardRefExoticComponent<
-        Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
-    >;
+    icon: React.ReactNode;
     onClick: () => void;
 }

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
 
-import { signOutUser } from "@/actions/user";
+import { signOutUser } from "@/services/user";
 import { ResponseDto } from "@/dto/response-dto";
 
 export async function fetcher(endpoint: string): Promise<ResponseDto> {

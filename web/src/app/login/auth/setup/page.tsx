@@ -25,7 +25,7 @@ import { z } from "zod";
 import { AxiosError } from "axios";
 import axiosClient from "@/lib/axios-client";
 
-import { signOutUser, updateCustomUsername, updateProfilePicture, updateSetupDone } from "@/actions/user";
+import { signOutUser, updateCustomUsername, updateProfilePicture, updateSetupDone } from "@/services/user";
 
 import { customToast } from "@/lib/custom/custom-toast";
 
@@ -33,7 +33,7 @@ import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 
 import { PROFILE_PICTURE_FILE_SIZE_LIMIT } from "@/constants/limits";
-import { createMainDirectories } from "@/actions/storage";
+import { createMainDirectories } from "@/services/storage";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 

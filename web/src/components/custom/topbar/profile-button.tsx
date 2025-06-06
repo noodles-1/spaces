@@ -7,8 +7,8 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 
 import { CircleCheck, CircleX, Loader2, PenLine, UserRound } from "lucide-react";
 
-import { signOutUser, updateProfilePicture, updateCustomUsername } from "@/actions/user";
-import { fetcher } from "@/actions/fetcher";
+import { signOutUser, updateProfilePicture, updateCustomUsername } from "@/services/user";
+import { fetcher } from "@/services/fetcher";
 
 import {
     Dialog,

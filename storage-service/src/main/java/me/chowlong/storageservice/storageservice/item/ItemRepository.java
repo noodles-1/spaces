@@ -13,36 +13,62 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     Item findItemByName(String name);
     Item findItemById(String id);
 
+    /**
+     * Finds the immediate files and/or folders from a given
+     * non-root accessible directory.
+     * @param parentId
+     * @return list of items
+     */
     @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
             MATCH (parent:Item {id: $parentId})-[:CONTAINS]->(children:Item)
             RETURN children
     """)
-    List<Item> findChildrenById(@Param("parentId") String parentId);
+    List<Item> findAccessibleChildrenById(@Param("parentId") String parentId);
 
+    /**
+     * Finds the immediate files and/or folders from the
+     * root accessible directory.
+     * @param userId
+     * @return list of items
+     */
     @Query("""
-            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
-            WITH child
-            MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            MATCH (child:Item {name: $userId})-[:CONTAINS]->(grandChildren:Item)
             RETURN grandChildren
     """)
     List<Item> findAccessibleRootChildren(@Param("userId") String userId);
 
+    /**
+     * Finds all accessible starred files and/or folders recursively.
+     * @param userId
+     * @return list of items
+     */
     @Query("""
-            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
-            WITH child
-            MATCH (child:Item)-[:CONTAINS*]->(grandChildren:Item {isStarred: TRUE})
+            MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            MATCH (child:Item {name: $userId})-[:CONTAINS*]->(grandChildren:Item {isStarred: TRUE})
             RETURN grandChildren
     """)
     List<Item> findAccessibleStarredItems(@Param("userId") String userId);
 
+    /**
+     * Finds the immediate files and/or folders from the
+     * root inaccessible directory.
+     * @param userId
+     * @return list of items
+     */
     @Query("""
-            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
-            WITH child
-            MATCH (child:Item)-[:CONTAINS]->(grandChildren:Item)
+            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item)
+            MATCH (child:Item {name: $userId})-[:CONTAINS]->(grandChildren:Item)
             RETURN grandChildren
     """)
     List<Item> findInaccessibleRootChildren(@Param("userId") String userId);
 
+    /**
+     * Finds the root accessible directory.
+     * @param userId
+     * @return item
+     */
     @Query("""
             MATCH (parent:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
             RETURN child
@@ -50,12 +76,78 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     """)
     Item findMainAccessibleDirectory(@Param("userId") String userId);
 
+    /**
+     * Removes a file or folder from the root accessible directory.
+     * @param userId
+     * @param itemId
+     * @return removed item
+     */
+    @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(parent:Item)
+            MATCH (parent {name: $userId})-[r:CONTAINS]->(child:Item {id: $itemId})
+            DELETE r
+            RETURN child
+    """)
+    Item removeFromMainAccessibleDirectory(@Param("userId") String userId, @Param("itemId") String itemId);
+
+    /**
+     * Removes a file or folder from an accessible directory.
+     * @param sourceParentId
+     * @param itemId
+     * @return removed item
+     */
+    @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
+            MATCH (parent {id: $parentId})-[r:CONTAINS]->(child:Item {id: $itemId})
+            DELETE r
+            RETURN child
+    """)
+    Item removeFromAccessibleDirectory(@Param("parentId") String sourceParentId, @Param("itemId") String itemId);
+
+    /**
+     * Finds the root inaccessible directory.
+     * @param userId
+     * @return item
+     */
+    @Query("""
+            MATCH (parent:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(child:Item {name: $userId})
+            RETURN child
+            LIMIT 1
+    """)
+    Item findMainInaccessibleDirectory(@Param("userId") String userId);
+
+    /**
+     * Restores a file or folder from the main inaccessible directory.
+     * @param userId
+     * @param itemId
+     * @return restored item
+     */
+    @Query("""
+            MATCH (root:Item {name: "INACCESSIBLE"})-[:CONTAINS]->(parent:Item)
+            MATCH (parent {name: $userId})-[r:CONTAINS]->(child:Item {id: $itemId})
+            DELETE r
+            RETURN child
+    """)
+    Item removeFromMainInaccessibleDirectory(@Param("userId") String userId, @Param("itemId") String itemId);
+
+    /**
+     * Finds the ancestor files of a given folder including the current folder
+     * and root directory.
+     * @param descendantId
+     * @param userId
+     * @return list of ancestor items
+     */
     @Query("""
             MATCH path = (descendant:Item {id: $descendantId})<-[:CONTAINS*]-(ancestor:Item {name: $userId})
             RETURN reverse([n IN nodes(path) | n]) AS ancestors
     """)
     List<Item> findOwnerUserAncestorsByDescendantId(@Param("descendantId") String descendantId, @Param("userId") String userId);
 
+    /**
+     * Finds the root node of an item.
+     * @param itemId
+     * @return root (accessible or inaccessible)
+     */
     @Query("""
             MATCH (item:Item {id: $itemId})<-[:CONTAINS*0..]-(root:Item {isRoot: TRUE})
             RETURN root.name

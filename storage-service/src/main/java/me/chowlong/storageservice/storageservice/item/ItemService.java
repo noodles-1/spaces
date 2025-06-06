@@ -2,6 +2,7 @@ package me.chowlong.storageservice.storageservice.item;
 
 import me.chowlong.storageservice.storageservice.enums.ItemType;
 import me.chowlong.storageservice.storageservice.enums.Root;
+import me.chowlong.storageservice.storageservice.item.dto.MoveItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class ItemService {
     }
 
     public List<Item> getChildrenByParentId(String parentId) {
-        return this.itemRepository.findChildrenById(parentId);
+        return this.itemRepository.findAccessibleChildrenById(parentId);
     }
 
     public List<Item> getAccessibleRootChildren(String userId) {
@@ -84,7 +85,6 @@ public class ItemService {
         newItem.setUpdatedAt(new Date());
 
         Item parentItem;
-
         if (newItemDTO.getParentId() != null) {
             parentItem = this.itemRepository.findItemById(newItemDTO.getParentId());
         }
@@ -102,5 +102,51 @@ public class ItemService {
         Item item = this.itemRepository.findItemById(itemId);
         item.setStarred(!item.isStarred());
         this.itemRepository.save(item);
+    }
+
+    public void deleteFromMainAccessibleToTrash(String userId, MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromMainAccessibleDirectory(userId, moveItemRequestDTO.getItemId());
+        item.setAccessibleParentId(null);
+
+        Item parentItem = this.itemRepository.findMainInaccessibleDirectory(userId);
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
+    }
+
+    public void deleteFromAccessibleToTrash(String userId, MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromAccessibleDirectory(moveItemRequestDTO.getSourceParentId(), moveItemRequestDTO.getItemId());
+        item.setAccessibleParentId(moveItemRequestDTO.getSourceParentId());
+
+        Item parentItem = this.itemRepository.findMainInaccessibleDirectory(userId);
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
+    }
+
+    public void restoreFromTrashToAccessible(String userId, MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromMainInaccessibleDirectory(userId, moveItemRequestDTO.getItemId());
+
+        Item parentItem;
+        try {
+            if (item.getAccessibleParentId() != null) {
+                parentItem = this.itemRepository.findItemById(item.getAccessibleParentId());
+                if (parentItem == null) {
+                    throw new Exception();
+                }
+
+                Root root = this.itemRepository.findItemRootNameById(parentItem.getId());
+                if (root == Root.INACCESSIBLE) {
+                    throw new Exception();
+                }
+            }
+            else {
+                throw new Exception();
+            }
+        }
+        catch (Exception e) {
+            parentItem = this.itemRepository.findMainAccessibleDirectory(userId);
+        }
+
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
     }
 }

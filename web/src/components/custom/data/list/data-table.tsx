@@ -23,8 +23,7 @@ import {
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
-import { DataTableProps } from "@/types/data-table-type";
-import { Item } from "@/types/item-type";
+import { Star } from "lucide-react";
 
 import {
     Table,
@@ -51,26 +50,29 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
+import { DataTableProps } from "@/types/data-table-type";
+import { Item } from "@/types/item-type";
 
 export function DataTable<TData, TValue>({
     columns,
     data,
-    starred
+    starred,
+    inaccessible
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
         {},
     );
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [selectedRows, setSelectedRows] = useState<Set<number>>(
+    const [selectedRowsIdx, setSelectedRowsIdx] = useState<Set<number>>(
         () => new Set(),
     );
     const [lastSelectedRowIdx, setLastSelectedRowIdx] = useState<number>(-1);
     const [draggedRowId, setDraggedRowId] = useState<string>("");
 
     const ref = useRef<HTMLDivElement>(null);
-
+    const contextMenuRef = useRef<HTMLDivElement>(null);
+    
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -94,15 +96,15 @@ export function DataTable<TData, TValue>({
             columnFilters,
         },
     });
-
+    
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
-            if (
-                ref.current &&
-                !ref.current.contains(event.target as Node) &&
-                event.button === 0
-            ) {
-                setSelectedRows(() => new Set());
+            if (contextMenuRef.current && contextMenuRef.current.contains(event.target as Node)) {
+                return;
+            }
+
+            if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
+                setSelectedRowsIdx(() => new Set());
             }
         };
 
@@ -111,12 +113,16 @@ export function DataTable<TData, TValue>({
             document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
+    const selectedRows = table && table.getSortedRowModel() && table.getSortedRowModel().rows.length > 0 && selectedRowsIdx.size > 0 
+        ? [...selectedRowsIdx].map(idx => table.getSortedRowModel().rows[idx].original as Item)
+        : [];
+
     const selectRow = (idx: number) => {
-        setSelectedRows((prev) => new Set(prev).add(idx));
+        setSelectedRowsIdx((prev) => new Set(prev).add(idx));
     };
 
     const deselectRow = (idx: number) => {
-        setSelectedRows((prev) => {
+        setSelectedRowsIdx((prev) => {
             const next = new Set(prev);
             next.delete(idx);
             return next;
@@ -131,7 +137,7 @@ export function DataTable<TData, TValue>({
         if (event.ctrlKey) {
             setLastSelectedRowIdx(idx);
 
-            if (selectedRows.has(idx)) {
+            if (selectedRowsIdx.has(idx)) {
                 deselectRow(idx);
             } else {
                 selectRow(idx);
@@ -156,13 +162,13 @@ export function DataTable<TData, TValue>({
         }
 
         setLastSelectedRowIdx(idx);
-        setSelectedRows(() => new Set<number>().add(idx));
+        setSelectedRowsIdx(() => new Set<number>().add(idx));
     };
 
     const handleRightClick = (idx: number) => {
-        if (selectedRows.size === 0) {
+        if (selectedRowsIdx.size === 0) {
             setLastSelectedRowIdx(idx);
-            setSelectedRows(() => new Set<number>().add(idx));
+            setSelectedRowsIdx(() => new Set<number>().add(idx));
         }
     };
 
@@ -179,6 +185,26 @@ export function DataTable<TData, TValue>({
     };
 
     if (data.length === 0) {
+        if (starred) {
+            return (
+                <section className="flex justify-center">
+                    <div className="text-sm text-zinc-400 flex gap-1 items-center">
+                        <span> No items found. Add items to starred by pressing the </span>
+                        <Star className="w-4 h-4" />
+                        <span> icon. </span>
+                    </div>
+                </section>
+            );
+        }
+
+        if (inaccessible) {
+            return (
+                <section className="flex justify-center">
+                    <span className="text-sm text-zinc-400"> No deleted items found. </span>
+                </section>
+            );
+        }
+        
         return (
             <section className="flex justify-center">
                 <span className="text-sm text-zinc-400"> No items found. Upload files by dragging them into this section. </span>
@@ -187,7 +213,7 @@ export function DataTable<TData, TValue>({
     }
 
     return (
-        <main>
+        <div ref={ref}>
             <section className="flex items-center gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -240,8 +266,8 @@ export function DataTable<TData, TValue>({
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    {starred ?
-                        <div ref={ref} className="select-none">
+                    {(starred || inaccessible) &&
+                        <div className="select-none">
                             <Table>
                                 <TableHeader className="sticky top-0 table w-full table-fixed">
                                     {table
@@ -279,7 +305,7 @@ export function DataTable<TData, TValue>({
                                     style={{ height: "calc(100vh - 300px)" }}
                                 >
                                     {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row, i) => selectedRows.has(i) ? (
+                                        table.getRowModel().rows.map((row, i) => selectedRowsIdx.has(i) ? (
                                             <DraggableRow<TData>
                                                 key={row.id}
                                                 row={row}
@@ -293,6 +319,7 @@ export function DataTable<TData, TValue>({
                                                 handleRightClick={
                                                     handleRightClick
                                                 }
+                                                inaccessible={inaccessible}
                                             />
                                         ) : draggedRowId && !(table.getRow(row.id).original as Item).contentType ? (
                                                 <DroppableFolder
@@ -330,7 +357,8 @@ export function DataTable<TData, TValue>({
                                 </TableBody>
                             </Table>
                         </div>
-                    :
+                    }
+                    {!starred && !inaccessible &&
                         <DndContext
                             sensors={sensors}
                             collisionDetection={pointerWithin}
@@ -375,7 +403,7 @@ export function DataTable<TData, TValue>({
                                         style={{ height: "calc(100vh - 300px)" }}
                                     >
                                         {table.getRowModel().rows?.length ? (
-                                            table.getRowModel().rows.map((row, i) => selectedRows.has(i) ? (
+                                            table.getRowModel().rows.map((row, i) => selectedRowsIdx.has(i) ? (
                                                 <DraggableRow<TData>
                                                     key={row.id}
                                                     row={row}
@@ -452,9 +480,9 @@ export function DataTable<TData, TValue>({
                                                     ).name
                                                 }
                                             </div>
-                                            {selectedRows.size > 1 && (
+                                            {selectedRowsIdx.size > 1 && (
                                                 <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
-                                                    +{selectedRows.size - 1}
+                                                    +{selectedRowsIdx.size - 1}
                                                 </span>
                                             )}
                                         </span>
@@ -464,14 +492,12 @@ export function DataTable<TData, TValue>({
                         </DndContext>
                     }
                 </ContextMenuTrigger>
-                {selectedRows.size > 0 ? (
-                    <ContextMenuContentDropdown
-                        itemGroups={DROPDOWN_ITEM_GROUPS}
-                    />
-                ) : (
-                    <ContextMenuContentDropdown />
-                )}
+                <ContextMenuContentDropdown 
+                    contextMenuRef={contextMenuRef} 
+                    selectedItems={selectedRows}
+                    setSelectedIdx={setSelectedRowsIdx}
+                />
             </ContextMenu>
-        </main>
+        </div>
     );
 }

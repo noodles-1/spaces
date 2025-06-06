@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { UserRound } from "lucide-react";
 
-import { fetcher } from "@/actions/fetcher";
+import { fetcher } from "@/services/fetcher";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";

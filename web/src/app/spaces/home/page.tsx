@@ -20,7 +20,7 @@ const Home = () => {
                 <span className="text-xl"> Home </span>
                 <DataViews />
             </section>
-            <main className="relative">
+            <main className="relative flex-1">
                 <Dropzone />
                 <section className="p-6">
                     <Suspense fallback={<GridViewSkeleton />}>

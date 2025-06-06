@@ -12,6 +12,8 @@ import {
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
+import { Star } from "lucide-react";
+
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { StaticFolderFile } from "@/components/custom/data/grid/static-folder-file";
 import { StaticNonFolderFile } from "@/components/custom/data/grid/static-non-folder-file";
@@ -25,14 +27,14 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
-import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
-
 export function GridView({
     userItems,
-    starred
+    starred,
+    inaccessible,
 }: {
     userItems: ResponseDto<{ children: Item[] }>
     starred?: boolean
+    inaccessible?: boolean
 }) {
     const children = userItems.data.children;
 
@@ -40,13 +42,14 @@ export function GridView({
     const NON_FOLDERS = children ? children.filter((file) => file.type === "FILE") : [];
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
-    const [selectedFiles, setSelectedFiles] = useState<Set<number>>(
+    const [selectedItemsIdx, setSelectedItemsIdx] = useState<Set<number>>(
         () => new Set(),
     );
     const [lastSelectedFileIdx, setLastSelectedFileIdx] = useState<number>(-1);
     const [draggedFileIdx, setDraggedFileIdx] = useState<number>(-1);
 
     const ref = useRef<HTMLDivElement>(null);
+    const contextMenuRef = useRef<HTMLDivElement>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -58,12 +61,12 @@ export function GridView({
 
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
-            if (
-                ref.current &&
-                !ref.current.contains(event.target as Node) &&
-                event.button === 0
-            ) {
-                setSelectedFiles(() => new Set());
+            if (contextMenuRef.current && contextMenuRef.current.contains(event.target as Node)) {
+                return;
+            }
+
+            if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
+                setSelectedItemsIdx(() => new Set());
             }
         };
 
@@ -72,12 +75,16 @@ export function GridView({
             document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
+    const selectedFiles = selectedItemsIdx.size > 0
+        ? [...selectedItemsIdx].map(idx => ALL_FILES[idx])
+        : [];
+
     const selectFile = (idx: number) => {
-        setSelectedFiles((prev) => new Set(prev).add(idx));
+        setSelectedItemsIdx((prev) => new Set(prev).add(idx));
     };
 
     const deselectFile = (idx: number) => {
-        setSelectedFiles((prev) => {
+        setSelectedItemsIdx((prev) => {
             const next = new Set(prev);
             next.delete(idx);
             return next;
@@ -92,7 +99,7 @@ export function GridView({
         if (event.ctrlKey) {
             setLastSelectedFileIdx(idx);
 
-            if (selectedFiles.has(idx)) {
+            if (selectedItemsIdx.has(idx)) {
                 deselectFile(idx);
             } else {
                 selectFile(idx);
@@ -117,13 +124,13 @@ export function GridView({
         }
 
         setLastSelectedFileIdx(idx);
-        setSelectedFiles(() => new Set<number>().add(idx));
+        setSelectedItemsIdx(() => new Set<number>().add(idx));
     };
 
     const handleRightClick = (idx: number) => {
-        if (selectedFiles.size === 0) {
+        if (selectedItemsIdx.size === 0) {
             setLastSelectedFileIdx(idx);
-            setSelectedFiles(() => new Set<number>().add(idx));
+            setSelectedItemsIdx(() => new Set<number>().add(idx));
         }
     };
 
@@ -140,6 +147,26 @@ export function GridView({
     };
 
     if (userItems.data.children.length === 0) {
+        if (starred) {
+            return (
+                <section className="flex justify-center">
+                    <div className="text-sm text-zinc-400 flex gap-1 items-center">
+                        <span> No items found. Add items to starred by pressing the </span>
+                        <Star className="w-4 h-4" />
+                        <span> icon. </span>
+                    </div>
+                </section>
+            );
+        }
+
+        if (inaccessible) {
+            return (
+                <section className="flex justify-center">
+                    <span className="text-sm text-zinc-400"> No deleted items found. </span>
+                </section>
+            );
+        }
+
         return (
             <section className="flex justify-center">
                 <span className="text-sm text-zinc-400"> No items found. Upload files by dragging them into this section. </span>
@@ -150,7 +177,7 @@ export function GridView({
     return (
         <ContextMenu>
             <ContextMenuTrigger>
-                {starred ?
+                {(starred || inaccessible) &&
                     <div
                         ref={ref}
                         className="flex flex-col h-full gap-8 overflow-y-auto select-none"
@@ -160,7 +187,7 @@ export function GridView({
                                 <span> Folders </span>
                                 <div className="flex flex-wrap gap-4">
                                     {FOLDERS.map((file, i) =>
-                                        selectedFiles.has(i) ? (
+                                        selectedItemsIdx.has(i) ? (
                                             <DraggableFolderFile
                                                 key={i}
                                                 idx={i}
@@ -168,23 +195,25 @@ export function GridView({
                                                 draggedFileIdx={draggedFileIdx}
                                                 handleLeftClick={handleLeftClick}
                                                 handleRightClick={handleRightClick}
+                                                inaccessible={inaccessible}
                                             />
-                                        ) : draggedFileIdx >= 0 &&
-                                        !file.contentType ? (
-                                            <DroppableFolderFile
-                                                key={file.id}
-                                                file={file}
-                                            />
-                                        ) : (
-                                            <StaticFolderFile
-                                                key={file.id}
-                                                idx={i}
-                                                file={file}
-                                                handleLeftClick={handleLeftClick}
-                                                handleRightClick={handleRightClick}
-                                            />
-                                        ),
-                                    )}
+                                        ) : draggedFileIdx >= 0 && !file.contentType ? (
+                                                <DroppableFolderFile
+                                                    key={file.id}
+                                                    file={file}
+                                                />
+                                            ) : (
+                                                <StaticFolderFile
+                                                    key={file.id}
+                                                    idx={i}
+                                                    file={file}
+                                                    handleLeftClick={handleLeftClick}
+                                                    handleRightClick={handleRightClick}
+                                                    inaccessible={inaccessible}
+                                                />
+                                            ),
+                                        )
+                                    }
                                 </div>
                             </section>
                         }
@@ -193,7 +222,7 @@ export function GridView({
                                 <span> Files </span>
                                 <div className="flex flex-wrap gap-4">
                                     {NON_FOLDERS.map((file, i) =>
-                                        selectedFiles.has(i + FOLDERS.length) ? (
+                                        selectedItemsIdx.has(i + FOLDERS.length) ? (
                                             <DraggableNonFolderFile
                                                 key={file.id}
                                                 idx={i + FOLDERS.length}
@@ -216,7 +245,8 @@ export function GridView({
                             </section>
                         }
                     </div>
-                :
+                }
+                {!starred && !inaccessible &&
                     <DndContext
                         sensors={sensors}
                         collisionDetection={pointerWithin}
@@ -232,7 +262,7 @@ export function GridView({
                                     <span> Folders </span>
                                     <div className="flex flex-wrap gap-4">
                                         {FOLDERS.map((file, i) =>
-                                            selectedFiles.has(i) ? (
+                                            selectedItemsIdx.has(i) ? (
                                                 <DraggableFolderFile
                                                     key={i}
                                                     idx={i}
@@ -241,22 +271,22 @@ export function GridView({
                                                     handleLeftClick={handleLeftClick}
                                                     handleRightClick={handleRightClick}
                                                 />
-                                            ) : draggedFileIdx >= 0 &&
-                                            !file.contentType ? (
-                                                <DroppableFolderFile
-                                                    key={file.id}
-                                                    file={file}
-                                                />
-                                            ) : (
-                                                <StaticFolderFile
-                                                    key={file.id}
-                                                    idx={i}
-                                                    file={file}
-                                                    handleLeftClick={handleLeftClick}
-                                                    handleRightClick={handleRightClick}
-                                                />
-                                            ),
-                                        )}
+                                            ) : draggedFileIdx >= 0 && !file.contentType ? (
+                                                    <DroppableFolderFile
+                                                        key={file.id}
+                                                        file={file}
+                                                    />
+                                                ) : (
+                                                    <StaticFolderFile
+                                                        key={file.id}
+                                                        idx={i}
+                                                        file={file}
+                                                        handleLeftClick={handleLeftClick}
+                                                        handleRightClick={handleRightClick}
+                                                    />
+                                                ),
+                                            )
+                                        }
                                     </div>
                                 </section>
                             }
@@ -265,7 +295,7 @@ export function GridView({
                                     <span> Files </span>
                                     <div className="flex flex-wrap gap-4">
                                         {NON_FOLDERS.map((file, i) =>
-                                            selectedFiles.has(i + FOLDERS.length) ? (
+                                            selectedItemsIdx.has(i + FOLDERS.length) ? (
                                                 <DraggableNonFolderFile
                                                     key={file.id}
                                                     idx={i + FOLDERS.length}
@@ -305,9 +335,9 @@ export function GridView({
                                         <div className="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
                                             {ALL_FILES[draggedFileIdx].name}
                                         </div>
-                                        {selectedFiles.size > 1 && (
+                                        {selectedItemsIdx.size > 1 && (
                                             <span className="absolute p-2 text-xs rounded-full -top-2 -right-2 bg-zinc-950 outline-1">
-                                                +{selectedFiles.size - 1}
+                                                +{selectedItemsIdx.size - 1}
                                             </span>
                                         )}
                                     </span>
@@ -317,11 +347,11 @@ export function GridView({
                     </DndContext>
                 }
             </ContextMenuTrigger>
-            {selectedFiles.size > 0 ? (
-                <ContextMenuContentDropdown itemGroups={DROPDOWN_ITEM_GROUPS} />
-            ) : (
-                <ContextMenuContentDropdown />
-            )}
+            <ContextMenuContentDropdown 
+                contextMenuRef={contextMenuRef} 
+                selectedItems={selectedFiles}
+                setSelectedIdx={setSelectedItemsIdx}
+            />
         </ContextMenu>
     );
 }

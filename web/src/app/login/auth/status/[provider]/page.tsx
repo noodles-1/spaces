@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { AxiosError } from "axios";
 
-import { loginUser } from "@/actions/user";
+import { loginUser } from "@/services/user";
 import { ResponseDto } from "@/dto/response-dto";
 import { useParams, useSearchParams } from "next/navigation";
 

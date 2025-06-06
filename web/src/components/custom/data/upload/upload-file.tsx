@@ -9,7 +9,7 @@ import { CircleX } from "lucide-react";
 import { FileIcon } from "@/components/custom/data/file-icon";
 import { Progress } from "@/components/ui/progress";
 
-import { createItem, uploadFile } from "@/actions/storage";
+import { createItem, uploadFile } from "@/services/storage";
 import { useUploadStore } from "@/zustand/providers/upload-store-provider";
 import { formatFileSize } from "@/lib/custom/file-size";
 import { customToast } from "@/lib/custom/custom-toast";

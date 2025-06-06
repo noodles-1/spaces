@@ -22,8 +22,6 @@ import {
 import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { TreeItem } from "@/components/custom/data/tree/tree-item";
 
-import { DROPDOWN_ITEM_GROUPS } from "@/constants/data/placeholder";
-
 const ITEMS: TreeViewBaseItem[] = [
     {
         id: "1",
@@ -106,13 +104,6 @@ export function TreeView() {
                         />
                     </section>
                 </ContextMenuTrigger>
-                {selectedItems.length > 0 ?
-                    <ContextMenuContentDropdown 
-                        itemGroups={DROPDOWN_ITEM_GROUPS}
-                    />
-                :
-                    <ContextMenuContentDropdown />
-                }
             </ContextMenu>
         </main>
     );
