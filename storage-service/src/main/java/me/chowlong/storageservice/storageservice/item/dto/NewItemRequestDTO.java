@@ -9,6 +9,8 @@ import me.chowlong.storageservice.storageservice.enums.ItemType;
 @Getter
 @Setter
 public class NewItemRequestDTO {
+    @Nullable
+    private String id;
     @Nonnull
     private String name;
     @Nonnull

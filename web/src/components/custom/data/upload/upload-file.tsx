@@ -50,17 +50,18 @@ export function UploadFile({
     
                 setUploading(idx);
     
-                const isUploaded = await uploadFile({
+                const uploadResponse = await uploadFile({
                     file: upload.file,
                     setProgress
                 });
                 
-                if (isUploaded) {
+                if (uploadResponse.isUploaded) {
                     setUploaded(idx);
     
                     const paths = pathname.split("/");
                     const parentId = paths.length === 4 ? paths[3] : undefined;
                     await createItemMutation.mutateAsync({
+                        id: uploadResponse.fileId,
                         name: upload.file.name,
                         type: "FILE",
                         parentId,

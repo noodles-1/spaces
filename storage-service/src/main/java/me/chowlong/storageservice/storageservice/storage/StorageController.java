@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RateLimiter(name = "storage-controller")
@@ -26,13 +27,14 @@ public class StorageController {
 
     @GetMapping("/generate-upload-url")
     public ResponseEntity<Object> generateUploadUrl(
-            @NonNull @RequestParam("fileName") String fileName,
             @NonNull @RequestParam("contentType") String contentType
     ) {
-        String uploadUrl = this.awsService.generateUploadUrl(fileName, contentType);
+        String fileId = UUID.randomUUID().toString();
+        String uploadUrl = this.awsService.generateUploadUrl(fileId, contentType);
 
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("uploadUrl", uploadUrl);
+        responseData.put("fileId", fileId);
         return ResponseHandler.generateResponse("Generated pre-signed upload URL successfully.", HttpStatus.OK, responseData);
     }
 }

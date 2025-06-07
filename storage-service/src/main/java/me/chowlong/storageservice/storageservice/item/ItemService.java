@@ -73,7 +73,7 @@ public class ItemService {
 
     public Item createItem(NewItemRequestDTO newItemDTO, String userId) {
         Item newItem = new Item();
-        newItem.setId(UUID.randomUUID().toString());
+        newItem.setId(newItemDTO.getId() != null ? newItemDTO.getId() : UUID.randomUUID().toString());
         newItem.setName(newItemDTO.getName());
         newItem.setOwnerUserId(userId);
         newItem.setType(newItemDTO.getType());

@@ -17,16 +17,20 @@ interface UploadFileParams {
     setProgress: (progress: number) => void;
 }
 
-export async function uploadFile(params: UploadFileParams): Promise<boolean> {
+export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded: boolean, fileId: string }> {
     const { file, setProgress } = params;
 
-    const endpoint = `/storage/generate-upload-url?fileName=${file.name}&contentType=${file.type}`;
+    const endpoint = `/storage/generate-upload-url?contentType=${file.type}`;
 
     const response = await fetcher(endpoint);
     const uploadUrl = response.data.uploadUrl;
+    const fileId = response.data.fileId;
 
     if (!uploadUrl) {
-        return false;
+        return {
+            isUploaded: false,
+            fileId: ""
+        };
     }
     
     const uploadResponse = await axios.put(uploadUrl, file, {
@@ -43,10 +47,14 @@ export async function uploadFile(params: UploadFileParams): Promise<boolean> {
         throw new Error(`Failed to upload ${file.name} due to ${uploadResponse.statusText}.`);
     }
 
-    return true;
+    return {
+        isUploaded: true,
+        fileId
+    };
 }
 
 interface CreateItemParams {
+    id?: string;
     name: string;
     type: "FOLDER" | "FILE";
     parentId?: string;
