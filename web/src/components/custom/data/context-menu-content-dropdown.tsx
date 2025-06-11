@@ -17,6 +17,8 @@ import {
     Trash,
 } from "lucide-react";
 
+import { useDownloadStore } from "@/zustand/providers/download-store-provider";
+
 import {
     ContextMenuContent,
     ContextMenuGroup,
@@ -26,6 +28,7 @@ import {
 
 import { deleteItem, restoreItem, toggleItemStarred } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
+import { downloadToast } from "@/lib/custom/download-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { DropdownItem } from "@/types/dropdown-items-type";
@@ -40,6 +43,8 @@ export function ContextMenuContentDropdown({
     selectedItems: Item[]
     setSelectedIdx: (value: React.SetStateAction<Set<number>>) => void
 }) {
+    const { downloads, addFile } = useDownloadStore(state => state);
+
     const pathname = usePathname();
     const paths = pathname.split("/");
     const sourceParentId = paths.length === 4 ? paths[3] : undefined;
@@ -176,7 +181,7 @@ export function ContextMenuContentDropdown({
                         queryKey: ["user-accessible-starred-items"]
                     });
                 }
-            })
+            });
 
             queryClient.invalidateQueries({
                 queryKey: ["user-accessible-items"]
@@ -209,13 +214,31 @@ export function ContextMenuContentDropdown({
         }
     };
 
+    const handleDownload = async () => {
+        try {
+            if (downloads.length === 0)
+                downloadToast();
+
+            selectedItems.map(item => addFile(item));
+        }
+        catch (error) {
+            const axiosError = error as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
+            customToast({
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
+            });
+        }
+    };
+
     const itemGroups: DropdownItem[][] = [
         [
             {
                 id: "DOWNLOAD",
                 label: "Download",
                 icon: <Download />,
-                onClick: () => {},
+                onClick: handleDownload,
             },
             {
                 id: "RENAME",

@@ -22,16 +22,9 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
 
     const endpoint = `/storage/generate-upload-url?contentType=${file.type}`;
 
-    const response = await fetcher(endpoint);
+    const response = await fetcher<{ uploadUrl: string, fileId: string }>(endpoint);
     const uploadUrl = response.data.uploadUrl;
     const fileId = response.data.fileId;
-
-    if (!uploadUrl) {
-        return {
-            isUploaded: false,
-            fileId: ""
-        };
-    }
     
     const uploadResponse = await axios.put(uploadUrl, file, {
         headers: { "Content-Type": file.type },
@@ -50,6 +43,44 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
     return {
         isUploaded: true,
         fileId
+    };
+}
+
+interface DownloadFileParams {
+    file: Item;
+    setProgress: (progress: number) => void;
+    setDownloadedBits: (downloadedBytes: number) => void;
+}
+
+export async function downloadFile(params: DownloadFileParams): Promise<{ isDownloaded: boolean, blob: Blob }> {
+    const { file, setProgress, setDownloadedBits } = params;
+
+    const response = await axiosClient.post<ResponseDto<{ downloadUrl: string }>>("/storage/generate-download-url", {
+        fileId: file.id,
+        filename: file.name
+    }, {
+        headers: { "Content-Type": "application/json" },
+    });
+    const downloadUrl = response.data.data.downloadUrl;
+    
+    const downloadResponse = await axios.get(downloadUrl, {
+        responseType: "blob",
+        onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+                const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                setProgress(progress);
+                setDownloadedBits(progressEvent.loaded);
+            }
+        }
+    });
+    
+    if (downloadResponse.status !== 200) {
+        throw new Error(`Failed to download ${file.name} due to ${downloadResponse.statusText}.`);
+    }
+
+    return {
+        isDownloaded: true,
+        blob: downloadResponse.data
     };
 }
 

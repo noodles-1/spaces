@@ -1,16 +1,14 @@
 package me.chowlong.storageservice.storageservice.storage;
 
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import jakarta.validation.Valid;
 import me.chowlong.storageservice.storageservice.aws.AwsService;
-import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
+import me.chowlong.storageservice.storageservice.storage.dto.GenerateDownloadRequestDTO;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,5 +34,13 @@ public class StorageController {
         responseData.put("uploadUrl", uploadUrl);
         responseData.put("fileId", fileId);
         return ResponseHandler.generateResponse("Generated pre-signed upload URL successfully.", HttpStatus.OK, responseData);
+    }
+
+    @PostMapping("/generate-download-url")
+    public ResponseEntity<Object> generateDownloadUrl(@Valid @RequestBody GenerateDownloadRequestDTO generateDownloadRequestDTO) {
+        String downloadUrl = this.awsService.generateDownloadUrl(generateDownloadRequestDTO);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("downloadUrl", downloadUrl);
+        return ResponseHandler.generateResponse("Generated pre-signed download URL successfully.", HttpStatus.OK, responseData);
     }
 }

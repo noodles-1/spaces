@@ -5,6 +5,7 @@ import TanstackProvider from "@/tanstack/provider";
 
 import { Toaster } from "@/components/ui/sonner";
 import { UploadStoreProvider } from "@/zustand/providers/upload-store-provider";
+import { DownloadStoreProvider } from "@/zustand/providers/download-store-provider";
 
 export const metadata: Metadata = {
     title: "Login - Spaces Cloud Storage",
@@ -24,8 +25,10 @@ export default function RootLayout({
             <body className={`dark flex h-screen antialiased`}>
                 <TanstackProvider>
                     <UploadStoreProvider>
-                        {children}
-                        <Toaster expand />
+                        <DownloadStoreProvider>
+                            {children}
+                            <Toaster expand />
+                        </DownloadStoreProvider>
                     </UploadStoreProvider>
                 </TanstackProvider>
             </body>

@@ -27,6 +27,19 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findAccessibleChildrenById(@Param("parentId") String parentId);
 
     /**
+     * Finds the files and/or folders and their subfolders from a given
+     * non-root accessible directory.
+     * @param parentId
+     * @return list of items
+     */
+    @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
+            MATCH (parent:Item {id: $parentId})-[:CONTAINS*]->(children:Item)
+            RETURN children
+    """)
+    List<Item> findAccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
+
+    /**
      * Finds the immediate files and/or folders from the
      * root accessible directory.
      * @param userId

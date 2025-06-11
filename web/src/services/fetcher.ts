@@ -6,7 +6,7 @@ import axiosClient from "@/lib/axios-client";
 import { signOutUser } from "@/services/user";
 import { ResponseDto } from "@/dto/response-dto";
 
-export async function fetcher(endpoint: string): Promise<ResponseDto> {
+export async function fetcher<T>(endpoint: string): Promise<ResponseDto<T>> {
     try {
         const response = await axiosClient.get(endpoint, { headers: { "Content-Type": "application/json" } });
         return response.data as ResponseDto;
