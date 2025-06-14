@@ -7,6 +7,7 @@ export type Item = {
     size?: number;
     root: boolean;
     starred: boolean;
+    children?: Item[];
     accessibleParentId?: string;
     createdAt: string;
     updatedAt: string;

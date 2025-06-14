@@ -7,8 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.chowlong.storageservice.storageservice.enums.ItemType;
+import me.chowlong.storageservice.storageservice.item.Item;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,6 +33,8 @@ public class ItemResponseDTO {
     private boolean isRoot;
     @Nullable
     private boolean isStarred;
+    @Nullable
+    private List<Item> children;
     @Nullable
     private String accessibleParentId;
     @Nonnull

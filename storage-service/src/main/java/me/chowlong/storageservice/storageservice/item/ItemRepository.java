@@ -34,8 +34,8 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
      */
     @Query("""
             MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
-            MATCH (parent:Item {id: $parentId})-[:CONTAINS*]->(children:Item)
-            RETURN children
+            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->(children:Item)
+            RETURN subtree
     """)
     List<Item> findAccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
 

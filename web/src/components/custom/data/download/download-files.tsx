@@ -3,7 +3,9 @@ import { X } from "lucide-react";
 import { useDownloadStore } from "@/zustand/providers/download-store-provider";
 
 import { DownloadFile } from "@/components/custom/data/download/download-file";
+import { DownloadFolder } from "@/components/custom/data/download/download-folder";
 import { toast } from "sonner";
+import { Suspense } from "react";
 
 export function DownloadFiles() {
     const { downloads, clearFiles } = useDownloadStore(state => state);
@@ -32,7 +34,12 @@ export function DownloadFiles() {
             }
             <section className="flex flex-col gap-3 max-h-[16rem] overflow-x-auto">
                 {downloads.map((download, idx) =>
-                    <DownloadFile key={idx} download={download} idx={idx} />
+                    download.file.type === "FILE" ? 
+                        <DownloadFile key={idx} download={download} idx={idx} />
+                    :
+                        <Suspense key={idx} fallback={<span> Calcuating folder size... </span>}>
+                            <DownloadFolder key={idx} download={download} idx={idx} />
+                        </Suspense>
                 )}
             </section>
         </main>

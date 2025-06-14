@@ -48,8 +48,8 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
 
 interface DownloadFileParams {
     file: Item;
-    setProgress: (progress: number) => void;
-    setDownloadedBits: (downloadedBytes: number) => void;
+    setProgress?: (progress: number) => void;
+    setDownloadedBits?: (downloadedBytes: number) => void;
 }
 
 export async function downloadFile(params: DownloadFileParams): Promise<{ isDownloaded: boolean, blob: Blob }> {
@@ -68,8 +68,10 @@ export async function downloadFile(params: DownloadFileParams): Promise<{ isDown
         onDownloadProgress: (progressEvent) => {
             if (progressEvent.total) {
                 const progress = (progressEvent.loaded / progressEvent.total) * 100;
-                setProgress(progress);
-                setDownloadedBits(progressEvent.loaded);
+                if (setProgress && setDownloadedBits) {
+                    setProgress(progress);
+                    setDownloadedBits(progressEvent.loaded);
+                }
             }
         }
     });

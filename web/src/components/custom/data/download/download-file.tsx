@@ -11,6 +11,7 @@ import { downloadFile } from "@/services/storage";
 import { useDownloadStore } from "@/zustand/providers/download-store-provider";
 import { formatFileSize } from "@/lib/custom/file-size";
 import { customToast } from "@/lib/custom/custom-toast";
+import { downloadDirectly } from "@/lib/custom/download-directly";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Download } from "@/types/download-type";
@@ -30,17 +31,6 @@ export function DownloadFile({
     const [progress, setProgress] = useState<number>(0);
     const [downloadedBits, setDownloadedBits] = useState<number>(0);
     const [seconds, setSeconds] = useState<number>(0);
-
-    const downloadFileDirectly = (blob: Blob, filename: string) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
 
     useEffect(() => {
         const interval = setInterval(() => setSeconds(prev => prev + 1), 1000);
@@ -66,7 +56,7 @@ export function DownloadFile({
                 
                 if (downloadResponse.isDownloaded) {
                     setDownloaded(idx);
-                    downloadFileDirectly(downloadResponse.blob, download.file.name);
+                    downloadDirectly(downloadResponse.blob, download.file.name);
                 }
             }
             catch (error) {

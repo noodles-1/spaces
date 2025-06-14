@@ -43,6 +43,19 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched children successfully.", HttpStatus.OK, responseData);
     }
 
+    @GetMapping("/children/recursive/{parentId}")
+    public ResponseEntity<Object> getChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
+        List<Item> children = this.itemService.getChildrenByParentIdRecursive(parentId);
+        List<ItemResponseDTO> childrenResponse = children
+                .stream()
+                .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", childrenResponse);
+        return ResponseHandler.generateResponse("Fetched children recursive successfully.", HttpStatus.OK, responseData);
+    }
+
     @GetMapping("/check-deleted/{parentId}")
     public ResponseEntity<Object> checkDirectoryDeleted(@PathVariable("parentId") String parentId) {
         Root root = this.itemService.getItemRootNameById(parentId);
