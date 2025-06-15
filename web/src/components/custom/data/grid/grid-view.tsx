@@ -1,4 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { AxiosError } from "axios";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
     DndContext,
@@ -12,7 +17,7 @@ import {
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
-import { Star } from "lucide-react";
+import { ArchiveRestore, CircleX, Star } from "lucide-react";
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { StaticFolderFile } from "@/components/custom/data/grid/static-folder-file";
@@ -23,6 +28,9 @@ import { DroppableFolderFile } from "@/components/custom/data/grid/droppable-fol
 import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
+
+import { moveItem } from "@/services/storage";
+import { customToast } from "@/lib/custom/custom-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
@@ -36,6 +44,10 @@ export function GridView({
     starred?: boolean
     inaccessible?: boolean
 }) {
+    const pathname = usePathname();
+    const paths = pathname.split("/");
+    const sourceParentId = paths.length === 4 ? paths[3] : undefined;
+
     const children = userItems.data.children;
 
     const FOLDERS = children ? children.filter((file) => file.type === "FOLDER") : [];
@@ -50,6 +62,11 @@ export function GridView({
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
+
+    const queryClient = useQueryClient();
+    const moveItemMutation = useMutation({
+        mutationFn: moveItem
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -138,11 +155,54 @@ export function GridView({
         setDraggedFileIdx(event.active.id as number);
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
         setDraggedFileIdx(-1);
 
-        if (event.over) {
-            console.log(event.over.id);
+        const over = event.over;
+        if (over && selectedFiles.length > 0) {
+            try {
+                await Promise.all(selectedFiles.map(async (file) => await moveItemMutation.mutateAsync({
+                    itemId: file.id,
+                    sourceParentId,
+                    destinationParentId: over.id.toString()
+                })));
+
+                if (sourceParentId) {
+                    queryClient.invalidateQueries({
+                        queryKey: ["user-accessible-items", sourceParentId]
+                    });
+                }
+                else {
+                    queryClient.invalidateQueries({
+                        queryKey: ["user-accessible-items"]
+                    });
+                }
+
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", over.id.toString()]
+                });
+                
+                const message = selectedFiles.length > 1
+                    ? `Moved ${selectedFiles.length} items.`
+                    : `Moved ${selectedFiles[0].name}.`;
+
+                customToast({
+                    icon: <ArchiveRestore className="w-4 h-4" color="white" />,
+                    message,
+                });
+            }
+            catch (error) {
+                const axiosError = error as AxiosError;
+                const data = axiosError.response?.data as ResponseDto;
+
+                customToast({
+                    icon: <CircleX className="w-4 h-4" color="white" />,
+                    message: data.message
+                });
+            }
+            finally {
+                setSelectedItemsIdx(() => new Set());
+            }
         }
     };
 

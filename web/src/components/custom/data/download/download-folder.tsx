@@ -86,7 +86,10 @@ export function DownloadFolder({
             }
             else {
                 zip.folder(currPath);
-                item.children?.map(async (child) => await dfs(child, currPath));
+
+                if (item.children) {
+                    await Promise.all(item.children.map(async (child) => await dfs(child, currPath)));
+                }
             }
         }
 

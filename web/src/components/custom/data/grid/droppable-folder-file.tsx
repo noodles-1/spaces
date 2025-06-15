@@ -9,7 +9,7 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 
 export function DroppableFolderFile({ file }: { file: Item }) {
     const { setNodeRef } = useDroppable({
-        id: file.name,
+        id: file.id,
     });
 
     return (

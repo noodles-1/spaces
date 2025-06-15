@@ -13,7 +13,7 @@ export function DroppableFolder<TData>({
     file: Item;
 }) {
     const { setNodeRef } = useDroppable({
-        id: file.name,
+        id: file.id,
     });
 
     return (

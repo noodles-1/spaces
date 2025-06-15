@@ -10,4 +10,6 @@ public class MoveItemRequestDTO {
     private String itemId;
     @Nullable
     private String sourceParentId;
+    @Nullable
+    private String destinationParentId;
 }

@@ -117,6 +117,15 @@ export async function toggleItemStarred(params: ToggleItemStarredParams): Promis
 interface MoveItemParams {
     itemId: string;
     sourceParentId?: string;
+    destinationParentId?: string;
+}
+
+export async function moveItem(params: MoveItemParams): Promise<ResponseDto> {
+    const response = await axiosClient.patch("/storage/items/move", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
 }
 
 export async function deleteItem(params: MoveItemParams): Promise<ResponseDto> {

@@ -108,6 +108,27 @@ public class ItemService {
         this.itemRepository.save(item);
     }
 
+    public void moveFromMainAccessibleToAccessible(String userId, MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromMainAccessibleDirectory(userId, moveItemRequestDTO.getItemId());
+        Item parentItem = this.itemRepository.findItemById(moveItemRequestDTO.getDestinationParentId());
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
+    }
+
+    public void moveFromAccessibleToAccessible(MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromAccessibleDirectory(moveItemRequestDTO.getSourceParentId(), moveItemRequestDTO.getItemId());
+        Item parentItem = this.itemRepository.findItemById(moveItemRequestDTO.getDestinationParentId());
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
+    }
+
+    public void moveFromAccessibleToMainAccessible(String userId, MoveItemRequestDTO moveItemRequestDTO) {
+        Item item = this.itemRepository.removeFromAccessibleDirectory(moveItemRequestDTO.getSourceParentId(), moveItemRequestDTO.getItemId());
+        Item parentItem = this.itemRepository.findMainAccessibleDirectory(userId);
+        parentItem.getChildren().add(item);
+        this.itemRepository.save(parentItem);
+    }
+
     public void deleteFromMainAccessibleToTrash(String userId, MoveItemRequestDTO moveItemRequestDTO) {
         Item item = this.itemRepository.removeFromMainAccessibleDirectory(userId, moveItemRequestDTO.getItemId());
         item.setAccessibleParentId(null);

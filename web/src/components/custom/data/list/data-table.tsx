@@ -1,4 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { AxiosError } from "axios";
 
 import {
     flexRender,
@@ -10,6 +13,7 @@ import {
     ColumnFiltersState,
     getFilteredRowModel,
 } from "@tanstack/react-table";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
     DndContext,
@@ -23,7 +27,7 @@ import {
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
-import { Star } from "lucide-react";
+import { ArchiveRestore, CircleX, Star } from "lucide-react";
 
 import {
     Table,
@@ -50,8 +54,12 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { moveItem } from "@/services/storage";
+import { customToast } from "@/lib/custom/custom-toast";
+
 import { DataTableProps } from "@/types/data-table-type";
 import { Item } from "@/types/item-type";
+import { ResponseDto } from "@/dto/response-dto";
 
 export function DataTable<TData, TValue>({
     columns,
@@ -59,6 +67,10 @@ export function DataTable<TData, TValue>({
     starred,
     inaccessible
 }: DataTableProps<TData, TValue>) {
+    const pathname = usePathname();
+    const paths = pathname.split("/");
+    const sourceParentId = paths.length === 4 ? paths[3] : undefined;
+
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
         {},
@@ -72,6 +84,11 @@ export function DataTable<TData, TValue>({
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
+
+    const queryClient = useQueryClient();
+    const moveItemMutation = useMutation({
+        mutationFn: moveItem
+    });
     
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -176,11 +193,54 @@ export function DataTable<TData, TValue>({
         setDraggedRowId(event.active.id as string);
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
         setDraggedRowId("");
 
-        if (event.over) {
-            console.log(event.over.id);
+        const over = event.over;
+        if (over && selectedRows.length > 0) {
+            try {
+                await Promise.all(selectedRows.map(async (row) => await moveItemMutation.mutateAsync({
+                    itemId: row.id,
+                    sourceParentId,
+                    destinationParentId: over.id.toString()
+                })));
+
+                if (sourceParentId) {
+                    queryClient.invalidateQueries({
+                        queryKey: ["user-accessible-items", sourceParentId]
+                    });
+                }
+                else {
+                    queryClient.invalidateQueries({
+                        queryKey: ["user-accessible-items"]
+                    });
+                }
+
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", over.id.toString()]
+                });
+                
+                const message = selectedRows.length > 1
+                    ? `Moved ${selectedRows.length} items.`
+                    : `Moved ${selectedRows[0].name}.`;
+
+                customToast({
+                    icon: <ArchiveRestore className="w-4 h-4" color="white" />,
+                    message,
+                });
+            }
+            catch (error) {
+                const axiosError = error as AxiosError;
+                const data = axiosError.response?.data as ResponseDto;
+
+                customToast({
+                    icon: <CircleX className="w-4 h-4" color="white" />,
+                    message: data.message
+                });
+            }
+            finally {
+                setSelectedRowsIdx(() => new Set());
+            }
         }
     };
 

@@ -36,7 +36,7 @@ export function DraggableRow<TData>({
         if (inaccessible) {
             customToast({
                 icon: <CircleX className="w-4 h-4" color="white" />,
-                message: "Cannot open folder because it is deleted"
+                message: "Cannot open folder because it is deleted."
             });
         }
         else {

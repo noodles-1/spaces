@@ -160,6 +160,23 @@ public class ItemController {
         return ResponseHandler.generateResponse("Toggled item starred successfully.", HttpStatus.OK, null);
     }
 
+    @PatchMapping("/move")
+    public ResponseEntity<Object> moveItem(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody MoveItemRequestDTO moveItemRequestDTO
+    ) {
+        if (moveItemRequestDTO.getSourceParentId() != null && moveItemRequestDTO.getDestinationParentId() != null) {
+            this.itemService.moveFromAccessibleToAccessible(moveItemRequestDTO);
+        }
+        else if (moveItemRequestDTO.getDestinationParentId() != null) {
+            this.itemService.moveFromMainAccessibleToAccessible(userPrincipal.getUserId(), moveItemRequestDTO);
+        }
+        else {
+            this.itemService.moveFromAccessibleToMainAccessible(userPrincipal.getUserId(), moveItemRequestDTO);
+        }
+        return ResponseHandler.generateResponse("Moved item successfully.", HttpStatus.OK, null);
+    }
+
     @PatchMapping("/delete")
     public ResponseEntity<Object> deleteItem(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

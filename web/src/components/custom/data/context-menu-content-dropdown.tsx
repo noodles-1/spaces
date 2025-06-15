@@ -196,7 +196,7 @@ export function ContextMenuContentDropdown({
                 : `Restored ${selectedItems[0].name} from the trash.`;
 
             customToast({
-                icon: <Trash className="w-4 h-4" color="white" />,
+                icon: <ArchiveRestore className="w-4 h-4" color="white" />,
                 message,
             });
         }
