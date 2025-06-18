@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { FileWithPath } from "react-dropzone";
 
 import axios from "axios";
@@ -48,12 +49,13 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
 
 interface DownloadFileParams {
     file: Item;
-    setProgress?: (progress: number) => void;
-    setDownloadedBits?: (downloadedBytes: number) => void;
+    totalFolderSize?: number;
+    setProgress: Dispatch<SetStateAction<number>>;
+    setDownloadedBits: Dispatch<SetStateAction<number>>;
 }
 
 export async function downloadFile(params: DownloadFileParams): Promise<{ isDownloaded: boolean, blob: Blob }> {
-    const { file, setProgress, setDownloadedBits } = params;
+    const { file, totalFolderSize, setProgress, setDownloadedBits } = params;
 
     const response = await axiosClient.post<ResponseDto<{ downloadUrl: string }>>("/storage/generate-download-url", {
         fileId: file.id,
@@ -67,8 +69,16 @@ export async function downloadFile(params: DownloadFileParams): Promise<{ isDown
         responseType: "blob",
         onDownloadProgress: (progressEvent) => {
             if (progressEvent.total) {
-                const progress = (progressEvent.loaded / progressEvent.total) * 100;
-                if (setProgress && setDownloadedBits) {
+                if (totalFolderSize !== undefined) {
+                    setDownloadedBits(prev => {
+                        const downloadedBits = prev + progressEvent.bytes;
+                        const progress = downloadedBits / totalFolderSize * 100;
+                        setProgress(progress);
+                        return downloadedBits;
+                    });
+                }
+                else {
+                    const progress = progressEvent.loaded / progressEvent.total * 100;
                     setProgress(progress);
                     setDownloadedBits(progressEvent.loaded);
                 }
@@ -82,7 +92,7 @@ export async function downloadFile(params: DownloadFileParams): Promise<{ isDown
 
     return {
         isDownloaded: true,
-        blob: downloadResponse.data
+        blob: downloadResponse.data,
     };
 }
 

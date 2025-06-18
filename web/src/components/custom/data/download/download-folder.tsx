@@ -7,6 +7,7 @@ import { CircleX } from "lucide-react";
 
 import JSZip from "jszip";
 
+import { Progress } from "@/components/ui/progress";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { downloadFile } from "@/services/storage";
@@ -16,6 +17,7 @@ import { useDownloadStore } from "@/zustand/providers/download-store-provider";
 import { formatFileSize } from "@/lib/custom/file-size";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadDirectly } from "@/lib/custom/download-directly";
+import { formatDownloadSpeed } from "@/lib/custom/download-speed";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Download } from "@/types/download-type";
@@ -37,6 +39,9 @@ export function DownloadFolder({
 
     const hasRun = useRef<boolean>(false);
 
+    const [progress, setProgress] = useState<number>(0);
+    const [seconds, setSeconds] = useState<number>(0);
+    const [downloadedBits, setDownloadedBits] = useState<number>(0);
     const [totalFolderSize, setTotalFolderSize] = useState<number>(-1);
 
     const calculateFolderSize = () => {
@@ -77,7 +82,10 @@ export function DownloadFolder({
 
             if (item.type === "FILE") {
                 const downloadResponse = await downloadFile({
-                    file: item
+                    file: item,
+                    totalFolderSize,
+                    setProgress,
+                    setDownloadedBits
                 });
 
                 if (downloadResponse.isDownloaded) {
@@ -99,11 +107,15 @@ export function DownloadFolder({
     };
 
     useEffect(() => {
-        if (hasRun.current)
-            return;
+        const interval = setInterval(() => setSeconds(prev => prev + 1), 1000);
+        calculateFolderSize();
 
-        hasRun.current = true;
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
 
+    useEffect(() => {
         const handleDownload = async () => {
             try {
                 if (download.isDownloaded) {
@@ -111,10 +123,7 @@ export function DownloadFolder({
                 }
     
                 setDownloading(idx);
-
-                calculateFolderSize();
-                await downloadRecursive();
-                
+                await downloadRecursive();            
                 setDownloaded(idx);
             }
             catch (error) {
@@ -127,9 +136,16 @@ export function DownloadFolder({
                 });
             }
         };
+        
+        if (totalFolderSize >= 0) {
+            if (hasRun.current)
+                return;
 
-        handleDownload();
-    }, []);
+            hasRun.current = true;
+
+            handleDownload();
+        }
+    }, [totalFolderSize]);
 
     return (
         <div className="flex flex-col gap-5 p-4 border-2 rounded-lg border-zinc-800">
@@ -148,10 +164,10 @@ export function DownloadFolder({
                             {totalFolderSize >= 0 ?
                                 <>
                                     <span className="text-zinc-400">
-                                        Downloading...
+                                        {`(${formatFileSize(downloadedBits)} out of ${formatFileSize(totalFolderSize)})`}
                                     </span>
                                     <span className="text-zinc-400">
-                                        {`${formatFileSize(totalFolderSize)}`}
+                                        {`${formatDownloadSpeed(downloadedBits, seconds)}`}
                                     </span>
                                 </>
                             :
@@ -163,6 +179,7 @@ export function DownloadFolder({
                     }
                 </div>
             </section>
+            {progress < 100 && <Progress value={progress} className="h-1" />}
         </div>
     );
 }
