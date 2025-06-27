@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { usePathname } from "next/navigation";
 
 import { AxiosError } from "axios";
@@ -37,11 +37,13 @@ import { Item } from "@/types/item-type";
 export function ContextMenuContentDropdown({
     contextMenuRef,
     selectedItems,
+    setOpenMoveDialog,
     setSelectedIdx,
 }: {
     contextMenuRef: React.RefObject<HTMLDivElement | null>
     selectedItems: Item[]
-    setSelectedIdx: (value: React.SetStateAction<Set<number>>) => void
+    setOpenMoveDialog: Dispatch<SetStateAction<boolean>>
+    setSelectedIdx: Dispatch<SetStateAction<Set<number>>>
 }) {
     const { downloads, addFile } = useDownloadStore(state => state);
 
@@ -139,6 +141,10 @@ export function ContextMenuContentDropdown({
             queryClient.invalidateQueries({
                 queryKey: ["user-inaccessible-items"]
             });
+
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-items-recursive"]
+            });
             
             const message = selectedItems.length > 1
                 ? `Moved ${selectedItems.length} items into the trash.`
@@ -189,6 +195,10 @@ export function ContextMenuContentDropdown({
 
             queryClient.invalidateQueries({
                 queryKey: ["user-inaccessible-items"]
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-items-recursive"]
             });
             
             const message = selectedItems.length > 1
@@ -276,7 +286,7 @@ export function ContextMenuContentDropdown({
                 id: "MOVE",
                 label: "Move",
                 icon: <FolderInput />,
-                onClick: () => {},
+                onClick: () => {requestAnimationFrame(() => setOpenMoveDialog(true))},
             },
             {
                 id: "INFO",
@@ -335,7 +345,7 @@ export function ContextMenuContentDropdown({
                                 if (item.id === "RESTORE" && paths[2] !== "trash") {
                                     return;
                                 }
-
+                                
                                 return (
                                     <ContextMenuItem
                                         key={j}

@@ -30,7 +30,7 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
      * Finds the files and/or folders and their subfolders from a given
      * non-root accessible directory.
      * @param parentId
-     * @return list of items
+     * @return tree of items
      */
     @Query("""
             MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
@@ -51,6 +51,19 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN grandChildren
     """)
     List<Item> findAccessibleRootChildren(@Param("userId") String userId);
+
+    /**
+     * Finds the immediate files and/or folders and their subfolders from the
+     * root accessible directory.
+     * @param userId
+     * @return tree of items
+     */
+    @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS]->(parent:Item)
+            MATCH subtree = (parent:Item {name: $userId})-[:CONTAINS*]->(children:Item)
+            RETURN subtree
+    """)
+    List<Item> findAccessibleRootChildrenRecursive(@Param("userId") String userId);
 
     /**
      * Finds all accessible starred files and/or folders recursively.

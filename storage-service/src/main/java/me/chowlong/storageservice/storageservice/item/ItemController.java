@@ -77,6 +77,19 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched accessible root children successfully.", HttpStatus.OK, responseData);
     }
 
+    @GetMapping("/accessible/children/recursive")
+    public ResponseEntity<Object> getAccessibleRootChildrenRecursive(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Item> children = this.itemService.getAccessibleRootChildrenRecursive(userPrincipal.getUserId());
+        List<ItemResponseDTO> childrenResponse = children
+                .stream()
+                .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", childrenResponse);
+        return ResponseHandler.generateResponse("Fetched accessible root children recursive successfully.", HttpStatus.OK, responseData);
+    }
+
     @GetMapping("/accessible/starred")
     public ResponseEntity<Object> getAccessibleStarredItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<Item> children = this.itemService.getAccessibleStarredItems(userPrincipal.getUserId());

@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import { FolderSymlink, Home } from "lucide-react";
+
 import { styled } from "@mui/material/styles";
 
 import {
@@ -17,7 +19,6 @@ import {
 import { TreeItem2Icon } from "@mui/x-tree-view/TreeItem2Icon";
 import { TreeItem2Provider } from "@mui/x-tree-view/TreeItem2Provider";
 
-import { Progress } from "@/components/ui/progress";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 const CustomTreeItemContent = styled(TreeItem2Content)(({ theme }) => ({
@@ -28,7 +29,7 @@ interface CustomTreeItemProps
     extends Omit<UseTreeItem2Parameters, "rootRef">,
         Omit<React.HTMLAttributes<HTMLLIElement>, "onFocus"> {}
 
-export const TreeItem = React.forwardRef(function CustomTreeItem(
+export const MoveTreeItem = React.forwardRef(function CustomTreeItem(
     props: CustomTreeItemProps,
     ref: React.Ref<HTMLLIElement>,
 ) {
@@ -42,28 +43,26 @@ export const TreeItem = React.forwardRef(function CustomTreeItem(
         status,
     } = useTreeItem2({ id, itemId, children, label, disabled, rootRef: ref });
 
-    const capacity = 50;
-    const used = 14;
-
     return (
         <TreeItem2Provider itemId={itemId}>
             <TreeItem2Root {...getRootProps(other)}>
-                <CustomTreeItemContent {...getContentProps()} className="flex items-center justify-between">
-                    <section className="flex items-center gap-4">
+                <CustomTreeItemContent {...getContentProps()} className="flex items-center justify-between text-[14px]">
+                    <section className="flex items-center gap-2">
                         <TreeItem2IconContainer {...getIconContainerProps()}>
                             <TreeItem2Icon status={status} />
                         </TreeItem2IconContainer>
-                        <div className="flex items-center gap-4">
-                            <FileIcon className="h-4 w-4" />
+                        <div className="flex items-center gap-3">
+                            {itemId === "HOME" &&
+                                <Home className="h-4 w-4" />
+                            }
+                            {itemId === "SHARED" &&
+                                <FolderSymlink className="h-4 w-4" />
+                            }
+                            {!["HOME", "SHARED"].includes(itemId) &&
+                                <FileIcon className="h-4 w-4" />
+                            }
                             <span className="font-light"> {label} </span>
                         </div>
-                    </section>
-                    <section className="flex items-center gap-4 justify-end">
-                        <span className="text-sm font-light"> {used} MB (10%) </span>
-                        <Progress
-                            value={(used / capacity) * 100}
-                            className="w-[300px] bg-zinc-700"
-                        />
                     </section>
                 </CustomTreeItemContent>
                 {children && (

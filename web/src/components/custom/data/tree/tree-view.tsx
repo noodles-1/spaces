@@ -19,7 +19,6 @@ import {
     ContextMenuTrigger 
 } from "@/components/ui/context-menu";
 
-import { ContextMenuContentDropdown } from "@/components/custom/data/context-menu-content-dropdown";
 import { TreeItem } from "@/components/custom/data/tree/tree-item";
 
 const ITEMS: TreeViewBaseItem[] = [
@@ -50,11 +49,7 @@ export function TreeView() {
 
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
-            if (
-                ref.current &&
-                !ref.current.contains(event.target as Node) &&
-                event.button === 0
-            ) {
+            if (ref.current && !ref.current.contains(event.target as Node) && event.button === 0) {
                 setSelectedItems([]);
             }
         };
@@ -93,7 +88,7 @@ export function TreeView() {
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    <section ref={ref} className="overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
+                    <section ref={ref} className="overflow-y-auto">
                         <RichTreeView
                             defaultExpandedItems={["3"]}
                             items={ITEMS}

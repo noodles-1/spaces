@@ -59,7 +59,7 @@ export function CustomBreadcrumb({
                             <DropdownMenuContent align="start" className="p-2 space-y-2">
                                 {ancestors.slice(1, n - 2).map((ancestor, i) =>
                                     <DropdownMenuItem key={i} className="cursor-pointer">
-                                        <Link href={`/spaces/folders/${ancestor.id}`}> {ancestor.name} </Link>
+                                        <Link href={`/spaces/folders/${ancestor.id}`} className="flex-1"> {ancestor.name} </Link>
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>

@@ -30,6 +30,10 @@ public class ItemService {
         return this.itemRepository.findAccessibleRootChildren(userId);
     }
 
+    public List<Item> getAccessibleRootChildrenRecursive(String userId) {
+        return this.itemRepository.findAccessibleRootChildrenRecursive(userId);
+    }
+
     public List<Item> getAccessibleStarredItems(String userId) {
         return this.itemRepository.findAccessibleStarredItems(userId);
     }

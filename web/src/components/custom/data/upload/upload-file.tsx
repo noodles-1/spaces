@@ -72,6 +72,9 @@ export function UploadFile({
                     queryClient.invalidateQueries({
                         queryKey: ["user-accessible-items"]
                     });
+                    queryClient.invalidateQueries({
+                        queryKey: ["user-accessible-items-recursive"]
+                    });
                     
                     if (parentId) {
                         queryClient.invalidateQueries({

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { AxiosError } from "axios";
@@ -53,6 +53,7 @@ import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top
 import { FileIcon } from "@/components/custom/data/file-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Move } from "@/components/custom/data/move/move";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -81,6 +82,7 @@ export function DataTable<TData, TValue>({
     );
     const [lastSelectedRowIdx, setLastSelectedRowIdx] = useState<number>(-1);
     const [draggedRowId, setDraggedRowId] = useState<string>("");
+    const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -555,9 +557,18 @@ export function DataTable<TData, TValue>({
                 <ContextMenuContentDropdown 
                     contextMenuRef={contextMenuRef} 
                     selectedItems={selectedRows}
+                    setOpenMoveDialog={setOpenMoveDialog}
                     setSelectedIdx={setSelectedRowsIdx}
                 />
             </ContextMenu>
+            <Suspense>
+                <Move
+                    open={openMoveDialog}
+                    selectedItems={selectedRows}
+                    setOpen={setOpenMoveDialog}
+                    setSelectedIdx={setSelectedRowsIdx}
+                />
+            </Suspense>
         </div>
     );
 }

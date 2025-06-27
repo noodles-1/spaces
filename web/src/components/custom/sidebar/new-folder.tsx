@@ -101,6 +101,10 @@ export function NewFolder() {
                     queryKey: ["user-accessible-items"]
                 });
             }
+
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-items-recursive"]
+            });
         }
         catch (error) {
             const axiosError = error as AxiosError;
