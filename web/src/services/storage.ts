@@ -153,3 +153,16 @@ export async function restoreItem(params: MoveItemParams): Promise<ResponseDto> 
 
     return response.data;
 }
+
+interface RenameItemParams {
+    itemId: string;
+    newItemName: string;
+}
+
+export async function renameItem(params: RenameItemParams): Promise<ResponseDto> {
+    const response = await axiosClient.patch("/storage/items/rename", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
+}

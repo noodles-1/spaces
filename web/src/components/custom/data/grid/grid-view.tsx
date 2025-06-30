@@ -30,6 +30,7 @@ import { ContextMenuContentDropdown } from "@/components/custom/data/context-men
 import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top-left";
 import { FileIcon } from "@/components/custom/data/file-icon";
 import { Move } from "@/components/custom/data/move/move";
+import { Rename } from "@/components/custom/data/rename/rename";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -62,6 +63,7 @@ export function GridView({
     const [lastSelectedFileIdx, setLastSelectedFileIdx] = useState<number>(-1);
     const [draggedFileIdx, setDraggedFileIdx] = useState<number>(-1);
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
+    const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -415,6 +417,7 @@ export function GridView({
                     contextMenuRef={contextMenuRef} 
                     selectedItems={selectedFiles}
                     setOpenMoveDialog={setOpenMoveDialog}
+                    setOpenRenameDialog={setOpenRenameDialog}
                     setSelectedIdx={setSelectedItemsIdx}
                 />
             </ContextMenu>
@@ -424,6 +427,13 @@ export function GridView({
                     selectedItems={selectedFiles}
                     setOpen={setOpenMoveDialog}
                     setSelectedIdx={setSelectedItemsIdx}
+                />
+            </Suspense>
+            <Suspense>
+                <Rename 
+                    open={openRenameDialog}
+                    selectedItems={selectedFiles}
+                    setOpen={setOpenRenameDialog}
                 />
             </Suspense>
         </>

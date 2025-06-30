@@ -4,6 +4,7 @@ import me.chowlong.storageservice.storageservice.enums.ItemType;
 import me.chowlong.storageservice.storageservice.enums.Root;
 import me.chowlong.storageservice.storageservice.item.dto.MoveItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
+import me.chowlong.storageservice.storageservice.item.dto.RenameItemRequestDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -177,5 +178,11 @@ public class ItemService {
 
         parentItem.getChildren().add(item);
         this.itemRepository.save(parentItem);
+    }
+
+    public void renameItemById(RenameItemRequestDTO renameItemRequestDTO) {
+        Item item = this.itemRepository.findItemById(renameItemRequestDTO.getItemId());
+        item.setName(renameItemRequestDTO.getNewItemName());
+        this.itemRepository.save(item);
     }
 }

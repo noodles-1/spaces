@@ -54,6 +54,7 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Move } from "@/components/custom/data/move/move";
+import { Rename } from "@/components/custom/data/rename/rename";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -83,6 +84,7 @@ export function DataTable<TData, TValue>({
     const [lastSelectedRowIdx, setLastSelectedRowIdx] = useState<number>(-1);
     const [draggedRowId, setDraggedRowId] = useState<string>("");
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
+    const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -558,6 +560,7 @@ export function DataTable<TData, TValue>({
                     contextMenuRef={contextMenuRef} 
                     selectedItems={selectedRows}
                     setOpenMoveDialog={setOpenMoveDialog}
+                    setOpenRenameDialog={setOpenRenameDialog}
                     setSelectedIdx={setSelectedRowsIdx}
                 />
             </ContextMenu>
@@ -567,6 +570,13 @@ export function DataTable<TData, TValue>({
                     selectedItems={selectedRows}
                     setOpen={setOpenMoveDialog}
                     setSelectedIdx={setSelectedRowsIdx}
+                />
+            </Suspense>
+            <Suspense>
+                <Rename
+                    open={openRenameDialog}
+                    selectedItems={selectedRows}
+                    setOpen={setOpenRenameDialog}
                 />
             </Suspense>
         </div>

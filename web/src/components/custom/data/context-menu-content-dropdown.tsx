@@ -38,11 +38,13 @@ export function ContextMenuContentDropdown({
     contextMenuRef,
     selectedItems,
     setOpenMoveDialog,
+    setOpenRenameDialog,
     setSelectedIdx,
 }: {
     contextMenuRef: React.RefObject<HTMLDivElement | null>
     selectedItems: Item[]
     setOpenMoveDialog: Dispatch<SetStateAction<boolean>>
+    setOpenRenameDialog: Dispatch<SetStateAction<boolean>>
     setSelectedIdx: Dispatch<SetStateAction<Set<number>>>
 }) {
     const { downloads, addFile } = useDownloadStore(state => state);
@@ -254,7 +256,7 @@ export function ContextMenuContentDropdown({
                 id: "RENAME",
                 label: "Rename",
                 icon: <PenLine />,
-                onClick: () => {},
+                onClick: () => {requestAnimationFrame(() => setOpenRenameDialog(true))},
             },
             {
                 id: "DUPLICATE",
@@ -335,7 +337,11 @@ export function ContextMenuContentDropdown({
                                 }
 
                                 if (item.id === "REMOVE_STARRED" && selectedItems.length === 1 && !selectedItems[0].starred) {
-                                    return
+                                    return;
+                                }
+
+                                if (item.id === "RENAME" && selectedItems.length > 1) {
+                                    return;
                                 }
                                 
                                 if (item.id === "TRASH" && paths[2] === "trash") {

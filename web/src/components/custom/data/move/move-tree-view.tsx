@@ -163,8 +163,7 @@ export function MoveTreeView({
 
         mapRootItems();
 
-        return () =>
-            document.removeEventListener("mousedown", handleOutsideClick);
+        return () => document.removeEventListener("mousedown", handleOutsideClick);
     }, []);
 
     const handleSelectedItemChange = (_: React.SyntheticEvent, id: string | null) => {

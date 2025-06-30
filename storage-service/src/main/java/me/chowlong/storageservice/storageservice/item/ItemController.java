@@ -6,6 +6,7 @@ import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidE
 import me.chowlong.storageservice.storageservice.item.dto.ItemResponseDTO;
 import me.chowlong.storageservice.storageservice.item.dto.MoveItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
+import me.chowlong.storageservice.storageservice.item.dto.RenameItemRequestDTO;
 import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
 import org.modelmapper.ModelMapper;
@@ -211,5 +212,21 @@ public class ItemController {
     ) {
         this.itemService.restoreFromTrashToAccessible(userPrincipal.getUserId(), moveItemRequestDTO);
         return ResponseHandler.generateResponse("Restored item successfully.", HttpStatus.OK, null);
+    }
+
+    @PatchMapping("/rename")
+    public ResponseEntity<Object> renameItem(@Valid @RequestBody RenameItemRequestDTO renameItemRequestDTO) throws ItemNameInvalidException {
+        String itemName = renameItemRequestDTO.getNewItemName();
+        if (itemName.isEmpty() || 200 < itemName.length()) {
+            throw new ItemNameInvalidException();
+        }
+
+        Pattern itemNamePattern = Pattern.compile("^(?!\\.{1,2}$)[^/]+$");
+        if (!itemNamePattern.matcher(itemName).matches()) {
+            throw new ItemNameInvalidException();
+        }
+
+        this.itemService.renameItemById(renameItemRequestDTO);
+        return ResponseHandler.generateResponse("Renamed item successfully.", HttpStatus.OK, null);
     }
 }
