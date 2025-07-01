@@ -46,7 +46,7 @@ export function RenameForm({
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    const selectedItemsRef = useRef<Item[]>([]);
+    const selectedItemRef = useRef<Item | null>(null);
 
     const queryClient = useQueryClient();
     const renameItemMutation = useMutation({
@@ -76,20 +76,31 @@ export function RenameForm({
     });
 
     useEffect(() => {
-        if (selectedItems.length > 0) {
-            selectedItemsRef.current = selectedItems;
-            form.setValue("newName", selectedItems[0].name);
+        if (selectedItems.length === 1) {
+            selectedItemRef.current = selectedItems[0];
+            if (selectedItemRef.current.type === "FOLDER") {
+                form.setValue("newName", selectedItems[0].name);
+            }
+            else {
+                const slices = selectedItemRef.current.name.split(".");
+                form.setValue("newName", slices.slice(0, slices.length - 1).join("."));
+            }
         }
     }, [selectedItems]);
     
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        if (selectedItemRef.current === null)
+            return;
+
         try {
             setLoading(true);
 
             const paths = pathname.split("/");
             const parentId = paths.length === 4 ? paths[3] : undefined;
+            const itemFileExtension = selectedItemRef.current.type === "FILE" ? selectedItemRef.current.name.split(".").slice(-1)[0] : undefined;
             await renameItemMutation.mutateAsync({
-                itemId: selectedItemsRef.current[0].id,
+                itemId: selectedItemRef.current.id,
+                itemFileExtension,
                 newItemName: values.newName,
             });
 
@@ -127,7 +138,7 @@ export function RenameForm({
         }
         finally {
             setLoading(false);
-            selectedItemsRef.current = [];
+            selectedItemRef.current = null;
         }
     };
 
@@ -142,21 +153,26 @@ export function RenameForm({
                         <section className="flex flex-col gap-8">
                             <section className="flex flex-col gap-1">
                                 <span className="font-medium text-zinc-300 text-sm"> New name: </span>
-                                <FormField 
-                                    control={form.control}
-                                    name="newName"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <Input 
-                                                    {...field}
-                                                    className="w-full rounded-xl"
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-[12px]" />
-                                        </FormItem>
-                                    )}
-                                />
+                                <div className="flex items-center gap-2">
+                                    <FormField 
+                                        control={form.control}
+                                        name="newName"
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormControl>
+                                                    <Input 
+                                                        {...field}
+                                                        className="w-full rounded-xl"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage className="text-[12px]" />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    {selectedItemRef.current && selectedItemRef.current.type === "FILE" &&
+                                        <span className="text-zinc-400"> .{selectedItemRef.current.name.split(".").slice(-1)[0]} </span>
+                                    }
+                                </div>
                             </section>
                             <DialogFooter>
                                 <DialogClose asChild>

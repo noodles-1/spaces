@@ -156,6 +156,7 @@ export async function restoreItem(params: MoveItemParams): Promise<ResponseDto> 
 
 interface RenameItemParams {
     itemId: string;
+    itemFileExtension?: string;
     newItemName: string;
 }
 

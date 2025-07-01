@@ -182,7 +182,10 @@ public class ItemService {
 
     public void renameItemById(RenameItemRequestDTO renameItemRequestDTO) {
         Item item = this.itemRepository.findItemById(renameItemRequestDTO.getItemId());
-        item.setName(renameItemRequestDTO.getNewItemName());
+        String newItemName = renameItemRequestDTO.getNewItemName();
+        if (renameItemRequestDTO.getItemFileExtension() != null)
+            newItemName += "." + renameItemRequestDTO.getItemFileExtension();
+        item.setName(newItemName);
         this.itemRepository.save(item);
     }
 }

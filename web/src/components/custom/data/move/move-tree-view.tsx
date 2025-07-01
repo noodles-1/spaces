@@ -172,7 +172,13 @@ export function MoveTreeView({
 
     return (
         <main ref={ref}>
-            <main className="h-[24rem] overflow-auto">
+            {selectedItemsRef.current.length > 0 &&
+                <span className="text-[14px] text-zinc-300"> 
+                    Item to move: 
+                    <span className="font-semibold"> {selectedItemsRef.current[0].name} </span>
+                </span>
+            }
+            <main className="h-[24rem] overflow-auto pt-2">
                 <section className="flex flex-col gap-2">
                     <section className="overflow-y-auto">
                         <RichTreeView
