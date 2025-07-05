@@ -43,4 +43,12 @@ public class StorageController {
         responseData.put("downloadUrl", downloadUrl);
         return ResponseHandler.generateResponse("Generated pre-signed download URL successfully.", HttpStatus.OK, responseData);
     }
+
+    @DeleteMapping("/generate-delete-url/{keyName}")
+    public ResponseEntity<Object> generateDeleteUrl(@PathVariable("keyName") String keyName) {
+        String deleteUrl = this.awsService.generateDeleteUrl(keyName);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("deleteUrl", deleteUrl);
+        return ResponseHandler.generateResponse("Generated pre-signed delete URL successfully.", HttpStatus.OK, responseData);
+    }
 }

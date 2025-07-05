@@ -19,11 +19,11 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public List<Item> getChildrenByParentId(String parentId) {
+    public List<Item> getAccessibleChildrenByParentId(String parentId) {
         return this.itemRepository.findAccessibleChildrenById(parentId);
     }
 
-    public List<Item> getChildrenByParentIdRecursive(String parentId) {
+    public List<Item> getAccessibleChildrenByParentIdRecursive(String parentId) {
         return this.itemRepository.findAccessibleChildrenByIdRecursive(parentId);
     }
 
@@ -37,6 +37,10 @@ public class ItemService {
 
     public List<Item> getAccessibleStarredItems(String userId) {
         return this.itemRepository.findAccessibleStarredItems(userId);
+    }
+
+    public List<Item> getInaccessibleChildrenByParentIdRecursive(String parentId) {
+        return this.itemRepository.findInaccessibleChildrenByIdRecursive(parentId);
     }
 
     public List<Item> getInaccessibleRootChildren(String userId) {
@@ -187,5 +191,15 @@ public class ItemService {
             newItemName += "." + renameItemRequestDTO.getItemFileExtension();
         item.setName(newItemName);
         this.itemRepository.save(item);
+    }
+
+    public void deleteItemPermanently(String itemId) {
+        Item item = this.itemRepository.findItemById(itemId);
+        if (item.getType() == ItemType.FILE || item.getChildren().isEmpty()) {
+            this.itemRepository.delete(item);
+        }
+        else {
+            this.itemRepository.deleteInaccessibleChildrenByIdRecursive(itemId);
+        }
     }
 }

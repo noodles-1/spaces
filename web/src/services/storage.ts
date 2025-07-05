@@ -35,7 +35,7 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
                 setProgress(progress);
             }
         }
-    })
+    });
 
     if (uploadResponse.status !== 200) {
         throw new Error(`Failed to upload ${file.name} due to ${uploadResponse.statusText}.`);
@@ -94,6 +94,25 @@ export async function downloadFile(params: DownloadFileParams): Promise<{ isDown
         isDownloaded: true,
         blob: downloadResponse.data,
     };
+}
+
+interface DeleteItemParams {
+    file: Item;
+}
+
+export async function deleteFile(params: DeleteItemParams): Promise<boolean> {
+    const response = await axiosClient.delete<ResponseDto<{ deleteUrl: string }>>(`/storage/generate-delete-url/${params.file.id}`, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    const deleteUrl = response.data.data.deleteUrl;
+    const deleteResponse = await axios.delete(deleteUrl);
+
+    if (deleteResponse.status !== 204) {
+        throw new Error(`Failed to delete ${params.file.name}.`);
+    }
+
+    return true;
 }
 
 interface CreateItemParams {
@@ -162,6 +181,18 @@ interface RenameItemParams {
 
 export async function renameItem(params: RenameItemParams): Promise<ResponseDto> {
     const response = await axiosClient.patch("/storage/items/rename", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
+}
+
+interface DeleteItemPermanently {
+    itemId: string;
+}
+
+export async function deleteItemPermanently(params: DeleteItemPermanently): Promise<ResponseDto> {
+    const response = await axiosClient.delete(`/storage/items/delete/permanent/${params.itemId}`, {
         headers: { "Content-Type": "application/json" }
     });
 

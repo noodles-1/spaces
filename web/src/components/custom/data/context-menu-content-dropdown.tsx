@@ -26,13 +26,15 @@ import {
     ContextMenuSeparator,
 } from "@/components/ui/context-menu";
 
-import { deleteItem, restoreItem, toggleItemStarred } from "@/services/storage";
+import { fetcher } from "@/services/fetcher";
+import { deleteFile, deleteItem, deleteItemPermanently, restoreItem, toggleItemStarred } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadToast } from "@/lib/custom/download-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { DropdownItem } from "@/types/dropdown-items-type";
 import { Item } from "@/types/item-type";
+import { toast } from "sonner";
 
 export function ContextMenuContentDropdown({
     contextMenuRef,
@@ -65,6 +67,10 @@ export function ContextMenuContentDropdown({
 
     const restoreItemMutation = useMutation({
         mutationFn: restoreItem
+    });
+
+    const deleteItemPermanentlyMutation = useMutation({
+        mutationFn: deleteItemPermanently
     });
 
     const handleStarred = async () => {
@@ -226,6 +232,67 @@ export function ContextMenuContentDropdown({
         }
     };
 
+    const handleDeletePermanently = async () => {
+        function dfs(item: Item) {
+            if (item.type === "FILE") {
+                deleteFile({ file: item });
+            }
+            else {
+                if (item.children) {
+                    item.children.map(child => dfs(child));
+                }
+            }
+        }
+
+        async function createDeleteRequest(): Promise<boolean> {
+            const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
+            const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
+            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<Item>(`/storage/items/inaccessible/children/recursive/${folder.id}`)));
+            
+            files.map(file => deleteFile({ file }));
+            foldersResponse.map(folder => folder.data.children?.map(child => dfs(child)));
+
+            return true;
+        }
+
+        try {
+            const deleteRequestPromise = createDeleteRequest();
+            
+            const loadingMessage = selectedItems.length > 1
+            ? `Deleting ${selectedItems.length} items...`
+            : `Deleting ${selectedItems[0].name}...`;
+            
+            const successMessage = selectedItems.length > 1
+            ? `Permanently deleted ${selectedItems.length} items.`
+            : `Permanently deleted ${selectedItems[0].name}.`;
+            
+            toast.promise(deleteRequestPromise, {
+                loading: loadingMessage,
+                success: successMessage
+            });
+
+            await Promise.all(selectedItems.map(async (item) => await deleteItemPermanentlyMutation.mutateAsync({
+                itemId: item.id
+            })));
+
+            queryClient.invalidateQueries({
+                queryKey: ["user-inaccessible-items"]
+            });
+        }
+        catch (error) {
+            const axiosError = error as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
+            customToast({
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
+            });
+        }
+        finally {
+            setSelectedIdx(() => new Set());
+        }
+    };
+
     const handleDownload = async () => {
         try {
             if (downloads.length === 0)
@@ -264,6 +331,12 @@ export function ContextMenuContentDropdown({
                 icon: <Copy />,
                 onClick: () => {},
             },
+            {
+                id: "INFO",
+                label: "Folder information",
+                icon: <Info />,
+                onClick: () => {},
+            },
         ],
         [
             {
@@ -291,10 +364,10 @@ export function ContextMenuContentDropdown({
                 onClick: () => {requestAnimationFrame(() => setOpenMoveDialog(true))},
             },
             {
-                id: "INFO",
-                label: "Folder information",
-                icon: <Info />,
-                onClick: () => {},
+                id: "RESTORE",
+                label: "Restore",
+                icon: <ArchiveRestore />,
+                onClick: handleRestore,
             },
         ],
         [
@@ -305,11 +378,11 @@ export function ContextMenuContentDropdown({
                 onClick: handleDelete,
             },
             {
-                id: "RESTORE",
-                label: "Restore",
-                icon: <ArchiveRestore />,
-                onClick: handleRestore,
-            },
+                id: "DELETE",
+                label: "Delete permanently",
+                icon: <Trash className="stroke-red-300" />,
+                onClick: handleDeletePermanently
+            }
         ],
     ];
 
@@ -324,7 +397,11 @@ export function ContextMenuContentDropdown({
                                     return;
                                 }
 
-                                if (paths[2] === "trash" && !["RESTORE", "INFO"].includes(item.id)) {
+                                if (paths[2] === "trash" && !["RESTORE", "INFO", "DELETE"].includes(item.id)) {
+                                    return;
+                                }
+
+                                if (paths[2] !== "trash" && ["RESTORE", "INFO", "DELETE"].includes(item.id)) {
                                     return;
                                 }
 
@@ -344,18 +421,10 @@ export function ContextMenuContentDropdown({
                                     return;
                                 }
                                 
-                                if (item.id === "TRASH" && paths[2] === "trash") {
-                                    return;
-                                }
-
-                                if (item.id === "RESTORE" && paths[2] !== "trash") {
-                                    return;
-                                }
-                                
                                 return (
                                     <ContextMenuItem
                                         key={j}
-                                        className="flex gap-3 pr-12 hover:cursor-pointer"
+                                        className={`flex gap-3 pr-12 hover:cursor-pointer ${item.id === "DELETE" && "text-red-300"}`}
                                         onClick={() => item.onClick()}
                                     >
                                         {item.icon}

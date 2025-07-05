@@ -34,10 +34,35 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
      */
     @Query("""
             MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
-            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->(children:Item)
+            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->()
             RETURN subtree
     """)
     List<Item> findAccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
+
+    /**
+     * Finds the files and/or folders and their subfolders from a given
+     * non-root inaccessible directory.
+     * @param parentId
+     * @return tree of items
+     */
+    @Query("""
+            MATCH (root:Item {name: "INACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
+            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->()
+            RETURN subtree
+    """)
+    List<Item> findInaccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
+
+    /**
+     * Deletes the files and/or folders and their subfolders from a given
+     * non-root inaccessible directory.
+     * @param parentId
+     */
+    @Query("""
+            MATCH (root:Item {name: "INACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
+            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->()
+            DETACH DELETE subtree
+    """)
+    void deleteInaccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
 
     /**
      * Finds the immediate files and/or folders from the

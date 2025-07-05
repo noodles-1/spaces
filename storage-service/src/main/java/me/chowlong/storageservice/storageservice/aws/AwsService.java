@@ -4,13 +4,11 @@ import me.chowlong.storageservice.storageservice.storage.dto.GenerateDownloadReq
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.*;
 
 import java.time.Duration;
 
@@ -65,6 +63,23 @@ public class AwsService {
                 .build();
 
         PresignedGetObjectRequest presignedRequest = this.s3Presigner.presignGetObject(presignRequest);
+        return presignedRequest.url().toExternalForm();
+    }
+
+    public String generateDeleteUrl(String keyName) {
+        DeleteObjectRequest objectRequest = DeleteObjectRequest
+                .builder()
+                .bucket(this.bucketName)
+                .key(keyName)
+                .build();
+
+        DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest
+                .builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .deleteObjectRequest(objectRequest)
+                .build();
+
+        PresignedDeleteObjectRequest presignedRequest = this.s3Presigner.presignDeleteObject(presignRequest);
         return presignedRequest.url().toExternalForm();
     }
 }

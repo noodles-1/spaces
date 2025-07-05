@@ -33,7 +33,7 @@ public class ItemController {
 
     @GetMapping("/children/{parentId}")
     public ResponseEntity<Object> getChildrenByParentId(@PathVariable("parentId") String parentId) {
-        List<Item> children = this.itemService.getChildrenByParentId(parentId);
+        List<Item> children = this.itemService.getAccessibleChildrenByParentId(parentId);
         List<ItemResponseDTO> childrenResponse = children
                 .stream()
                 .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
@@ -45,8 +45,8 @@ public class ItemController {
     }
 
     @GetMapping("/children/recursive/{parentId}")
-    public ResponseEntity<Object> getChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
-        List<Item> children = this.itemService.getChildrenByParentIdRecursive(parentId);
+    public ResponseEntity<Object> getAccessibleChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
+        List<Item> children = this.itemService.getAccessibleChildrenByParentIdRecursive(parentId);
         List<ItemResponseDTO> childrenResponse = children
                 .stream()
                 .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
@@ -54,7 +54,7 @@ public class ItemController {
 
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", childrenResponse);
-        return ResponseHandler.generateResponse("Fetched children recursive successfully.", HttpStatus.OK, responseData);
+        return ResponseHandler.generateResponse("Fetched accessible children recursive successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/check-deleted/{parentId}")
@@ -115,6 +115,19 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", childrenResponse);
         return ResponseHandler.generateResponse("Fetched inaccessible root children successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/inaccessible/children/recursive/{parentId}")
+    public ResponseEntity<Object> getInaccessibleChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
+        List<Item> children = this.itemService.getInaccessibleChildrenByParentIdRecursive(parentId);
+        List<ItemResponseDTO> childrenResponse = children
+                .stream()
+                .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", childrenResponse);
+        return ResponseHandler.generateResponse("Fetched inaccessible children recursive successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/owner-ancestors/{descendantId}")
@@ -228,5 +241,11 @@ public class ItemController {
 
         this.itemService.renameItemById(renameItemRequestDTO);
         return ResponseHandler.generateResponse("Renamed item successfully.", HttpStatus.OK, null);
+    }
+
+    @DeleteMapping("/delete/permanent/{itemId}")
+    public ResponseEntity<Object> deleteItemPermanently(@PathVariable("itemId") String itemId) {
+        this.itemService.deleteItemPermanently(itemId);
+        return ResponseHandler.generateResponse("Deleted item permanently.", HttpStatus.OK, null);
     }
 }
