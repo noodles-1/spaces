@@ -27,7 +27,7 @@ import {
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 
-import { ArchiveRestore, CircleX, Star } from "lucide-react";
+import { CircleCheck, CircleX, Star } from "lucide-react";
 
 import {
     Table,
@@ -229,7 +229,7 @@ export function DataTable<TData, TValue>({
                     : `Moved ${selectedRows[0].name}.`;
 
                 customToast({
-                    icon: <ArchiveRestore className="w-4 h-4" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message,
                 });
             }

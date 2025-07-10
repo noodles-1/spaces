@@ -3,6 +3,7 @@ package me.chowlong.storageservice.storageservice.storage;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import me.chowlong.storageservice.storageservice.aws.AwsService;
+import me.chowlong.storageservice.storageservice.storage.dto.DuplicateFileRequestDTO;
 import me.chowlong.storageservice.storageservice.storage.dto.GenerateDownloadRequestDTO;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,12 @@ public class StorageController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("downloadUrl", downloadUrl);
         return ResponseHandler.generateResponse("Generated pre-signed download URL successfully.", HttpStatus.OK, responseData);
+    }
+
+    @PostMapping("/duplicate")
+    public ResponseEntity<Object> duplicateFile(@Valid @RequestBody DuplicateFileRequestDTO duplicateFileRequestDTO) {
+        this.awsService.duplicateObject(duplicateFileRequestDTO.getSourceKey(), duplicateFileRequestDTO.getDestinationKey());
+        return ResponseHandler.generateResponse("Duplicated file successfully.", HttpStatus.OK, null);
     }
 
     @DeleteMapping("/generate-delete-url/{keyName}")

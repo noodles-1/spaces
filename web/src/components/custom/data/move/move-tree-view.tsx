@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { ArchiveRestore, CircleX, Loader2 } from "lucide-react";
+import { CircleCheck, CircleX, Loader2 } from "lucide-react";
 
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
@@ -103,7 +103,7 @@ export function MoveTreeView({
                     : `Moved ${selectedItemsRef.current[0].name}.`;
                     
                 customToast({
-                    icon: <ArchiveRestore className="w-4 h-4" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message,
                 });
 

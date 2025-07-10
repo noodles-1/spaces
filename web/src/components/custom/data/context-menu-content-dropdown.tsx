@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ArchiveRestore,
     ArrowLeftRight,
+    CircleCheck,
     CircleX,
     Copy,
     Download,
@@ -27,14 +28,13 @@ import {
 } from "@/components/ui/context-menu";
 
 import { fetcher } from "@/services/fetcher";
-import { deleteFile, deleteItem, deleteItemPermanently, restoreItem, toggleItemStarred } from "@/services/storage";
+import { createItem, deleteFile, deleteItem, deleteItemPermanently, duplicateItem, restoreItem, toggleItemStarred } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadToast } from "@/lib/custom/download-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { DropdownItem } from "@/types/dropdown-items-type";
 import { Item } from "@/types/item-type";
-import { toast } from "sonner";
 
 export function ContextMenuContentDropdown({
     contextMenuRef,
@@ -73,6 +73,10 @@ export function ContextMenuContentDropdown({
         mutationFn: deleteItemPermanently
     });
 
+    const createItemMutation = useMutation({
+        mutationFn: createItem
+    });
+
     const handleStarred = async () => {
         try {
             const selectedItem = selectedItems[0];
@@ -98,13 +102,13 @@ export function ContextMenuContentDropdown({
 
             if (selectedItem.starred) {
                 customToast({
-                    icon: <Star className="w-4 h-4" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${selectedItem.name} has been removed from starred items.`,
                 });
             }
             else {
                 customToast({
-                    icon: <Star className="w-4 h-4 fill-white" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${selectedItem.name} has been added to starred items.`,
                 });
             }
@@ -159,7 +163,7 @@ export function ContextMenuContentDropdown({
                 : `Moved ${selectedItems[0].name} into the trash.`;
 
             customToast({
-                icon: <Trash className="w-4 h-4" color="white" />,
+                icon: <CircleCheck className="w-4 h-4" color="white" />,
                 message,
             });
         }
@@ -214,69 +218,8 @@ export function ContextMenuContentDropdown({
                 : `Restored ${selectedItems[0].name} from the trash.`;
 
             customToast({
-                icon: <ArchiveRestore className="w-4 h-4" color="white" />,
+                icon: <CircleCheck className="w-4 h-4" color="white" />,
                 message,
-            });
-        }
-        catch (error) {
-            const axiosError = error as AxiosError;
-            const data = axiosError.response?.data as ResponseDto;
-
-            customToast({
-                icon: <CircleX className="w-4 h-4" color="white" />,
-                message: data.message
-            });
-        }
-        finally {
-            setSelectedIdx(() => new Set());
-        }
-    };
-
-    const handleDeletePermanently = async () => {
-        function dfs(item: Item) {
-            if (item.type === "FILE") {
-                deleteFile({ file: item });
-            }
-            else {
-                if (item.children) {
-                    item.children.map(child => dfs(child));
-                }
-            }
-        }
-
-        async function createDeleteRequest(): Promise<boolean> {
-            const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
-            const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
-            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<Item>(`/storage/items/inaccessible/children/recursive/${folder.id}`)));
-            
-            files.map(file => deleteFile({ file }));
-            foldersResponse.map(folder => folder.data.children?.map(child => dfs(child)));
-
-            return true;
-        }
-
-        try {
-            const deleteRequestPromise = createDeleteRequest();
-            
-            const loadingMessage = selectedItems.length > 1
-            ? `Deleting ${selectedItems.length} items...`
-            : `Deleting ${selectedItems[0].name}...`;
-            
-            const successMessage = selectedItems.length > 1
-            ? `Permanently deleted ${selectedItems.length} items.`
-            : `Permanently deleted ${selectedItems[0].name}.`;
-            
-            toast.promise(deleteRequestPromise, {
-                loading: loadingMessage,
-                success: successMessage
-            });
-
-            await Promise.all(selectedItems.map(async (item) => await deleteItemPermanentlyMutation.mutateAsync({
-                itemId: item.id
-            })));
-
-            queryClient.invalidateQueries({
-                queryKey: ["user-inaccessible-items"]
             });
         }
         catch (error) {
@@ -311,6 +254,167 @@ export function ContextMenuContentDropdown({
         }
     };
 
+    const handleDeletePermanently = async () => {
+        function dfs(item: Item) {
+            if (item.type === "FILE") {
+                deleteFile({ file: item });
+            }
+            else {
+                if (item.children) {
+                    item.children.map(child => dfs(child));
+                }
+            }
+        }
+
+        try {
+            const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
+            const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
+            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<{ children: Item[] }>(`/storage/items/inaccessible/children/recursive/${folder.id}`)));
+            
+            files.map(file => deleteFile({ file }));
+            foldersResponse.map(folderResponse => {
+                if (folderResponse.data.children.length > 0) {
+                    folderResponse.data.children[0].children?.map(child => dfs(child));
+                }
+            });
+            
+            await Promise.all(selectedItems.map(async (item) => await deleteItemPermanentlyMutation.mutateAsync({
+                itemId: item.id
+            })));
+
+            const message = selectedItems.length > 1
+            ? `Permanently deleted ${selectedItems.length} items.`
+            : `Permanently deleted ${selectedItems[0].name}.`;
+            
+            queryClient.invalidateQueries({
+                queryKey: ["user-inaccessible-items"]
+            });
+
+            customToast({
+                icon: <CircleCheck className="w-4 h-4" color="white" />,
+                message,
+            });
+        }
+        catch (error) {
+            const axiosError = error as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
+            customToast({
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
+            });
+        }
+        finally {
+            setSelectedIdx(() => new Set());
+        }
+    };
+
+    const handleDuplicate = async () => {
+        async function dfs(item: Item, parentId?: string) {
+            if (item.type === "FILE") {
+                const duplicateFile = await createItemMutation.mutateAsync({
+                    name: item.name,
+                    type: "FILE",
+                    parentId,
+                    contentType: item.contentType,
+                    size: item.size,
+                });
+
+                await duplicateItem({
+                    sourceKey: item.id,
+                    destinationKey: duplicateFile.data.item.id,
+                });
+            }
+            else {
+                const duplicateFolder = await createItemMutation.mutateAsync({
+                    name: item.name,
+                    type: "FOLDER",
+                    parentId,
+                });
+
+                if (item.children) {
+                    await Promise.all(item.children.map(async (child) => await dfs(child, duplicateFolder.data.item.id)));
+                }
+            }
+        }
+
+        try {
+            const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
+            const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
+            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<{ children: Item[] }>(`/storage/items/children/recursive/${folder.id}`)));
+            
+            await Promise.all(files.map(async (file) => {
+                const slices = file.name.split(".");
+                const filename = slices.slice(0, slices.length - 1).join(".");
+                const fileExtension = slices.slice(-1)[0];
+
+                const duplicateFile = await createItemMutation.mutateAsync({
+                    name: `${filename} - copy.${fileExtension}`,
+                    type: "FILE",
+                    parentId: sourceParentId,
+                    contentType: file.contentType,
+                    size: file.size,
+                });
+
+                await duplicateItem({
+                    sourceKey: file.id,
+                    destinationKey: duplicateFile.data.item.id,
+                });
+            }));
+
+            await Promise.all(folders.map(async (folder) => {
+                const duplicateFolder = await createItemMutation.mutateAsync({
+                    name: `${folder.name} - copy`,
+                    type: "FOLDER",
+                    parentId: sourceParentId,
+                });
+
+                await Promise.all(foldersResponse.map(async (folderResponse) => {
+                    if (folderResponse.data.children.length > 0) {
+                        folderResponse.data.children[0].children?.map(async (child) => await dfs(child, duplicateFolder.data.item.id));
+                    }
+                }));
+            }));
+
+            const message = selectedItems.length > 1
+            ? `Duplicated ${selectedItems.length} items.`
+            : `Duplicated ${selectedItems[0].name}.`;
+            
+            if (sourceParentId) {
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", sourceParentId]
+                });
+            }
+            else {
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items"]
+                });
+            }
+
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-items-recursive"]
+            });
+
+            customToast({
+                icon: <CircleCheck className="w-4 h-4" color="white" />,
+                message,
+            });
+        }
+        catch (error) {
+            console.log(error);
+            const axiosError = error as AxiosError;
+            const data = axiosError.response?.data as ResponseDto;
+
+            customToast({
+                icon: <CircleX className="w-4 h-4" color="white" />,
+                message: data.message
+            });
+        }
+        finally {
+            setSelectedIdx(() => new Set());
+        }
+    };
+
     const itemGroups: DropdownItem[][] = [
         [
             {
@@ -329,7 +433,7 @@ export function ContextMenuContentDropdown({
                 id: "DUPLICATE",
                 label: "Duplicate",
                 icon: <Copy />,
-                onClick: () => {},
+                onClick: handleDuplicate,
             },
             {
                 id: "INFO",

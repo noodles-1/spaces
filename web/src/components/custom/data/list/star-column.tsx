@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { CircleX, Star } from "lucide-react";
+import { CircleCheck, CircleX, Star } from "lucide-react";
 
 import { FileIcon } from "@/components/custom/data/file-icon";
 
@@ -53,13 +53,13 @@ export function StarColumn({
 
             if (item.starred) {
                 customToast({
-                    icon: <Star className="w-4 h-4" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${item.name} has been removed from starred items.`,
                 });
             }
             else {
                 customToast({
-                    icon: <Star className="w-4 h-4 fill-white" color="white" />,
+                    icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${item.name} has been added to starred items.`,
                 });
             }

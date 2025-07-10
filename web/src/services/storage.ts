@@ -96,6 +96,28 @@ export async function downloadFile(params: DownloadFileParams): Promise<{ isDown
     };
 }
 
+interface DuplicateItemParams {
+    sourceKey: string;
+    destinationKey: string;
+}
+
+export async function duplicateItem(params: DuplicateItemParams): Promise<boolean> {
+    const { sourceKey, destinationKey } = params;
+
+    const response = await axiosClient.post("/storage/duplicate", {
+        sourceKey,
+        destinationKey
+    }, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    if (response.status !== 200) {
+        throw new Error(`Failed to duplicate ${sourceKey} due to ${response.statusText}.`);
+    }
+
+    return true;
+}
+
 interface DeleteItemParams {
     file: Item;
 }
@@ -124,7 +146,7 @@ interface CreateItemParams {
     size?: number;
 }
 
-export async function createItem(params: CreateItemParams): Promise<ResponseDto<Item>> {
+export async function createItem(params: CreateItemParams): Promise<ResponseDto<{ item: Item }>> {
     const response = await axiosClient.post("/storage/items/create", params, {
         headers: { "Content-Type": "application/json" }
     });

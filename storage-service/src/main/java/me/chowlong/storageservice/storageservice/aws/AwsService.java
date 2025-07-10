@@ -4,6 +4,7 @@ import me.chowlong.storageservice.storageservice.storage.dto.GenerateDownloadReq
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -81,5 +82,17 @@ public class AwsService {
 
         PresignedDeleteObjectRequest presignedRequest = this.s3Presigner.presignDeleteObject(presignRequest);
         return presignedRequest.url().toExternalForm();
+    }
+
+    public void duplicateObject(String sourceKey, String destinationKey) {
+        CopyObjectRequest objectRequest = CopyObjectRequest
+                .builder()
+                .sourceBucket(this.bucketName)
+                .destinationBucket(this.bucketName)
+                .sourceKey(sourceKey)
+                .destinationKey(destinationKey)
+                .build();
+
+        this.s3Client.copyObject(objectRequest);
     }
 }
