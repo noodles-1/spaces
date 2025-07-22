@@ -50,7 +50,7 @@ export function FolderPage({
                     </section>
                     <main className="relative flex flex-col flex-1">
                         <Dropzone />
-                        <section className="flex-1 p-6">
+                        <section className="flex flex-col flex-1 p-6">
                             <Suspense fallback={<GridViewSkeleton />}>
                                 {view === "grid" && <FoldersGridView parentId={folderId} />}
                             </Suspense>

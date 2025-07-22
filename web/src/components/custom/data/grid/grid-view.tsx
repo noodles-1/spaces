@@ -321,7 +321,7 @@ export function GridView({
                         >
                             <div
                                 ref={ref}
-                                className="flex flex-col h-full gap-8 overflow-y-auto select-none"
+                                className="flex flex-col h-[70dvh] lg:h-[75dvh] gap-8 overflow-y-scroll select-none"
                             >
                                 {FOLDERS.length > 0 &&
                                     <section className="flex flex-col gap-4">

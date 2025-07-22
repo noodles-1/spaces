@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react";
+import { useStorageTreeStore } from "@/zustand/providers/storage-tree-provider";
 
 import { styled } from "@mui/material/styles";
 
@@ -20,6 +21,8 @@ import { TreeItem2Provider } from "@mui/x-tree-view/TreeItem2Provider";
 import { Progress } from "@/components/ui/progress";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
+import { formatFileSize } from "@/lib/custom/file-size";
+
 const CustomTreeItemContent = styled(TreeItem2Content)(({ theme }) => ({
     padding: theme.spacing(1.2, 1),
 }));
@@ -32,7 +35,10 @@ export const TreeItem = React.forwardRef(function CustomTreeItem(
     props: CustomTreeItemProps,
     ref: React.Ref<HTMLLIElement>,
 ) {
+    const { itemMap } = useStorageTreeStore(state => state);
+    
     const { id, itemId, label, disabled, children, ...other } = props;
+    const item = itemMap.get(itemId);
 
     const {
         getRootProps,
@@ -42,8 +48,9 @@ export const TreeItem = React.forwardRef(function CustomTreeItem(
         status,
     } = useTreeItem2({ id, itemId, children, label, disabled, rootRef: ref });
 
-    const capacity = 50;
-    const used = 14;
+    const capacity = Number("5e+10"); // TODO: dependent on the total storage capacity
+    const used = item?.size ?? 0;
+    const percentageUsed = used / capacity * 100;
 
     return (
         <TreeItem2Provider itemId={itemId}>
@@ -54,12 +61,12 @@ export const TreeItem = React.forwardRef(function CustomTreeItem(
                             <TreeItem2Icon status={status} />
                         </TreeItem2IconContainer>
                         <div className="flex items-center gap-4">
-                            <FileIcon className="h-4 w-4" />
+                            <FileIcon contentType={item?.contentType} className="h-4 w-4" />
                             <span className="font-light"> {label} </span>
                         </div>
                     </section>
                     <section className="flex items-center gap-4 justify-end">
-                        <span className="text-sm font-light"> {used} MB (10%) </span>
+                        <span className="text-sm font-light"> {formatFileSize(used)} ({percentageUsed.toFixed(2)}%) </span>
                         <Progress
                             value={(used / capacity) * 100}
                             className="w-[300px] bg-zinc-700"
