@@ -224,6 +224,10 @@ export function DataTable<TData, TValue>({
                     queryKey: ["user-accessible-items", over.id.toString()]
                 });
                 
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items-recursive"]
+                });
+                
                 const message = selectedRows.length > 1
                     ? `Moved ${selectedRows.length} items.`
                     : `Moved ${selectedRows[0].name}.`;
