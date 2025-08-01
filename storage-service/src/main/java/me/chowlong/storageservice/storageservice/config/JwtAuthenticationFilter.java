@@ -42,6 +42,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) {
         try {
+            if (
+                    request.getRequestURI().startsWith("/permissions/public") ||
+                    request.getRequestURI().startsWith("/items/public")
+            ) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             final String accessToken = this.cookieService.getSessionCookie(request);
 
             if (this.jwtService.isTokenExpired(accessToken)) {

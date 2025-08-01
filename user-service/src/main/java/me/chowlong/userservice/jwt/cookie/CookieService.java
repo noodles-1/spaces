@@ -18,6 +18,7 @@ public class CookieService {
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setDomain("localhost");
         response.addCookie(cookie);
     }
 

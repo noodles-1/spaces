@@ -3,12 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Loader2, PenLine, UserRound } from "lucide-react";
 
 import { signOutUser, updateProfilePicture, updateCustomUsername } from "@/services/user";
-import { fetcher } from "@/services/fetcher";
 
 import {
     Dialog,
@@ -36,7 +35,7 @@ import { z } from "zod";
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import axiosClient from "@/lib/axios-client";
 import { customToast } from "@/lib/custom/custom-toast";
 
@@ -98,9 +97,9 @@ const formSchema = z.object({
 export function ProfileButton() {
     const router = useRouter();
 
-    const { data: userData } = useSuspenseQuery<ResponseDto<User>>({
+    const { data: userData } = useQuery<AxiosResponse<ResponseDto<User>>>({
         queryKey: ["current-user"],
-        queryFn: () => fetcher("/user/users/me")
+        queryFn: () => axiosClient.get("/user/users/me")
     });
 
     const [imageFile, setImageFile] = useState<string | null>(null);
@@ -126,11 +125,17 @@ export function ProfileButton() {
     });
 
     useEffect(() => {
-        if (userData.data.user.customUsername) {
-            setImageFile(userData.data.user.profilePictureUrl);
-            form.setValue("customUsername", userData.data.user.customUsername);
+        if (userData?.data.data.user.customUsername) {
+            setImageFile(userData.data.data.user.profilePictureUrl);
+            form.setValue("customUsername", userData.data.data.user.customUsername);
         }
     }, [userData, form]);
+
+    if (!userData || !userData.data.data.user) {
+        return null;
+    }
+
+    const user = userData.data.data.user;
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
@@ -169,7 +174,6 @@ export function ProfileButton() {
     const handleLogout = async () => {
         setLoggedOut(true);
         await signOutMutation.mutateAsync();
-        queryClient.clear();
         router.push("/login");
     };
 
@@ -184,9 +188,9 @@ export function ProfileButton() {
     };
 
     const handleDialogClose = (open: boolean) => {
-        if (!open && userData.data.user.customUsername) {
-            setImageFile(userData.data.user.profilePictureUrl);
-            form.setValue("customUsername", userData.data.user.customUsername);
+        if (!open && user.customUsername) {
+            setImageFile(user.profilePictureUrl);
+            form.setValue("customUsername", user.customUsername);
         }
     };
 
@@ -197,13 +201,13 @@ export function ProfileButton() {
                     <Button variant="ghost" className="mx-4 h-[4rem] p-0 group cursor-pointer">
                         <div className="flex items-center w-full h-full gap-3 px-4">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full outline-2 outline-zinc-500 group-hover:outline-[#7076a7]">
-                                {userData.data.user.profilePictureUrl ?
-                                    <img src={userData.data.user.profilePictureUrl} className="object-cover w-full h-full rounded-full" />
+                                {userData.data.data.user.profilePictureUrl ?
+                                    <img src={user.profilePictureUrl ?? ""} className="object-cover w-full h-full rounded-full" />
                                 : 
                                     <UserRound />
                                 }
                             </div>
-                            <span className="group-hover:text-[#bfc7ff]"> {userData.data.user.customUsername} </span>
+                            <span className="group-hover:text-[#bfc7ff]"> {user.customUsername} </span>
                         </div>
                     </Button>
                 </div>
@@ -271,7 +275,7 @@ export function ProfileButton() {
                                         <div className="flex items-center gap-1"> 
                                             <span className="font-medium text-zinc-300"> Connected with: </span>
                                             <div className="flex items-center gap-2">
-                                                {userData.data.user.provider} 
+                                                {user.provider} 
                                             </div>
                                         </div>
                                     </div>

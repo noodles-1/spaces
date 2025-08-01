@@ -53,10 +53,39 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Object> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<Object> getCurrentUser(@NonNull HttpServletRequest request) {
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("user", userPrincipal.getUser());
+
+        User user;
+
+        try {
+            String accessToken = this.cookieService.getSessionCookie(request);
+            String userId = this.jwtService.extractUserId(accessToken);
+            user = this.userService.getUserById(userId);
+        }
+        catch (Exception e) {
+            user = null;
+        }
+
+        responseData.put("user", user);
         return ResponseHandler.generateResponse("Fetched current user successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/me/authenticated")
+    public ResponseEntity<Object> checkAuthenticated(@NonNull HttpServletRequest request) {
+        Map<String, Object> responseData = new HashMap<>();
+        boolean authenticated;
+
+        try {
+            this.cookieService.getSessionCookie(request);
+            authenticated = true;
+        }
+        catch (Exception e) {
+            authenticated = false;
+        }
+
+        responseData.put("authenticated", authenticated);
+        return ResponseHandler.generateResponse("Checked authenticated successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/info/{userId}")
@@ -77,16 +106,14 @@ public class UserController {
 
     @PostMapping("/me/update-profile-picture")
     public ResponseEntity<Object> updateProfilePicture(
-            @NonNull HttpServletRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @NonNull @RequestParam("file") MultipartFile file
     ) throws Exception {
         if (file.isEmpty()) {
             throw new FileNotFoundException();
         }
 
-        String accessToken = this.cookieService.getSessionCookie(request);
-        String userId = this.jwtService.extractUserId(accessToken);
-        User user = this.userService.getUserById(userId);
+        User user = userPrincipal.getUser();
 
         if (user.getProfilePictureUrl() != null) {
             String profilePictureFileName = user.getProfilePictureUrl().split("//")[1].split("/")[2];
@@ -109,7 +136,7 @@ public class UserController {
         this.userService.updateProfilePicture(user, profilePictureUrl);
 
         AuditLogDto auditLogDto = new AuditLogDto();
-        auditLogDto.setUserId(userId);
+        auditLogDto.setUserId(user.getId());
         auditLogDto.setAction("Updated profile picture");
         auditLogDto.setEndpoint("/me/update-profile-picture");
         auditLogDto.setMethod("POST");
@@ -121,7 +148,7 @@ public class UserController {
 
     @PostMapping("/me/update-custom-username")
     public ResponseEntity<Object> updateCustomUsername(
-            @NonNull HttpServletRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateCustomUsernameDTO updateCustomUsernameDto
     ) throws Exception {
         String newCustomUsername = updateCustomUsernameDto.getNewCustomUsername();
@@ -134,23 +161,15 @@ public class UserController {
             throw new CustomUsernameInvalidException();
         }
 
-        String accessToken = this.cookieService.getSessionCookie(request);
-        String userId = this.jwtService.extractUserId(accessToken);
-        User user = this.userService.getUserById(userId);
-
-        this.userService.updateCustomUsername(user, newCustomUsername);
+        this.userService.updateCustomUsername(userPrincipal.getUser(), newCustomUsername);
         return ResponseHandler.generateResponse("Custom username updated successfully.", HttpStatus.OK, null);
     }
 
     @PostMapping("/me/update-setup-done")
     public ResponseEntity<Object> updateSetupDone(
-            @NonNull HttpServletRequest request
+            @AuthenticationPrincipal UserPrincipal userPrincipal
     ) throws Exception {
-        String accessToken = this.cookieService.getSessionCookie(request);
-        String userId = this.jwtService.extractUserId(accessToken);
-        User user = this.userService.getUserById(userId);
-
-        this.userService.updateSetupDone(user);
+        this.userService.updateSetupDone(userPrincipal.getUser());
         return ResponseHandler.generateResponse("User setup has been accomplished successfully.", HttpStatus.OK, null);
     }
 }

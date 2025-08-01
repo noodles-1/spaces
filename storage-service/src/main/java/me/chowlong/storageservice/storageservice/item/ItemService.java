@@ -19,6 +19,10 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
+    public Item getItemById(String id) {
+        return this.itemRepository.findItemById(id);
+    }
+
     public List<Item> getAccessibleChildrenByParentId(String parentId) {
         return this.itemRepository.findAccessibleChildrenById(parentId);
     }
@@ -49,6 +53,10 @@ public class ItemService {
 
     public List<Item> getOwnerUserAncestorsByDescendantId(String descendantId, String userId) {
         return this.itemRepository.findOwnerUserAncestorsByDescendantId(descendantId, userId);
+    }
+
+    public List<Item> getOwnerUserAncestorsByDescendantIdAndAncestorId(String descendantId, String itemId) {
+        return this.itemRepository.findOwnerUserAncestorsByDescendantIdAndAncestorId(descendantId, itemId);
     }
 
     public Root getItemRootNameById(String itemId) {
@@ -190,6 +198,7 @@ public class ItemService {
         if (renameItemRequestDTO.getItemFileExtension() != null)
             newItemName += "." + renameItemRequestDTO.getItemFileExtension();
         item.setName(newItemName);
+        item.setUpdatedAt(new Date());
         this.itemRepository.save(item);
     }
 

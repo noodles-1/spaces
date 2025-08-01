@@ -4,7 +4,6 @@ import { DataViewStoreProvider } from "@/zustand/providers/data-view-store-provi
 
 import { Sidebar } from "@/components/custom/sidebar/sidebar";
 import { Topbar } from "@/components/custom/topbar/topbar";
-import { ProfileButton } from "@/components/custom/topbar/profile-button";
 
 export default function SpacesLayout({
     children,
@@ -16,9 +15,8 @@ export default function SpacesLayout({
             <main className="flex h-full w-full bg-transparent backdrop-blur-[4px]">
                 <Sidebar />
                 <section className="flex flex-col grow">
-                    <div className="flex min-h-[6rem] items-center">
+                    <div className="flex min-h-[6rem] items-center justify-between">
                         <Topbar />
-                        <ProfileButton />
                     </div>
                     <div className="flex flex-col overflow-hidden grow rounded-tl-2xl bg-zinc-800">
                         <DataViewStoreProvider>

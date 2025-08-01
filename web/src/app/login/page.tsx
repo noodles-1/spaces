@@ -35,7 +35,7 @@ export default function LoginPage() {
             catch (error) {
                 const axiosError = error as AxiosError;
                 const data = axiosError.response?.data as ResponseDto;
-                console.log(data.errorCode);
+                console.log(data);
             }
         };
 

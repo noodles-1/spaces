@@ -1,17 +1,25 @@
 package me.chowlong.storageservice.storageservice.item;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import me.chowlong.storageservice.storageservice.enums.Root;
 import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidException;
+import me.chowlong.storageservice.storageservice.exception.userPermission.InsufficientPermissionException;
 import me.chowlong.storageservice.storageservice.item.dto.ItemResponseDTO;
 import me.chowlong.storageservice.storageservice.item.dto.MoveItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.NewItemRequestDTO;
 import me.chowlong.storageservice.storageservice.item.dto.RenameItemRequestDTO;
+import me.chowlong.storageservice.storageservice.jwt.JwtService;
+import me.chowlong.storageservice.storageservice.jwt.cookie.CookieService;
 import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
+import me.chowlong.storageservice.storageservice.userPermission.UserPermission;
+import me.chowlong.storageservice.storageservice.userPermission.UserPermissionService;
+import me.chowlong.storageservice.storageservice.util.PublicEndpointSecurityHandler;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,15 +32,33 @@ import java.util.regex.Pattern;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    private final UserPermissionService userPermissionService;
+    private final CookieService cookieService;
+    private final JwtService jwtService;
     private final ModelMapper modelMapper;
 
-    public ItemController(ItemService itemService, ModelMapper modelMapper) {
+    public ItemController(
+            ItemService itemService,
+            UserPermissionService userPermissionService,
+            CookieService cookieService,
+            JwtService jwtService,
+            ModelMapper modelMapper
+    ) {
         this.itemService = itemService;
+        this.userPermissionService = userPermissionService;
+        this.cookieService = cookieService;
+        this.jwtService = jwtService;
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping("/children/{parentId}")
-    public ResponseEntity<Object> getChildrenByParentId(@PathVariable("parentId") String parentId) {
+    @GetMapping("/public/children/{parentId}")
+    public ResponseEntity<Object> getChildrenByParentId(
+            @NonNull HttpServletRequest request,
+            @PathVariable("parentId") String parentId
+    ) throws InsufficientPermissionException {
+        PublicEndpointSecurityHandler publicEndpointSecurityHandler = new PublicEndpointSecurityHandler(this.userPermissionService, this.itemService, this.cookieService, this.jwtService);
+        publicEndpointSecurityHandler.handlePublicEndpoint(request, parentId);
+
         List<Item> children = this.itemService.getAccessibleChildrenByParentId(parentId);
         List<ItemResponseDTO> childrenResponse = children
                 .stream()
@@ -57,12 +83,37 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched accessible children recursive successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/check-deleted/{parentId}")
+    @GetMapping("/public/check-deleted/{parentId}")
     public ResponseEntity<Object> checkDirectoryDeleted(@PathVariable("parentId") String parentId) {
-        Root root = this.itemService.getItemRootNameById(parentId);
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("deleted", root == Root.INACCESSIBLE);
+
+        Item item = this.itemService.getItemById(parentId);
+
+        if (item == null) {
+            responseData.put("deleted", true);
+        }
+        else {
+            Root root = this.itemService.getItemRootNameById(parentId);
+            responseData.put("deleted", root == Root.INACCESSIBLE);
+        }
+
         return ResponseHandler.generateResponse("Checked if directory is deleted successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/public/owner-user-id/{itemId}")
+    public ResponseEntity<Object> getOwnerUserIdOfItem(@PathVariable("itemId") String itemId) {
+        Map<String, Object> responseData = new HashMap<>();
+
+        Item item = this.itemService.getItemById(itemId);
+        
+        if (item == null) {
+            responseData.put("ownerUserId", null);
+        }
+        else {
+            responseData.put("ownerUserId", item.getOwnerUserId());
+        }
+
+        return ResponseHandler.generateResponse("Fetched owner user ID successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/accessible/children")
@@ -144,6 +195,31 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("ancestors", ancestorsResponse);
         return ResponseHandler.generateResponse("Fetched owner's ancestors successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/public/owner-ancestors/{descendantId}/{ancestorId}")
+    public ResponseEntity<Object> getOwnerUserAncestorsByDescendantIdAndAncestorId(
+            @NonNull HttpServletRequest request,
+            @PathVariable("descendantId") String descendantId,
+            @PathVariable("ancestorId") String ancestorId
+    ) throws InsufficientPermissionException {
+        PublicEndpointSecurityHandler publicEndpointSecurityHandler = new PublicEndpointSecurityHandler(this.userPermissionService, this.itemService, this.cookieService, this.jwtService);
+        publicEndpointSecurityHandler.handlePublicEndpoint(request, ancestorId);
+
+        List<Item> ancestors = this.itemService.getOwnerUserAncestorsByDescendantIdAndAncestorId(descendantId, ancestorId);
+
+        if (ancestors.isEmpty()) {
+            ancestors.add(this.itemService.getItemById(descendantId));
+        }
+
+        List<ItemResponseDTO> ancestorsResponse = ancestors
+                .stream()
+                .map(ancestor -> this.modelMapper.map(ancestor, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("ancestors", ancestorsResponse);
+        return ResponseHandler.generateResponse("Fetched ancestors up to specified folder successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/root/{itemId}")

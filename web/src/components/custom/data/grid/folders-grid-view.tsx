@@ -1,7 +1,8 @@
 import React from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { GridView } from "@/components/custom/data/grid/grid-view";
+import { GridViewSkeleton } from "@/components/custom/data/grid/grid-view-skeleton";
 
 import { fetcher } from "@/services/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
@@ -12,10 +13,14 @@ export function FoldersGridView({
 }: {
     parentId: string
 }) {
-    const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: userItems } = useQuery<ResponseDto<{ children: Item[] }>>({
         queryKey: ["user-accessible-items", parentId],
-        queryFn: () => fetcher(`/storage/items/children/${parentId}`)
+        queryFn: () => fetcher(`/storage/items/public/children/${parentId}`)
     });
+
+    if (!userItems) {
+        return <GridViewSkeleton />;
+    }
 
     return (
         <GridView userItems={userItems} />

@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
 
 import { Home, Star, Database, Trash, FolderSymlink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { StorageCapacity } from "@/components/custom/sidebar/storage-capacity";
 import { NewFolder } from "@/components/custom/sidebar/new-folder";
+import { SidebarSkeleton } from "@/components/custom/sidebar/sidebar-skeleton";
+
+import { ResponseDto } from "@/dto/response-dto";
+import axiosClient from "@/lib/axios-client";
 
 const itemGroups = [
     [
@@ -22,7 +28,7 @@ const itemGroups = [
             icon: Star,
         },
         {
-            title: "Shared folders",
+            title: "Shared with me",
             url: "/spaces/shared",
             icon: FolderSymlink,
         },
@@ -43,6 +49,21 @@ const itemGroups = [
 
 export function Sidebar() {
     const pathname = usePathname();
+
+    const { data: authenticatedData } = useQuery<AxiosResponse<ResponseDto<{ authenticated: boolean }>>>({
+        queryKey: ["current-user-authenticated"],
+        queryFn: () => axiosClient.get("/user/users/me/authenticated")
+    });
+
+    if (!authenticatedData) {
+        return <SidebarSkeleton />;
+    }
+
+    const authenticated = authenticatedData?.data.data.authenticated;
+
+    if (!authenticated) {
+        return null;
+    }
 
     return (
         <div className="h-full min-w-[16rem]">

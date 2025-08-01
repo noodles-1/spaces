@@ -8,6 +8,8 @@ public class ApplicationConstants {
             "/auth/register",
             "/auth/token/refresh",
             "/users/custom-username-exists/**",
-            "/users/info/**"
+            "/users/info/**",
+            "/users/me",
+            "/users/me/authenticated"
     };
 }

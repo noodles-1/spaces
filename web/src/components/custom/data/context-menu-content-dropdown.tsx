@@ -6,12 +6,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
     ArchiveRestore,
-    ArrowLeftRight,
     CircleCheck,
     CircleX,
     Copy,
     Download,
     FolderInput,
+    FolderSymlink,
     Info,
     PenLine,
     Star,
@@ -444,6 +444,12 @@ export function ContextMenuContentDropdown({
         ],
         [
             {
+                id: "SHARED",
+                label: "Share",
+                icon: <FolderSymlink />,
+                onClick: () => {},
+            },
+            {
                 id: "ADD_STARRED",
                 label: "Add to starred",
                 icon: <Star />,
@@ -454,12 +460,6 @@ export function ContextMenuContentDropdown({
                 label: "Remove from starred",
                 icon: <Star className="fill-white" />,
                 onClick: handleStarred,
-            },
-            {
-                id: "CONVERT",
-                label: "Convert",
-                icon: <ArrowLeftRight />,
-                onClick: () => {},
             },
             {
                 id: "MOVE",
@@ -505,7 +505,7 @@ export function ContextMenuContentDropdown({
                                     return;
                                 }
 
-                                if (paths[2] !== "trash" && ["RESTORE", "INFO", "DELETE"].includes(item.id)) {
+                                if (paths[2] !== "trash" && ["RESTORE", "DELETE"].includes(item.id)) {
                                     return;
                                 }
 

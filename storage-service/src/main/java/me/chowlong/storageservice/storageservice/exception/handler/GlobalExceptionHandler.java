@@ -10,6 +10,7 @@ import me.chowlong.storageservice.storageservice.exception.accessToken.AccessTok
 import me.chowlong.storageservice.storageservice.exception.accessToken.AccessTokenNotFoundException;
 import me.chowlong.storageservice.storageservice.exception.cookie.MissingCookieException;
 import me.chowlong.storageservice.storageservice.exception.item.ItemNameInvalidException;
+import me.chowlong.storageservice.storageservice.exception.userPermission.InsufficientPermissionException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,7 +21,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGlobalExceptions(Exception exception) {
-        ProblemDetail problemDetail = null;
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
+        problemDetail.setProperty("message", exception.getClass());
+        problemDetail.setProperty("errorCode", ApplicationErrorCode.DEFAULT);
 
         if (exception instanceof AccessDeniedException) {
             problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
@@ -62,11 +65,10 @@ public class GlobalExceptionHandler {
             problemDetail.setProperty("message", "Item name is invalid.");
             problemDetail.setProperty("errorCode", ApplicationErrorCode.ITEM_NAME_INVALID);
         }
-
-        if (problemDetail == null) {
-            problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
-            problemDetail.setProperty("message", exception.getClass());
-            problemDetail.setProperty("errorCode", ApplicationErrorCode.DEFAULT);
+        else if (exception instanceof InsufficientPermissionException) {
+            problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
+            problemDetail.setProperty("message", "Insufficient permission.");
+            problemDetail.setProperty("errorCode", ApplicationErrorCode.INSUFFICIENT_PERMISSION);
         }
 
         return problemDetail;

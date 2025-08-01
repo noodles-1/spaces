@@ -195,6 +195,19 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findOwnerUserAncestorsByDescendantId(@Param("descendantId") String descendantId, @Param("userId") String userId);
 
     /**
+     * Finds the ancestor files of a given folder including the current folder
+     * up to the specified ancestor folder.
+     * @param descendantId
+     * @param ancestorId
+     * @return list of ancestor items
+     */
+    @Query("""
+            MATCH path = (descendant:Item {id: $descendantId})<-[:CONTAINS*]-(ancestor:Item {id: $ancestorId})
+            RETURN reverse([n IN nodes(path) | n]) AS ancestors
+    """)
+    List<Item> findOwnerUserAncestorsByDescendantIdAndAncestorId(@Param("descendantId") String descendantId, @Param("ancestorId") String ancestorId);
+
+    /**
      * Finds the root node of an item.
      * @param itemId
      * @return root (accessible or inaccessible)

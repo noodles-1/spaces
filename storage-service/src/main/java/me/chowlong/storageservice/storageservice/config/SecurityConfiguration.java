@@ -1,5 +1,6 @@
 package me.chowlong.storageservice.storageservice.config;
 
+import me.chowlong.storageservice.storageservice.constant.ApplicationConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +22,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers(ApplicationConstants.PUBLIC_URLS).permitAll()
                         .anyRequest()
                         .authenticated()
                 )

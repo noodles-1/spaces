@@ -1,8 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { DataTable } from "@/components/custom/data/list/data-table";
 import { columns } from "@/components/custom/data/list/columns";
 import { inaccessibleColumns } from "@/components/custom/data/list/inaccessible-columns";
+import { ListViewSkeleton } from "@/components/custom/data/list/list-view-skeleton";
 
 import { fetcher } from "@/services/fetcher";
 
@@ -28,10 +29,14 @@ export function RootListView({
         endpoint = "/storage/items/inaccessible/children";
     }
 
-    const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: userItems } = useQuery<ResponseDto<{ children: Item[] }>>({
         queryKey,
         queryFn: () => fetcher(endpoint)
     });
+
+    if (!userItems) {
+        return <ListViewSkeleton />;
+    }
 
     if (starred) {
         return (

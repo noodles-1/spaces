@@ -1,7 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { DataTable } from "@/components/custom/data/list/data-table";
 import { columns } from "@/components/custom/data/list/columns";
+import { ListViewSkeleton } from "@/components/custom/data/list/list-view-skeleton";
 
 import { fetcher } from "@/services/fetcher";
 
@@ -13,10 +14,14 @@ export function FoldersListView({
 }: {
     parentId: string
 }) {
-    const { data: userItems } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: userItems } = useQuery<ResponseDto<{ children: Item[] }>>({
         queryKey: ["user-accessible-items", parentId],
-        queryFn: () => fetcher(`/storage/items/children/${parentId}`)
+        queryFn: () => fetcher(`/storage/items/public/children/${parentId}`)
     });
+
+    if (!userItems) {
+        return <ListViewSkeleton />;
+    }
 
     return (
         <div>

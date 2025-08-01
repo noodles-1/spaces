@@ -5,5 +5,6 @@ public enum ApplicationErrorCode {
     TOO_MANY_REQUESTS,
     AMAZON_SDK_ERROR,
     ITEM_NAME_INVALID,
+    INSUFFICIENT_PERMISSION,
     DEFAULT
 }

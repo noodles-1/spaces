@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useStorageTreeStore } from "@/zustand/providers/storage-tree-provider";
 
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
@@ -20,6 +20,7 @@ import {
     ContextMenuTrigger 
 } from "@/components/ui/context-menu";
 import { TreeItem } from "@/components/custom/data/tree/tree-item";
+import { TreeViewSkeleton } from "@/components/custom/data/tree/tree-view-skeleton";
 
 import { fetcher } from "@/services/fetcher";
 
@@ -30,10 +31,11 @@ import { Button } from "@/components/ui/button";
 
 
 export function TreeView() {
-    const { data: rootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useQuery<ResponseDto<{ children: Item[] }>>({
         queryKey: ["user-accessible-items-recursive"],
         queryFn: () => fetcher("/storage/items/accessible/children/recursive")
     });
+
     
     const { addItem } = useStorageTreeStore(state => state);
     
@@ -62,6 +64,10 @@ export function TreeView() {
     
     useEffect(() => {
         const mapRootItems = () => {
+            if (!rootData) {
+                return;
+            }
+
             function dfs(item: Item): TreeViewBaseItem<{ id: string; label: string; size: number }> {
                 if (!item.children || item.children.length === 0) {
                     addItem(item.id, item);
@@ -97,12 +103,12 @@ export function TreeView() {
         };
         
         mapRootItems();
-    }, [rootData.data.children]);
+    }, [rootData?.data.children]);
     
     const handleSelectedItemsChange = (_: React.SyntheticEvent, ids: string[]) => {
         setSelectedItems(ids);
     };
-
+    
     const sortBySize = (sortAscending: boolean) => {
         function dfs(item: TreeViewBaseItem<{ id: string; label: string; size: number }>) {
             if (item.children) {
@@ -113,14 +119,14 @@ export function TreeView() {
                 item.children.map(child => dfs(child));
             }
         }
-
+        
         const sortedItems = items;
         if (sortAscending)
             sortedItems?.sort((a, b) => a.size - b.size);
         else
             sortedItems?.sort((a, b) => b.size - a.size);
         sortedItems?.map(item => dfs(item));
-
+        
         setItems(sortedItems);
     };
 
@@ -134,34 +140,38 @@ export function TreeView() {
                 item.children.map(child => dfs(child));
             }
         }
-
+        
         const sortedItems = items;
         if (sortAscending)
             sortedItems?.sort((a, b) => a.label.localeCompare(b.label));
         else
             sortedItems?.sort((a, b) => b.label.localeCompare(a.label));
         sortedItems?.map(item => dfs(item));
-
+        
         setItems(sortedItems);
     };
-
+    
     const handleSort = (value: string) => {
         let sortAscending = false;
-
+        
         if (sortValue.toLowerCase() !== value.toLowerCase())
             sortAscending = true;
         else 
             sortAscending = !isSortAscending;
-
+        
         if (value.toLowerCase() === "name")
             sortByName(sortAscending);
         else
             sortBySize(sortAscending);
-
+        
         setSortAscending(sortAscending);
         setSortValue(value);
     };
-
+    
+    if (!rootData) {
+        return <TreeViewSkeleton />;
+    }
+    
     return (
         <main className="flex flex-col gap-2">
             <section className="flex items-center justify-between">

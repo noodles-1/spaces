@@ -5,4 +5,5 @@ export type ApplicationErrorCode =
     "FILE_NOT_FOUND" |
     "INVALID_IMAGE_FILE" |
     "CUSTOM_USERNAME_INVALID" |
+    "INSUFFICIENT_PERMISSION" |
     "DEFAULT";
