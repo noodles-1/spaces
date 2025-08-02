@@ -71,7 +71,7 @@ public class UserPermissionController {
         return ResponseHandler.generateResponse("Fetched permission successfully.", HttpStatus.OK, responseData);
     }
 
-    @PostMapping("/public/create")
+    @PostMapping("/create")
     public ResponseEntity<Object> createUserPermission(@Valid @RequestBody NewUserPermissionRequestDTO newUserPermissionRequestDTO) {
         this.userPermissionService.createUserPermission(newUserPermissionRequestDTO);
         return ResponseHandler.generateResponse("Created new user permission successfully.", HttpStatus.OK, null);

@@ -34,7 +34,7 @@ export function FolderPage({
     });
 
     const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
-        queryKey: ["item-owner", folderId],
+        queryKey: ["item-owner-id", folderId],
         queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${folderId}`)
     });
 

@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { AxiosError } from "axios";
@@ -55,6 +55,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Move } from "@/components/custom/data/move/move";
 import { Rename } from "@/components/custom/data/rename/rename";
+import { Share } from "@/components/custom/data/share/share";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -85,6 +86,7 @@ export function DataTable<TData, TValue>({
     const [draggedRowId, setDraggedRowId] = useState<string>("");
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
     const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
+    const [openShareDialog, setOpenShareDialog] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -565,24 +567,26 @@ export function DataTable<TData, TValue>({
                     selectedItems={selectedRows}
                     setOpenMoveDialog={setOpenMoveDialog}
                     setOpenRenameDialog={setOpenRenameDialog}
+                    setOpenShareDialog={setOpenShareDialog}
                     setSelectedIdx={setSelectedRowsIdx}
                 />
             </ContextMenu>
-            <Suspense>
-                <Move
-                    open={openMoveDialog}
-                    selectedItems={selectedRows}
-                    setOpen={setOpenMoveDialog}
-                    setSelectedIdx={setSelectedRowsIdx}
-                />
-            </Suspense>
-            <Suspense>
-                <Rename
-                    open={openRenameDialog}
-                    selectedItems={selectedRows}
-                    setOpen={setOpenRenameDialog}
-                />
-            </Suspense>
+            <Move
+                open={openMoveDialog}
+                selectedItems={selectedRows}
+                setOpen={setOpenMoveDialog}
+                setSelectedIdx={setSelectedRowsIdx}
+            />
+            <Rename
+                open={openRenameDialog}
+                selectedItems={selectedRows}
+                setOpen={setOpenRenameDialog}
+            />
+            <Share
+                open={openShareDialog}
+                selectedItems={selectedRows}
+                setOpen={setOpenShareDialog}
+            />
         </div>
     );
 }

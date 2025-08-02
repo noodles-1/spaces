@@ -11,11 +11,11 @@ import {
     Copy,
     Download,
     FolderInput,
-    FolderSymlink,
     Info,
     PenLine,
     Star,
     Trash,
+    UserPlus,
 } from "lucide-react";
 
 import { useDownloadStore } from "@/zustand/providers/download-store-provider";
@@ -41,12 +41,14 @@ export function ContextMenuContentDropdown({
     selectedItems,
     setOpenMoveDialog,
     setOpenRenameDialog,
+    setOpenShareDialog,
     setSelectedIdx,
 }: {
     contextMenuRef: React.RefObject<HTMLDivElement | null>
     selectedItems: Item[]
     setOpenMoveDialog: Dispatch<SetStateAction<boolean>>
     setOpenRenameDialog: Dispatch<SetStateAction<boolean>>
+    setOpenShareDialog: Dispatch<SetStateAction<boolean>>
     setSelectedIdx: Dispatch<SetStateAction<Set<number>>>
 }) {
     const { downloads, addFile } = useDownloadStore(state => state);
@@ -444,10 +446,10 @@ export function ContextMenuContentDropdown({
         ],
         [
             {
-                id: "SHARED",
+                id: "SHARE",
                 label: "Share",
-                icon: <FolderSymlink />,
-                onClick: () => {},
+                icon: <UserPlus />,
+                onClick: () => {requestAnimationFrame(() => setOpenShareDialog(true))},
             },
             {
                 id: "ADD_STARRED",
@@ -509,7 +511,7 @@ export function ContextMenuContentDropdown({
                                     return;
                                 }
 
-                                if (["ADD_STARRED", "REMOVE_STARRED"].includes(item.id) && selectedItems.length !== 1) {
+                                if (["ADD_STARRED", "REMOVE_STARRED", "SHARE"].includes(item.id) && selectedItems.length !== 1) {
                                     return;
                                 }
 

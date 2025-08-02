@@ -18,7 +18,10 @@ public interface UserPermissionRepository extends Neo4jRepository<UserPermission
      */
     @Query("""
             MATCH path = (descendant:Item {id: $descendantId})<-[*]-()
-            RETURN [n IN nodes(path) WHERE n:`User Permission`]
+            WITH DISTINCT [n IN nodes(path) WHERE n:`User Permission`] as userPermissions
+            UNWIND userPermissions as permission
+            MATCH userPermissionPath = (permission)-[:HAS_PERMISSION]->(item:Item)
+            RETURN userPermissionPath
     """)
     List<UserPermission> findUserPermissionsFromAncestorsByDescendantId(@Param("descendantId") String descendantId);
 

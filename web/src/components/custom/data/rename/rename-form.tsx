@@ -143,7 +143,7 @@ export function RenameForm({
     };
 
     return (
-        <DialogContent className="bg-zinc-800 w-[28rem] [&>button]:hidden">
+        <DialogContent className="bg-zinc-800 w-[28rem] [&>button]:hidden flex flex-col gap-3">
             <DialogHeader>
                 <DialogTitle className="font-medium"> Rename </DialogTitle>
             </DialogHeader>
@@ -174,7 +174,7 @@ export function RenameForm({
                                     }
                                 </div>
                             </section>
-                            <DialogFooter>
+                            <DialogFooter className="flex items-center justify-end">
                                 <DialogClose asChild>
                                     <Button variant="link" className="cursor-pointer text-spaces-tertiary" onClick={() => setOpen(false)}>
                                         Close

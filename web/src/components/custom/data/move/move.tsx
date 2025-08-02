@@ -27,7 +27,7 @@ export function Move({
 
     return (
         <Dialog open={open}>
-            <DialogContent className="bg-zinc-800 w-[28rem] [&>button]:hidden">
+            <DialogContent className="bg-zinc-800 w-[28rem] [&>button]:hidden flex flex-col gap-3">
                 <DialogHeader>
                     <DialogTitle className="font-medium"> Move to folder </DialogTitle>
                     {selectedItems.length > 1 ?

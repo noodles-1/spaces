@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { AxiosError } from "axios";
@@ -31,6 +31,7 @@ import { snapTopLeftToCursor } from "@/components/custom/data/modifiers/snap-top
 import { FileIcon } from "@/components/custom/data/file-icon";
 import { Move } from "@/components/custom/data/move/move";
 import { Rename } from "@/components/custom/data/rename/rename";
+import { Share } from "@/components/custom/data/share/share";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -64,6 +65,7 @@ export function GridView({
     const [draggedFileIdx, setDraggedFileIdx] = useState<number>(-1);
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
     const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
+    const [openShareDialog, setOpenShareDialog] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -418,24 +420,26 @@ export function GridView({
                     selectedItems={selectedFiles}
                     setOpenMoveDialog={setOpenMoveDialog}
                     setOpenRenameDialog={setOpenRenameDialog}
+                    setOpenShareDialog={setOpenShareDialog}
                     setSelectedIdx={setSelectedItemsIdx}
                 />
             </ContextMenu>
-            <Suspense>
-                <Move
-                    open={openMoveDialog}
-                    selectedItems={selectedFiles}
-                    setOpen={setOpenMoveDialog}
-                    setSelectedIdx={setSelectedItemsIdx}
-                />
-            </Suspense>
-            <Suspense>
-                <Rename 
-                    open={openRenameDialog}
-                    selectedItems={selectedFiles}
-                    setOpen={setOpenRenameDialog}
-                />
-            </Suspense>
+            <Move
+                open={openMoveDialog}
+                selectedItems={selectedFiles}
+                setOpen={setOpenMoveDialog}
+                setSelectedIdx={setSelectedItemsIdx}
+            />
+            <Rename 
+                open={openRenameDialog}
+                selectedItems={selectedFiles}
+                setOpen={setOpenRenameDialog}
+            />
+            <Share
+                open={openShareDialog}
+                selectedItems={selectedFiles}
+                setOpen={setOpenShareDialog}
+            />
         </>
     );
 }

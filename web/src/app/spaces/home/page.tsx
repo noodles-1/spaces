@@ -1,14 +1,33 @@
 "use client"
 
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useDataViewStore } from "@/zustand/providers/data-view-store-provider";
+import { AxiosResponse } from "axios";
 
 import { DataViews } from "@/components/custom/data/data-views";
 import { RootGridView } from "@/components/custom/data/grid/root-grid-view";
 import { RootListView } from "@/components/custom/data/list/root-list-view";
 import { Dropzone } from "@/components/custom/data/upload/dropzone";
 
+import axiosClient from "@/lib/axios-client";
+import { ResponseDto } from "@/dto/response-dto";
+import { useEffect } from "react";
+
 const Home = () => {
     const { view } = useDataViewStore(state => state);
+    const router = useRouter();
+
+    const { data: authenticatedData } = useQuery<AxiosResponse<ResponseDto<{ authenticated: boolean }>>>({
+        queryKey: ["current-user-authenticated"],
+        queryFn: () => axiosClient.get("/user/users/me/authenticated")
+    });
+    
+    useEffect(() => {
+        if (authenticatedData && !authenticatedData.data.data.authenticated) {
+            router.push("/login");
+        }
+    }, [authenticatedData]);
 
     return (
         <div className="flex flex-col flex-1 gap-2">

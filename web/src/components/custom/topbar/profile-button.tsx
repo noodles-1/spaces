@@ -212,7 +212,7 @@ export function ProfileButton() {
                     </Button>
                 </div>
             </DialogTrigger>
-            <DialogContent className="bg-zinc-800">
+            <DialogContent className="bg-zinc-800 flex flex-col gap-3">
                 <DialogHeader>
                     <DialogTitle className="font-medium"> Profile </DialogTitle>
                     <DialogDescription> Edit your profile details </DialogDescription>
@@ -282,7 +282,7 @@ export function ProfileButton() {
                                 </section>
                             </section>
                         </section>
-                        <DialogFooter>
+                        <DialogFooter className="flex items-center justify-end">
                             <Button type="button" variant="outline" className="cursor-pointer hover:text-red-300" onClick={() => handleLogout()} disabled={loggedOut}>
                                 {loggedOut ?
                                     "Logging-out..."

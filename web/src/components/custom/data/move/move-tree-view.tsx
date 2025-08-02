@@ -191,7 +191,7 @@ export function MoveTreeView({
                     </section>
                 </section>
             </main>
-            <DialogFooter>
+            <DialogFooter className="flex items-center justify-end">
                 <DialogClose asChild>
                     <Button variant="link" className="cursor-pointer text-spaces-tertiary" onClick={() => setOpen(false)}>
                         Close
