@@ -28,10 +28,12 @@ export function UserWithAccess({
     userPermission,
     currentUserId,
     selectedItemId,
+    ownerUserId
 }: {
     userPermission: UserPermission
     currentUserId: string
     selectedItemId: string
+    ownerUserId: string
 }) {
     const { data: ownerUserData } = useQuery<ResponseDto<User>>({
         queryKey: ["user-info", userPermission.userId],
@@ -123,70 +125,74 @@ export function UserWithAccess({
                         }
                     </div>
                     <span className="text-[12px] text-zinc-300"> {user.providerUsername} </span>
-                    <div className="text-[12px] text-zinc-300">
-                        Root permission:
-                        <span className="font-semibold"> {userPermission.item.name} </span>
-                    </div>
+                    {(user.id === currentUserId || ownerUserId === currentUserId) &&
+                        <div className="text-[12px] text-zinc-300">
+                            Root permission:
+                            <span className="font-semibold"> {userPermission.item.name} </span>
+                        </div>
+                    }
                 </div>
             </div>
-            <section className="flex items-center gap-1">
-                <DropdownMenu>
+            {ownerUserId === currentUserId &&
+                <section className="flex items-center gap-1">
+                    <DropdownMenu>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="p-0 cursor-pointer">
+                                        {userPermission.type === "EDIT" &&
+                                            <Pen height={20} width={20} className="stroke-zinc-300" />
+                                        }
+                                        {userPermission.type === "VIEW" &&
+                                            <Eye height={20} width={20} className="stroke-zinc-300" />
+                                        }
+                                    </Button>
+                                </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <span> Edit permission </span>
+                            </TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem 
+                                disabled={userPermission.type === "EDIT"} 
+                                className="cursor-pointer flex items-center justify-between hover:bg-zinc-800"
+                                onClick={() => handleEditPermission("EDIT")}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Pen height={20} width={20} className="stroke-zinc-300" />
+                                    <span> Edit </span>
+                                </div>
+                                {userPermission.type === "EDIT" && <Check height={20} width={20} className="stroke-zinc-400" />}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                disabled={userPermission.type === "VIEW"} 
+                                className="cursor-pointer flex items-center justify-between hover:bg-zinc-800"
+                                onClick={() => handleEditPermission("VIEW")}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Eye height={20} width={20} className="stroke-zinc-300" />
+                                    <span> View </span>
+                                </div>
+                                {userPermission.type === "VIEW" && <Check height={20} width={20} className="stroke-zinc-400" />}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="p-0 cursor-pointer">
-                                    {userPermission.type === "EDIT" &&
-                                        <Pen height={20} width={20} className="stroke-zinc-300" />
-                                    }
-                                    {userPermission.type === "VIEW" &&
-                                        <Eye height={20} width={20} className="stroke-zinc-300" />
-                                    }
-                                </Button>
-                            </DropdownMenuTrigger>
+                            <X 
+                                height={20} 
+                                width={20} 
+                                className="stroke-zinc-300 cursor-pointer hover:stroke-spaces-tertiary"
+                                onClick={handleDeletePermission}
+                            />
                         </TooltipTrigger>
                         <TooltipContent>
-                            <span> Edit permission </span>
+                            <span> Remove access </span>
                         </TooltipContent>
                     </Tooltip>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem 
-                            disabled={userPermission.type === "EDIT"} 
-                            className="cursor-pointer flex items-center justify-between hover:bg-zinc-800"
-                            onClick={() => handleEditPermission("EDIT")}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Pen height={20} width={20} className="stroke-zinc-300" />
-                                <span> Edit </span>
-                            </div>
-                            {userPermission.type === "EDIT" && <Check height={20} width={20} className="stroke-zinc-400" />}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                            disabled={userPermission.type === "VIEW"} 
-                            className="cursor-pointer flex items-center justify-between hover:bg-zinc-800"
-                            onClick={() => handleEditPermission("VIEW")}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Eye height={20} width={20} className="stroke-zinc-300" />
-                                <span> View </span>
-                            </div>
-                            {userPermission.type === "VIEW" && <Check height={20} width={20} className="stroke-zinc-400" />}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <X 
-                            height={20} 
-                            width={20} 
-                            className="stroke-zinc-300 cursor-pointer hover:stroke-spaces-tertiary"
-                            onClick={handleDeletePermission}
-                        />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <span> Remove access </span>
-                    </TooltipContent>
-                </Tooltip>
-            </section>
+                </section>
+            }
         </div>
     );
 }

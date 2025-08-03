@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
 
 import { CircleX } from "lucide-react";
 
@@ -13,6 +13,7 @@ import { createItem, uploadFile } from "@/services/storage";
 import { useUploadStore } from "@/zustand/providers/upload-store-provider";
 import { formatFileSize } from "@/lib/custom/file-size";
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { Upload } from "@/types/upload-type";
 import { ResponseDto } from "@/dto/response-dto";
@@ -28,6 +29,14 @@ export function UploadFile({
 
     const { setUploading, setUploaded } = useUploadStore(state => state);
 
+    const paths = pathname.split("/");
+    const parentId = paths.length === 4 ? paths[3] : undefined;
+
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string }>>>({
+        queryKey: ["item-owner-id", parentId],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${parentId}`)
+    });
+
     const hasRun = useRef<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
 
@@ -37,6 +46,9 @@ export function UploadFile({
     const queryClient = useQueryClient();
 
     useEffect(() => {
+        if (!ownerUserIdData)
+            return;
+
         if (hasRun.current)
             return;
 
@@ -58,11 +70,10 @@ export function UploadFile({
                 if (uploadResponse.isUploaded) {
                     setUploaded(idx);
     
-                    const paths = pathname.split("/");
-                    const parentId = paths.length === 4 ? paths[3] : undefined;
                     await createItemMutation.mutateAsync({
                         id: uploadResponse.fileId,
                         name: upload.file.name,
+                        ownerUserId: ownerUserIdData.data.data.ownerUserId,
                         type: "FILE",
                         parentId,
                         contentType: upload.file.type,
@@ -95,7 +106,7 @@ export function UploadFile({
         };
 
         handleUpload();
-    }, []);
+    }, [ownerUserIdData]);
 
     return (
         <div className="flex flex-col gap-5 p-4 border-2 rounded-lg border-zinc-800">

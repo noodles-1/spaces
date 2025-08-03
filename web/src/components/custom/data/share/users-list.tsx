@@ -40,7 +40,7 @@ export function UsersList({
     const ownerUser = ownerUserData.data.user;
     const permissions = permissionsData.data.permissions;
 
-    const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE").filter(permission => permission.userId !== ownerUser.id);
+    const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE");
 
     return (
         <main className="flex-1 flex flex-col gap-4">
@@ -68,7 +68,13 @@ export function UsersList({
                     <span className="text-[14px] font-semibold text-zinc-300"> Users with access </span>
                     <section className="max-h-[12rem] overflow-y-auto flex flex-col gap-3">
                         {userPermissions.map((permission, i) =>
-                            <UserWithAccess key={i} userPermission={permission} currentUserId={currentUser.id} selectedItemId={selectedItem.id} />
+                            <UserWithAccess 
+                                key={i} 
+                                userPermission={permission} 
+                                currentUserId={currentUser.id} 
+                                selectedItemId={selectedItem.id}
+                                ownerUserId={ownerUser.id}
+                            />
                         )}
                     </section>
                 </section>

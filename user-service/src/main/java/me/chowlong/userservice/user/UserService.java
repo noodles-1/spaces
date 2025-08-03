@@ -4,6 +4,7 @@ import me.chowlong.userservice.auth.dto.RegisterRequestDTO;
 import me.chowlong.userservice.exception.user.UserNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,6 +22,10 @@ public class UserService {
 
     public User getUserByProviderUserIdAndProviderUsername(String providerUserId, String providerUsername) {
         return this.userRepository.findByProviderUserIdAndProviderUsername(providerUserId, providerUsername);
+    }
+
+    public List<User> searchUsersByName(String name) {
+        return this.userRepository.findByCustomUsernameContainingIgnoreCaseOrProviderUsernameContainingIgnoreCase(name, name);
     }
 
     public boolean userExistsByCustomUsername(String customUsername) {

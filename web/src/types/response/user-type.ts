@@ -1,4 +1,4 @@
-interface UserResponse {
+export interface UserResponse {
     id: string;
     customUsername: string | null;
     provider: string;

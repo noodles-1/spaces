@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Loader2, Plus } from "lucide-react";
 
@@ -34,35 +34,27 @@ import { z } from "zod";
 import { createItem } from "@/services/storage";
 
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 
+const formSchema = z.object({
+    folderName: z
+        .string()
+        .min(1, { message: "Folder name cannot be empty." })
+        .max(200, { message: "Folder name cannot be more than 200 characters." })
+        .refine(value => {
+            if (value === "")
+                return true;
+
+            return /^(?!\.{1,2}$)[^/]+$/.test(value) && !value.includes(";");
+        }, {
+            message: "Invalid folder name."
+        })
+});
+
 export function NewFolder() {
     const pathname = usePathname();
-
-    const [open, setOpen] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
-
-    const createFolderMutation = useMutation({
-        mutationFn: createItem
-    });
-
-    const queryClient = useQueryClient();
-
-    const formSchema = z.object({
-        folderName: z
-            .string()
-            .min(1, { message: "Folder name cannot be empty." })
-            .max(200, { message: "Folder name cannot be more than 200 characters." })
-            .refine(value => {
-                if (value === "")
-                    return true;
-    
-                return /^(?!\.{1,2}$)[^/]+$/.test(value) && !value.includes(";");
-            }, {
-                message: "Invalid folder name."
-            })
-    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -70,15 +62,37 @@ export function NewFolder() {
             folderName: ""
         }
     });
+
+    const paths = pathname.split("/");
+    const parentId = paths.length === 4 ? paths[3] : undefined;
+
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string }>>>({
+        queryKey: ["item-owner-id", parentId],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${parentId}`)
+    });
+
+    const createFolderMutation = useMutation({
+        mutationFn: createItem
+    });
     
+    const queryClient = useQueryClient();
+    
+    const [open, setOpen] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    if (!ownerUserIdData) {
+        return null;
+    }
+
+    const ownerUserId = ownerUserIdData.data.data.ownerUserId;
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             setLoading(true);
 
-            const paths = pathname.split("/");
-            const parentId = paths.length === 4 ? paths[3] : undefined;
             await createFolderMutation.mutateAsync({
                 name: values.folderName,
+                ownerUserId,
                 type: "FOLDER",
                 parentId
             });

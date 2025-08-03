@@ -140,6 +140,7 @@ export async function deleteFile(params: DeleteItemParams): Promise<boolean> {
 interface CreateItemParams {
     id?: string;
     name: string;
+    ownerUserId?: string;
     type: "FOLDER" | "FILE";
     parentId?: string;
     contentType?: string;

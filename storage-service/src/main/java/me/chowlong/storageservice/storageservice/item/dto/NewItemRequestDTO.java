@@ -13,6 +13,8 @@ public class NewItemRequestDTO {
     private String id;
     @Nonnull
     private String name;
+    @Nullable
+    private String ownerUserId;
     @Nonnull
     private ItemType type;
     @Nullable

@@ -96,7 +96,7 @@ public class ItemService {
         Item newItem = new Item();
         newItem.setId(newItemDTO.getId() != null ? newItemDTO.getId() : UUID.randomUUID().toString());
         newItem.setName(newItemDTO.getName());
-        newItem.setOwnerUserId(userId);
+        newItem.setOwnerUserId(newItemDTO.getOwnerUserId() != null ? newItemDTO.getOwnerUserId() : userId);
         newItem.setType(newItemDTO.getType());
         newItem.setContentType(newItemDTO.getContentType());
         newItem.setSize(newItemDTO.getSize());

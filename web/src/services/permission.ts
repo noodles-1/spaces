@@ -9,7 +9,7 @@ interface CreatePermissionParams {
 }
 
 export async function createPermission(params: CreatePermissionParams): Promise<ResponseDto> {
-    const response = await axiosClient.post("/storage/permission/create", params, {
+    const response = await axiosClient.post("/storage/permissions/create", params, {
         headers: { "Content-Type": "application/json" }
     });
 
