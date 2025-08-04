@@ -23,6 +23,10 @@ public class ItemService {
         return this.itemRepository.findItemById(id);
     }
 
+    public Item getItemAccessibleUserRootById(String id) {
+        return this.itemRepository.findItemAccessibleUserRootById(id);
+    }
+
     public List<Item> getAccessibleChildrenByParentId(String parentId) {
         return this.itemRepository.findAccessibleChildrenById(parentId);
     }
@@ -67,20 +71,16 @@ public class ItemService {
         Item userMainAccessibleDirectory = new Item();
         userMainAccessibleDirectory.setId(UUID.randomUUID().toString());
         userMainAccessibleDirectory.setName(userId);
-        userMainAccessibleDirectory.setOwnerUserId(userId);
         userMainAccessibleDirectory.setType(ItemType.FOLDER);
         userMainAccessibleDirectory.setRoot(false);
-        userMainAccessibleDirectory.setStarred(false);
         userMainAccessibleDirectory.setCreatedAt(new Date());
         userMainAccessibleDirectory.setUpdatedAt(new Date());
 
         Item userMainInaccessibleDirectory = new Item();
         userMainInaccessibleDirectory.setId(UUID.randomUUID().toString());
         userMainInaccessibleDirectory.setName(userId);
-        userMainInaccessibleDirectory.setOwnerUserId(userId);
         userMainInaccessibleDirectory.setType(ItemType.FOLDER);
         userMainInaccessibleDirectory.setRoot(false);
-        userMainInaccessibleDirectory.setStarred(false);
         userMainInaccessibleDirectory.setCreatedAt(new Date());
         userMainInaccessibleDirectory.setUpdatedAt(new Date());
 
@@ -96,12 +96,10 @@ public class ItemService {
         Item newItem = new Item();
         newItem.setId(newItemDTO.getId() != null ? newItemDTO.getId() : UUID.randomUUID().toString());
         newItem.setName(newItemDTO.getName());
-        newItem.setOwnerUserId(newItemDTO.getOwnerUserId() != null ? newItemDTO.getOwnerUserId() : userId);
         newItem.setType(newItemDTO.getType());
         newItem.setContentType(newItemDTO.getContentType());
         newItem.setSize(newItemDTO.getSize());
         newItem.setRoot(false);
-        newItem.setStarred(false);
         newItem.setCreatedAt(new Date());
         newItem.setUpdatedAt(new Date());
 
@@ -117,12 +115,6 @@ public class ItemService {
         this.itemRepository.save(parentItem);
 
         return newItem;
-    }
-
-    public void toggleItemStarred(String itemId) {
-        Item item = this.itemRepository.findItemById(itemId);
-        item.setStarred(!item.isStarred());
-        this.itemRepository.save(item);
     }
 
     public void moveFromMainAccessibleToAccessible(String userId, MoveItemRequestDTO moveItemRequestDTO) {

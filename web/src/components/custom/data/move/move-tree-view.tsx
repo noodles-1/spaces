@@ -146,7 +146,7 @@ export function MoveTreeView({
                 };
             }
             
-            const rootChildren = rootData.data.children[0].children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
+            const rootChildren = rootData.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
             const temp: TreeViewBaseItem[] = [
                 {
                     id: "HOME",

@@ -27,9 +27,6 @@ public class Item {
     @Nonnull
     private String name;
 
-    @Nullable
-    private String ownerUserId;
-
     @Nonnull
     private ItemType type;
 
@@ -41,9 +38,6 @@ public class Item {
 
     @Nonnull
     private boolean isRoot = false;
-
-    @Nullable
-    private boolean isStarred = false;
 
     @Nonnull
     @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)

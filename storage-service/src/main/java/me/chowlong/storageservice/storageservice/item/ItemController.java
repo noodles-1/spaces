@@ -110,7 +110,7 @@ public class ItemController {
             responseData.put("ownerUserId", null);
         }
         else {
-            responseData.put("ownerUserId", item.getOwnerUserId());
+            responseData.put("ownerUserId", this.itemService.getItemAccessibleUserRootById(itemId).getName());
         }
 
         return ResponseHandler.generateResponse("Fetched owner user ID successfully.", HttpStatus.OK, responseData);
@@ -255,12 +255,6 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("item", this.modelMapper.map(item, ItemResponseDTO.class));
         return ResponseHandler.generateResponse("Created item successfully.", HttpStatus.OK, responseData);
-    }
-
-    @PatchMapping("/star/{itemId}")
-    public ResponseEntity<Object> toggleItemStarred(@PathVariable("itemId") String itemId) {
-        this.itemService.toggleItemStarred(itemId);
-        return ResponseHandler.generateResponse("Toggled item starred successfully.", HttpStatus.OK, null);
     }
 
     @PatchMapping("/move")

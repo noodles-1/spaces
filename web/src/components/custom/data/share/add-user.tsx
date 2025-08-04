@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 import { Check, CircleCheck, CircleX, Eye, Loader2, Pen } from "lucide-react";
@@ -111,9 +111,9 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
         queryFn: () => axiosClient.get("/user/users/me"),
     });
 
-    const { data: ownerUserData } = useQuery<ResponseDto<User>>({
-        queryKey: ["user-info", selectedItem.ownerUserId],
-        queryFn: () => fetcher(`/user/users/info/${selectedItem.ownerUserId}`),
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
+        queryKey: ["item-owner-id", selectedItem.id],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${selectedItem.id}`)
     });
 
     const { data: permissionsData } = useQuery<ResponseDto<{ permissions: UserPermission[] }>>({
@@ -136,13 +136,25 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
     const [selectedPermissionType, setSelectedPermissionType] = useState<"EDIT" | "VIEW">("VIEW");
     const [loading, setLoading] = useState<boolean>(false);
     const [toggleLoading, setToggleLoading] = useState<boolean>(false);
+    const [ownerUser, setOwnerUser] = useState<UserResponse | null>(null);
+    
+    useEffect(() => {
+        if (!ownerUserIdData)
+            return;
 
-    if (!(currentUserData && ownerUserData && permissionsData)) {
+        const fetchUser = async () => {
+            const response = await fetcher<User>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
+            setOwnerUser(response.data.user);
+        };
+
+        fetchUser();
+    }, [ownerUserIdData])
+
+    if (!(currentUserData && ownerUserIdData && permissionsData && ownerUser)) {
         return <AddUserSkeleton />;
     }
 
     const currentUser = currentUserData.data.data.user;
-    const ownerUser = ownerUserData.data.user;
     const permissions = permissionsData.data.permissions;
 
     const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE");

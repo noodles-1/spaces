@@ -5,6 +5,7 @@ public class ApplicationConstants {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/items/public/**",
-            "/permissions/public/**"
+            "/permissions/public/**",
+            "/starred/public/**"
     };
 }

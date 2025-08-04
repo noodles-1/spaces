@@ -1,14 +1,15 @@
 import { usePathname } from "next/navigation";
 
-import { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Star } from "lucide-react";
 
 import { FileIcon } from "@/components/custom/data/file-icon";
 
-import { toggleItemStarred } from "@/services/storage";
+import { toggleItemStarred } from "@/services/starred";
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
@@ -19,11 +20,25 @@ export function StarColumn({
     item: Item
 }) {
     const pathname = usePathname();
+    const paths = pathname.split("/");
+    const parentId = paths.length === 4 ? paths[3] : undefined;
+
+    const { data: starredExistsData } = useQuery<AxiosResponse<ResponseDto<{ exists: boolean }>>>({
+        queryKey: ["starred-item-exists", item.id],
+        queryFn: () => axiosClient.get(`/storage/starred/check-exists/${item.id}`)
+    });
 
     const queryClient = useQueryClient();
+
     const toggleItemStarredMutation = useMutation({
         mutationFn: toggleItemStarred
     });
+
+    if (!starredExistsData) {
+        return null;
+    }
+
+    const isStarred = starredExistsData.data.data.exists;
 
     const handleStarred = async (event: React.MouseEvent<SVGSVGElement>) => {
         event.stopPropagation();
@@ -32,9 +47,6 @@ export function StarColumn({
             await toggleItemStarredMutation.mutateAsync({
                 itemId: item.id
             });
-
-            const paths = pathname.split("/");
-            const parentId = paths.length === 4 ? paths[3] : undefined;
 
             if (parentId) {
                 queryClient.invalidateQueries({
@@ -51,7 +63,11 @@ export function StarColumn({
                 queryKey: ["user-accessible-starred-items"]
             });
 
-            if (item.starred) {
+            queryClient.invalidateQueries({
+                queryKey: ["starred-item-exists", item.id]
+            });
+
+            if (isStarred) {
                 customToast({
                     icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${item.name} has been removed from starred items.`,
@@ -89,7 +105,7 @@ export function StarColumn({
                     onClick={handleStarred}
                     className={`
                         w-4 h-4 mx-4 opacity-0 cursor-pointer group-hover:opacity-100 
-                        ${item.starred ? "fill-white" : "hover:fill-white"}
+                        ${isStarred ? "fill-white" : "hover:fill-white"}
                     `}
                 />
             </div>

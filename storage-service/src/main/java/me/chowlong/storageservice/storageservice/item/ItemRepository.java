@@ -14,6 +14,17 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     Item findItemById(String id);
 
     /**
+     * Finds the accessible root user folder of an item.
+     * @param id
+     * @return root user item node
+     */
+    @Query("""
+            MATCH path = (item:Item {id: $id})<-[:CONTAINS*]-(root:Item {name: "ACCESSIBLE"})
+            RETURN nodes(path)[length(path) - 1]
+    """)
+    Item findItemAccessibleUserRootById(String id);
+
+    /**
      * Finds the immediate files and/or folders from a given
      * non-root accessible directory.
      * @param parentId
@@ -217,4 +228,17 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN root.name
     """)
     Root findItemRootNameById(@Param("itemId") String itemId);
+
+    /**
+     * Finds all starred items of a user.
+     * @param userId
+     * @return list of items
+     */
+    @Query("""
+            MATCH (stars:`User Starred` {userId: $userId})
+            UNWIND stars AS star
+            MATCH (star)-[:IS_STARRED]->(item:Item)
+            RETURN item
+    """)
+    List<Item> findAllStarredItemsOfUser(String userId);
 }

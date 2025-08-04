@@ -42,11 +42,8 @@ export const columns: ColumnDef<Item>[] = [
         accessorKey: "owner",
         header: "Owner",
         cell: ({ row }) => {
-            if (row.original.ownerUserId === undefined)
-                return <></>;
-
             return (
-                <OwnerColumn ownerUserId={row.original.ownerUserId} />
+                <OwnerColumn item={row.original} />
             );
         },
     },

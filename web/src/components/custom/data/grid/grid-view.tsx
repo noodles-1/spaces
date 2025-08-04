@@ -415,14 +415,16 @@ export function GridView({
                         </DndContext>
                     }
                 </ContextMenuTrigger>
-                <ContextMenuContentDropdown 
-                    contextMenuRef={contextMenuRef} 
-                    selectedItems={selectedFiles}
-                    setOpenMoveDialog={setOpenMoveDialog}
-                    setOpenRenameDialog={setOpenRenameDialog}
-                    setOpenShareDialog={setOpenShareDialog}
-                    setSelectedIdx={setSelectedItemsIdx}
-                />
+                {selectedFiles.length > 0 &&
+                    <ContextMenuContentDropdown 
+                        contextMenuRef={contextMenuRef} 
+                        selectedItems={selectedFiles}
+                        setOpenMoveDialog={setOpenMoveDialog}
+                        setOpenRenameDialog={setOpenRenameDialog}
+                        setOpenShareDialog={setOpenShareDialog}
+                        setSelectedIdx={setSelectedItemsIdx}
+                    />
+                }
             </ContextMenu>
             <Move
                 open={openMoveDialog}

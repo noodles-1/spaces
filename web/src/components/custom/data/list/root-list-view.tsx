@@ -22,7 +22,7 @@ export function RootListView({
 
     if (starred) {
         queryKey = ["user-accessible-starred-items"];
-        endpoint = "/storage/items/accessible/starred";
+        endpoint = "/storage/starred/items";
     }
     else if (inaccessible) {
         queryKey = ["user-inaccessible-items"];

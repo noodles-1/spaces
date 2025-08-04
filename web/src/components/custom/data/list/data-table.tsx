@@ -562,14 +562,16 @@ export function DataTable<TData, TValue>({
                         </DndContext>
                     }
                 </ContextMenuTrigger>
-                <ContextMenuContentDropdown 
-                    contextMenuRef={contextMenuRef} 
-                    selectedItems={selectedRows}
-                    setOpenMoveDialog={setOpenMoveDialog}
-                    setOpenRenameDialog={setOpenRenameDialog}
-                    setOpenShareDialog={setOpenShareDialog}
-                    setSelectedIdx={setSelectedRowsIdx}
-                />
+                {selectedRows.length > 0 &&
+                    <ContextMenuContentDropdown 
+                        contextMenuRef={contextMenuRef} 
+                        selectedItems={selectedRows}
+                        setOpenMoveDialog={setOpenMoveDialog}
+                        setOpenRenameDialog={setOpenRenameDialog}
+                        setOpenShareDialog={setOpenShareDialog}
+                        setSelectedIdx={setSelectedRowsIdx}
+                    />
+                }
             </ContextMenu>
             <Move
                 open={openMoveDialog}

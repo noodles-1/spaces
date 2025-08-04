@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { usePathname } from "next/navigation";
 
-import { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
     ArchiveRestore,
@@ -12,6 +12,7 @@ import {
     Download,
     FolderInput,
     Info,
+    Loader2,
     PenLine,
     Star,
     Trash,
@@ -28,13 +29,17 @@ import {
 } from "@/components/ui/context-menu";
 
 import { fetcher } from "@/services/fetcher";
-import { createItem, deleteFile, deleteItem, deleteItemPermanently, duplicateItem, restoreItem, toggleItemStarred } from "@/services/storage";
+import { createItem, deleteFile, deleteItem, deleteItemPermanently, duplicateItem, restoreItem } from "@/services/storage";
+import { toggleItemStarred } from "@/services/starred";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadToast } from "@/lib/custom/download-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { DropdownItem } from "@/types/dropdown-items-type";
 import { Item } from "@/types/item-type";
+import { UserResponse } from "@/types/response/user-type";
+import { UserPermission } from "@/types/user-permission-type";
 
 export function ContextMenuContentDropdown({
     contextMenuRef,
@@ -57,6 +62,26 @@ export function ContextMenuContentDropdown({
     const paths = pathname.split("/");
     const sourceParentId = paths.length === 4 ? paths[3] : undefined;
 
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
+        queryKey: ["item-owner-id", sourceParentId],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${sourceParentId}`)
+    });
+
+    const { data: permissionData } = useQuery<AxiosResponse<ResponseDto<{ permission: UserPermission | null }>>>({
+        queryKey: ["current-user-permission"],
+        queryFn: () => axiosClient.get(`/storage/permissions/public/permission/${sourceParentId}`)
+    });
+
+    const { data: currentUserData } = useQuery<AxiosResponse<ResponseDto<{ user: UserResponse | null }>>>({
+        queryKey: ["current-user"],
+        queryFn: () => axiosClient.get("/user/users/me")
+    });
+
+    const { data: starredExistsData } = useQuery<AxiosResponse<ResponseDto<{ exists: boolean }>>>({
+        queryKey: ["starred-item-exists", selectedItems[0].id],
+        queryFn: () => axiosClient.get(`/storage/starred/public/check-exists/${selectedItems[0].id}`)
+    });
+
     const queryClient = useQueryClient();
     
     const toggleItemStarredMutation = useMutation({
@@ -78,6 +103,23 @@ export function ContextMenuContentDropdown({
     const createItemMutation = useMutation({
         mutationFn: createItem
     });
+
+    if (!(ownerUserIdData && permissionData && currentUserData && starredExistsData)) {
+        return (
+            <div className="w-full flex items-center justify-center">
+                <Loader2 className="animate-spin" />
+            </div>
+        );
+    }
+
+    const ownerUserId = ownerUserIdData.data.data.ownerUserId;
+    const permission = permissionData.data.data.permission;
+    const currentUser = currentUserData.data.data.user;
+    
+    const isOwner = ["home", "starred"].includes(paths[2]) || currentUser?.id === ownerUserId;
+    const isEditor = (currentUser?.id === permission?.userId) && permission?.type === "EDIT";
+    
+    const isStarred = starredExistsData.data.data.exists;
 
     const handleStarred = async () => {
         try {
@@ -102,7 +144,11 @@ export function ContextMenuContentDropdown({
                 queryKey: ["user-accessible-starred-items"]
             });
 
-            if (selectedItem.starred) {
+            queryClient.invalidateQueries({
+                queryKey: ["starred-item-exists", selectedItem.id]
+            });
+
+            if (isStarred) {
                 customToast({
                     icon: <CircleCheck className="w-4 h-4" color="white" />,
                     message: `${selectedItem.name} has been removed from starred items.`,
@@ -195,12 +241,10 @@ export function ContextMenuContentDropdown({
                         queryKey: ["user-accessible-items", item.accessibleParentId]
                     });
                 }
-
-                if (item.starred) {
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-starred-items"]
-                    });
-                }
+            });
+            
+            queryClient.invalidateQueries({
+                queryKey: ["user-accessible-starred-items"]
             });
 
             queryClient.invalidateQueries({
@@ -515,18 +559,26 @@ export function ContextMenuContentDropdown({
                                     return;
                                 }
 
-                                if (item.id === "ADD_STARRED" && selectedItems.length === 1 && selectedItems[0].starred) {
+                                if (item.id === "ADD_STARRED" && selectedItems.length === 1 && isStarred) {
                                     return;
                                 }
 
-                                if (item.id === "REMOVE_STARRED" && selectedItems.length === 1 && !selectedItems[0].starred) {
+                                if (item.id === "REMOVE_STARRED" && selectedItems.length === 1 && !isStarred) {
                                     return;
                                 }
 
                                 if (item.id === "RENAME" && selectedItems.length > 1) {
                                     return;
                                 }
-                                
+
+                                if (!isOwner && !isEditor && ["RENAME", "DUPLICATE", "SHARE", "MOVE", "TRASH"].includes(item.id)) {
+                                    return;
+                                }
+
+                                if (!currentUser && ["ADD_STARRED", "REMOVE_STARRED"].includes(item.id)) {
+                                    return;
+                                }
+
                                 return (
                                     <ContextMenuItem
                                         key={j}

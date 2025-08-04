@@ -1,34 +1,33 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { useQuery } from "@tanstack/react-query";
 
-import { UserRound } from "lucide-react";
+import { OwnerColumnAvatar } from "@/components/custom/data/list/owner-column-avatar";
 
-import { fetcher } from "@/services/fetcher";
-
+import axiosClient from "@/lib/axios-client";
 import { ResponseDto } from "@/dto/response-dto";
-import { User } from "@/types/response/user-type";
+import { Item } from "@/types/item-type";
 
 export function OwnerColumn({
-    ownerUserId
+    item
 }: {
-    ownerUserId: string
+    item: Item
 }) {
-    const { data: userInfo } = useSuspenseQuery<ResponseDto<User>>({
-        queryKey: ["user-info", ownerUserId],
-        queryFn: () => fetcher(`/user/users/info/${ownerUserId}`)
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
+        queryKey: ["item-owner-id", item.id],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${item.id}`)
     });
 
+    if (!ownerUserIdData) {
+        return null;
+    }
+
+    const ownerUserId = ownerUserIdData.data.data.ownerUserId;
+
+    if (!ownerUserId) {
+        return null;
+    }
+
     return (
-        <div className="flex items-center w-full gap-4">
-            <div className="rounded-full outline">
-                {userInfo.data.user.profilePictureUrl ?
-                    <img src={userInfo.data.user.profilePictureUrl} className="object-cover w-8 h-8 rounded-full" />
-                : 
-                    <UserRound className="w-5 h-5" />
-                }
-            </div>
-            <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {userInfo.data.user.customUsername} 
-            </div>
-        </div>
+        <OwnerColumnAvatar ownerUserId={ownerUserId} />
     );
 }

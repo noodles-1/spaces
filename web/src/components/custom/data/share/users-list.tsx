@@ -9,8 +9,9 @@ import { fetcher } from "@/services/fetcher";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
-import { User } from "@/types/response/user-type";
+import { User, UserResponse } from "@/types/response/user-type";
 import { UserPermission } from "@/types/user-permission-type";
+import { useEffect, useState } from "react";
 
 export function UsersList({
     selectedItem,
@@ -22,9 +23,9 @@ export function UsersList({
         queryFn: () => axiosClient.get("/user/users/me")
     });
 
-    const { data: ownerUserData } = useQuery<ResponseDto<User>>({
-        queryKey: ["user-info", selectedItem.ownerUserId],
-        queryFn: () => fetcher(`/user/users/info/${selectedItem.ownerUserId}`)
+    const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
+        queryKey: ["item-owner-id", selectedItem.id],
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${selectedItem.id}`)
     });
 
     const { data: permissionsData } = useQuery<ResponseDto<{ permissions: UserPermission[] }>>({
@@ -32,14 +33,26 @@ export function UsersList({
         queryFn: () => fetcher(`/storage/permissions/ancestors/${selectedItem.id}`)
     });
 
-    if (!(currentUserData && ownerUserData && permissionsData)) {
+    const [ownerUser, setOwnerUser] = useState<UserResponse | null>(null);
+
+    useEffect(() => {
+        if (!ownerUserIdData)
+            return;
+
+        const fetchUser = async () => {
+            const response = await fetcher<User>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
+            setOwnerUser(response.data.user);
+        };
+
+        fetchUser();
+    }, [ownerUserIdData])
+
+    if (!(currentUserData && ownerUserIdData && permissionsData && ownerUser)) {
         return <UsersListSkeleton />;
     }
 
     const currentUser = currentUserData.data.data.user;
-    const ownerUser = ownerUserData.data.user;
     const permissions = permissionsData.data.permissions;
-
     const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE");
 
     return (
