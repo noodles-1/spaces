@@ -6,23 +6,23 @@ import { DataViews } from "@/components/custom/data/data-views";
 import { RootGridView } from "@/components/custom/data/grid/root-grid-view";
 import { RootListView } from "@/components/custom/data/list/root-list-view";
 
-const Starred = () => {
+const Shared = () => {
     const { view } = useDataViewStore(state => state);
 
     return (
         <div className="flex flex-1 flex-col gap-2">
             <section className="flex items-center justify-between px-6 pt-6">
-                <span className="text-xl"> Starred </span>
+                <span className="text-xl"> Shared </span>
                 <DataViews />
             </section>
             <main>
                 <section className="p-6">
-                    {view === "grid" && <RootGridView starred />}
-                    {view === "list" && <RootListView starred />}
+                    {view === "grid" && <RootGridView shared />}
+                    {view === "list" && <RootListView shared />}
                 </section>
             </main>
         </div>
     );
 };
 
-export default Starred;
+export default Shared;

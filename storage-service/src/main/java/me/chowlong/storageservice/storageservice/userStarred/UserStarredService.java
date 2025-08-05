@@ -17,10 +17,6 @@ public class UserStarredService {
         this.itemRepository = itemRepository;
     }
 
-    public List<Item> getAllStarredItemsOfUser(String userId) {
-        return this.itemRepository.findAllStarredItemsOfUser(userId);
-    }
-
     public boolean checkItemStarredExists(String userId, String itemId) {
         UserStarred starred = this.userStarredRepository.findUserStarredOfItem(userId, itemId);
         return starred != null;

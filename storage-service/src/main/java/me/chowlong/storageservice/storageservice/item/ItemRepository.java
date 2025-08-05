@@ -241,4 +241,17 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN item
     """)
     List<Item> findAllStarredItemsOfUser(String userId);
+
+    /**
+     * Finds all shared items to a user.
+     * @param userId
+     * @return list of items
+     */
+    @Query("""
+            MATCH (permissions:`User Permission` {userId: $userId})
+            UNWIND permissions AS permission
+            MATCH (permission)-[:HAS_PERMISSION]->(item:Item)
+            RETURN item
+    """)
+    List<Item> findAllSharedItemsToUser(String userId);
 }

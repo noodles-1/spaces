@@ -25,7 +25,12 @@ export function StarColumn({
 
     const { data: starredExistsData } = useQuery<AxiosResponse<ResponseDto<{ exists: boolean }>>>({
         queryKey: ["starred-item-exists", item.id],
-        queryFn: () => axiosClient.get(`/storage/starred/check-exists/${item.id}`)
+        queryFn: () => axiosClient.get(`/storage/starred/public/check-exists/${item.id}`)
+    });
+
+    const { data: authenticatedData } = useQuery<AxiosResponse<ResponseDto<{ authenticated: boolean }>>>({
+        queryKey: ["current-user-authenticated"],
+        queryFn: () => axiosClient.get("/user/users/me/authenticated")
     });
 
     const queryClient = useQueryClient();
@@ -34,11 +39,12 @@ export function StarColumn({
         mutationFn: toggleItemStarred
     });
 
-    if (!starredExistsData) {
+    if (!(starredExistsData && authenticatedData)) {
         return null;
     }
 
     const isStarred = starredExistsData.data.data.exists;
+    const isAuthenticated = authenticatedData.data.data.authenticated;
 
     const handleStarred = async (event: React.MouseEvent<SVGSVGElement>) => {
         event.stopPropagation();
@@ -90,6 +96,22 @@ export function StarColumn({
             });
         }
     };
+
+    if (!isAuthenticated) {
+        return (
+            <div className="flex items-center justify-between w-full">
+                <div className="flex items-center w-full gap-8">
+                    <FileIcon
+                        contentType={item.contentType}
+                        className="w-4 h-4"
+                    />
+                    <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                        {item.name}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-between w-full">

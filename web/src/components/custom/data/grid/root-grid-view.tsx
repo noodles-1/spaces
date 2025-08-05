@@ -10,9 +10,11 @@ import { Item } from "@/types/item-type";
 
 export function RootGridView({
     starred,
+    shared,
     inaccessible,
 }: {
     starred?: boolean
+    shared?: boolean
     inaccessible?: boolean
 }) {
     let queryKey = ["user-accessible-items"];
@@ -20,7 +22,11 @@ export function RootGridView({
 
     if (starred) {
         queryKey = ["user-accessible-starred-items"];
-        endpoint = "/storage/starred/items";
+        endpoint = "/storage/items/starred";
+    }
+    else if (shared) {
+        queryKey = ["user-accessible-shared-items"];
+        endpoint = "/storage/items/shared";
     }
     else if (inaccessible) {
         queryKey = ["user-inaccessible-items"];
@@ -39,6 +45,12 @@ export function RootGridView({
     if (starred) {
         return (
             <GridView userItems={userItems} starred />
+        );
+    }
+
+    if (shared) {
+        return (
+            <GridView userItems={userItems} shared />
         );
     }
 

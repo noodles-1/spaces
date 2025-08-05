@@ -12,7 +12,6 @@ import me.chowlong.storageservice.storageservice.item.dto.RenameItemRequestDTO;
 import me.chowlong.storageservice.storageservice.jwt.JwtService;
 import me.chowlong.storageservice.storageservice.jwt.cookie.CookieService;
 import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
-import me.chowlong.storageservice.storageservice.userPermission.UserPermission;
 import me.chowlong.storageservice.storageservice.userPermission.UserPermissionService;
 import me.chowlong.storageservice.storageservice.util.PublicEndpointSecurityHandler;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
@@ -142,19 +141,6 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched accessible root children recursive successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/accessible/starred")
-    public ResponseEntity<Object> getAccessibleStarredItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<Item> children = this.itemService.getAccessibleStarredItems(userPrincipal.getUserId());
-        List<ItemResponseDTO> childrenResponse = children
-                .stream()
-                .map(item -> this.modelMapper.map(item, ItemResponseDTO.class))
-                .toList();
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("children", childrenResponse);
-        return ResponseHandler.generateResponse("Fetched starred items successfully.", HttpStatus.OK, responseData);
-    }
-
     @GetMapping("/inaccessible/children")
     public ResponseEntity<Object> getInaccessibleRootChildren(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<Item> children = this.itemService.getInaccessibleRootChildren(userPrincipal.getUserId());
@@ -228,6 +214,22 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("rootName", root.toString());
         return ResponseHandler.generateResponse("Fetched item root name successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/starred")
+    public ResponseEntity<Object> getAllStarredItemsOfUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Item> children = this.itemService.getAllStarredItemsOfUser(userPrincipal.getUserId());
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", children);
+        return ResponseHandler.generateResponse("Fetched current user's starred items.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/shared")
+    public ResponseEntity<Object> getAllSharedItemsToUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Item> children = this.itemService.getAllSharedItemsToUser(userPrincipal.getUserId());
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", children);
+        return ResponseHandler.generateResponse("Fetched current user's shared items", HttpStatus.OK, responseData);
     }
 
     @PostMapping("/create-main-dirs")

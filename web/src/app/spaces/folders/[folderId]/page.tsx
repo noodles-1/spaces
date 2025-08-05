@@ -7,6 +7,10 @@ const Folder = async ({
 }) => {
     const { folderId } = await params;
 
+    if (folderId === undefined) {
+        return null;
+    }
+
     return <FolderPage folderId={folderId} />;
 }
  

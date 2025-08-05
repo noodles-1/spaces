@@ -44,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (
                     request.getRequestURI().startsWith("/permissions/public") ||
-                    request.getRequestURI().startsWith("/items/public")
+                    request.getRequestURI().startsWith("/items/public") ||
+                    request.getRequestURI().startsWith("/starred/public")
             ) {
                 filterChain.doFilter(request, response);
                 return;

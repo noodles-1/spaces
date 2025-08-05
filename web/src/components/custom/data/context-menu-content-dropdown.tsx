@@ -62,14 +62,16 @@ export function ContextMenuContentDropdown({
     const paths = pathname.split("/");
     const sourceParentId = paths.length === 4 ? paths[3] : undefined;
 
+    const firstSelectedItem = selectedItems[0];
+
     const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
         queryKey: ["item-owner-id", sourceParentId],
-        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${sourceParentId}`)
+        queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${firstSelectedItem.id}`)
     });
 
     const { data: permissionData } = useQuery<AxiosResponse<ResponseDto<{ permission: UserPermission | null }>>>({
         queryKey: ["current-user-permission"],
-        queryFn: () => axiosClient.get(`/storage/permissions/public/permission/${sourceParentId}`)
+        queryFn: () => axiosClient.get(`/storage/permissions/public/permission/${firstSelectedItem.id}`)
     });
 
     const { data: currentUserData } = useQuery<AxiosResponse<ResponseDto<{ user: UserResponse | null }>>>({
@@ -79,7 +81,7 @@ export function ContextMenuContentDropdown({
 
     const { data: starredExistsData } = useQuery<AxiosResponse<ResponseDto<{ exists: boolean }>>>({
         queryKey: ["starred-item-exists", selectedItems[0].id],
-        queryFn: () => axiosClient.get(`/storage/starred/public/check-exists/${selectedItems[0].id}`)
+        queryFn: () => axiosClient.get(`/storage/starred/public/check-exists/${firstSelectedItem.id}`)
     });
 
     const queryClient = useQueryClient();
@@ -106,9 +108,11 @@ export function ContextMenuContentDropdown({
 
     if (!(ownerUserIdData && permissionData && currentUserData && starredExistsData)) {
         return (
-            <div className="w-full flex items-center justify-center">
-                <Loader2 className="animate-spin" />
-            </div>
+            <ContextMenuContent ref={contextMenuRef} className="bg-zinc-950">
+                <div className="w-full flex items-center justify-center p-4">
+                    <Loader2 className="animate-spin" />
+                </div>
+            </ContextMenuContent>
         );
     }
 
@@ -116,17 +120,15 @@ export function ContextMenuContentDropdown({
     const permission = permissionData.data.data.permission;
     const currentUser = currentUserData.data.data.user;
     
-    const isOwner = ["home", "starred"].includes(paths[2]) || currentUser?.id === ownerUserId;
+    const isOwner = ["home"].includes(paths[2]) || currentUser?.id === ownerUserId;
     const isEditor = (currentUser?.id === permission?.userId) && permission?.type === "EDIT";
     
     const isStarred = starredExistsData.data.data.exists;
 
     const handleStarred = async () => {
         try {
-            const selectedItem = selectedItems[0];
-            
             await toggleItemStarredMutation.mutateAsync({
-                itemId: selectedItem.id
+                itemId: firstSelectedItem.id
             });
 
             if (sourceParentId) {
@@ -145,19 +147,19 @@ export function ContextMenuContentDropdown({
             });
 
             queryClient.invalidateQueries({
-                queryKey: ["starred-item-exists", selectedItem.id]
+                queryKey: ["starred-item-exists", firstSelectedItem.id]
             });
 
             if (isStarred) {
                 customToast({
                     icon: <CircleCheck className="w-4 h-4" color="white" />,
-                    message: `${selectedItem.name} has been removed from starred items.`,
+                    message: `${firstSelectedItem.name} has been removed from starred items.`,
                 });
             }
             else {
                 customToast({
                     icon: <CircleCheck className="w-4 h-4" color="white" />,
-                    message: `${selectedItem.name} has been added to starred items.`,
+                    message: `${firstSelectedItem.name} has been added to starred items.`,
                 });
             }
         }

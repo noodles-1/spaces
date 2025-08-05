@@ -68,6 +68,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
     starred,
+    shared,
     inaccessible
 }: DataTableProps<TData, TValue>) {
     const pathname = usePathname();
@@ -267,6 +268,14 @@ export function DataTable<TData, TValue>({
             );
         }
 
+        if (shared) {
+            return (
+                <section className="flex justify-center">
+                    <span className="text-sm text-zinc-400"> No shared items found. </span>
+                </section>
+            );
+        }
+
         if (inaccessible) {
             return (
                 <section className="flex justify-center">
@@ -336,7 +345,7 @@ export function DataTable<TData, TValue>({
             </section>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    {(starred || inaccessible) &&
+                    {(starred || shared || inaccessible) &&
                         <div className="select-none">
                             <Table>
                                 <TableHeader className="sticky top-0 table w-full table-fixed">
@@ -428,7 +437,7 @@ export function DataTable<TData, TValue>({
                             </Table>
                         </div>
                     }
-                    {!starred && !inaccessible &&
+                    {!(starred || shared || inaccessible) &&
                         <DndContext
                             sensors={sensors}
                             collisionDetection={pointerWithin}

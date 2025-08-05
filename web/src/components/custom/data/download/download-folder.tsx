@@ -54,15 +54,11 @@ export function DownloadFolder({
             }
         }
 
-        folderData.data.children[0].children?.map(child => dfs(child));
+        folderData.data.children[0]?.children?.map(child => dfs(child));
         setTotalFolderSize(total);
     };
 
     const downloadRecursive = async () => {
-        if (!folderData.data.children[0].children) {
-            return;
-        }
-
         const zip = new JSZip();
 
         function formattedDateTime() {
@@ -102,7 +98,11 @@ export function DownloadFolder({
         }
 
         const zipName = `${download.file.name} - ${formattedDateTime()}`;
-        await Promise.all(folderData.data.children[0].children?.map(async (child) => await dfs(child, download.file.name)));
+        
+        if (folderData.data.children[0]?.children) {
+            await Promise.all(folderData.data.children[0].children?.map(async (child) => await dfs(child, download.file.name)));
+        }
+        
         zip.generateAsync({ type: "blob" }).then(blob => downloadDirectly(blob, `${zipName}.zip`));
     };
 

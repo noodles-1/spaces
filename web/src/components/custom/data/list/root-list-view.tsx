@@ -12,9 +12,11 @@ import { Item } from "@/types/item-type";
 
 export function RootListView({
     starred,
+    shared,
     inaccessible
 }: {
     starred?: boolean
+    shared?: boolean
     inaccessible?: boolean
 }) {
     let queryKey = ["user-accessible-items"];
@@ -22,7 +24,11 @@ export function RootListView({
 
     if (starred) {
         queryKey = ["user-accessible-starred-items"];
-        endpoint = "/storage/starred/items";
+        endpoint = "/storage/items/starred";
+    }
+    else if (shared) {
+        queryKey = ["user-accessible-shared-items"];
+        endpoint = "/storage/items/shared";
     }
     else if (inaccessible) {
         queryKey = ["user-inaccessible-items"];
@@ -43,6 +49,13 @@ export function RootListView({
             <DataTable columns={columns} data={userItems.data.children} starred />
         );
     }
+
+    if (shared) {
+        return (
+            <DataTable columns={columns} data={userItems.data.children} shared />
+        );
+    }
+    
 
     if (inaccessible) {
         return (

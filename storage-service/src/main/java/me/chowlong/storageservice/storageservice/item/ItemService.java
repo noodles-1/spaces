@@ -63,6 +63,14 @@ public class ItemService {
         return this.itemRepository.findOwnerUserAncestorsByDescendantIdAndAncestorId(descendantId, itemId);
     }
 
+    public List<Item> getAllStarredItemsOfUser(String userId) {
+        return this.itemRepository.findAllStarredItemsOfUser(userId);
+    }
+
+    public List<Item> getAllSharedItemsToUser(String userId) {
+        return this.itemRepository.findAllSharedItemsToUser(userId);
+    }
+
     public Root getItemRootNameById(String itemId) {
         return this.itemRepository.findItemRootNameById(itemId);
     }

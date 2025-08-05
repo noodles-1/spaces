@@ -42,10 +42,12 @@ import { Item } from "@/types/item-type";
 export function GridView({
     userItems,
     starred,
+    shared,
     inaccessible,
 }: {
     userItems: ResponseDto<{ children: Item[] }>
     starred?: boolean
+    shared?: boolean
     inaccessible?: boolean
 }) {
     const pathname = usePathname();
@@ -226,6 +228,14 @@ export function GridView({
             );
         }
 
+        if (shared) {
+            return (
+                <section className="flex justify-center">
+                    <span className="text-sm text-zinc-400"> No shared items found. </span>
+                </section>
+            );
+        }
+
         if (inaccessible) {
             return (
                 <section className="flex justify-center">
@@ -245,7 +255,7 @@ export function GridView({
         <>
             <ContextMenu>
                 <ContextMenuTrigger>
-                    {(starred || inaccessible) &&
+                    {(starred || shared || inaccessible) &&
                         <div
                             ref={ref}
                             className="flex flex-col h-full gap-8 overflow-y-auto select-none"
@@ -314,7 +324,7 @@ export function GridView({
                             }
                         </div>
                     }
-                    {!starred && !inaccessible &&
+                    {!(starred || shared || inaccessible) &&
                         <DndContext
                             sensors={sensors}
                             collisionDetection={pointerWithin}
