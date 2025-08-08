@@ -6,6 +6,7 @@ public class ApplicationConstants {
             "/swagger-ui/**",
             "/items/public/**",
             "/permissions/public/**",
-            "/starred/public/**"
+            "/starred/public/**",
+            "/generate-download-url"
     };
 }

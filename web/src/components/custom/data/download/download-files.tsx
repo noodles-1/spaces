@@ -5,7 +5,6 @@ import { useDownloadStore } from "@/zustand/providers/download-store-provider";
 import { DownloadFile } from "@/components/custom/data/download/download-file";
 import { DownloadFolder } from "@/components/custom/data/download/download-folder";
 import { toast } from "sonner";
-import { Suspense } from "react";
 
 export function DownloadFiles() {
     const { downloads, clearFiles } = useDownloadStore(state => state);
@@ -37,9 +36,7 @@ export function DownloadFiles() {
                     download.file.type === "FILE" ? 
                         <DownloadFile key={idx} download={download} idx={idx} />
                     :
-                        <Suspense key={idx} fallback={<span> Calcuating folder size... </span>}>
-                            <DownloadFolder key={idx} download={download} idx={idx} />
-                        </Suspense>
+                        <DownloadFolder key={idx} download={download} idx={idx} />
                 )}
             </section>
         </main>

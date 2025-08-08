@@ -405,7 +405,7 @@ export function ContextMenuContentDropdown({
         try {
             const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
             const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
-            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<{ children: Item[] }>(`/storage/items/children/recursive/${folder.id}`)));
+            const foldersResponse = await Promise.all(folders.map(async (folder) => await axiosClient.get<ResponseDto<{ children: Item[] }>>(`/storage/items/public/children/recursive/${folder.id}`)));
             
             await Promise.all(files.map(async (file) => {
                 const slices = file.name.split(".");
@@ -434,8 +434,8 @@ export function ContextMenuContentDropdown({
                 });
 
                 await Promise.all(foldersResponse.map(async (folderResponse) => {
-                    if (folderResponse.data.children.length > 0) {
-                        folderResponse.data.children[0].children?.map(async (child) => await dfs(child, duplicateFolder.data.item.id));
+                    if (folderResponse.data.data.children.length > 0) {
+                        folderResponse.data.data.children[0].children?.map(async (child) => await dfs(child, duplicateFolder.data.item.id));
                     }
                 }));
             }));

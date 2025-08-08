@@ -69,8 +69,14 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched children successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/children/recursive/{parentId}")
-    public ResponseEntity<Object> getAccessibleChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
+    @GetMapping("/public/children/recursive/{parentId}")
+    public ResponseEntity<Object> getAccessibleChildrenByParentIdRecursive(
+            @NonNull HttpServletRequest request,
+            @PathVariable("parentId") String parentId
+    ) throws InsufficientPermissionException {
+        PublicEndpointSecurityHandler publicEndpointSecurityHandler = new PublicEndpointSecurityHandler(this.userPermissionService, this.itemService, this.cookieService, this.jwtService);
+        publicEndpointSecurityHandler.handlePublicEndpoint(request, parentId);
+
         List<Item> children = this.itemService.getAccessibleChildrenByParentIdRecursive(parentId);
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", children);

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { CircleX } from "lucide-react";
@@ -11,7 +11,6 @@ import { Progress } from "@/components/ui/progress";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { downloadFile } from "@/services/storage";
-import { fetcher } from "@/services/fetcher";
 
 import { useDownloadStore } from "@/zustand/providers/download-store-provider";
 import { formatFileSize } from "@/lib/custom/file-size";
@@ -22,6 +21,7 @@ import { formatDownloadSpeed } from "@/lib/custom/download-speed";
 import { ResponseDto } from "@/dto/response-dto";
 import { Download } from "@/types/download-type";
 import { Item } from "@/types/item-type";
+import axiosClient from "@/lib/axios-client";
 
 export function DownloadFolder({
     download,
@@ -30,9 +30,9 @@ export function DownloadFolder({
     download: Download
     idx: number
 }) {
-    const { data: folderData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: folderData } = useSuspenseQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive", download.file.id],
-        queryFn: () => fetcher(`/storage/items/children/recursive/${download.file.id}`)
+        queryFn: () => axiosClient(`/storage/items/public/children/recursive/${download.file.id}`)
     });
 
     const { setDownloading, setDownloaded } = useDownloadStore(state => state);
@@ -54,7 +54,7 @@ export function DownloadFolder({
             }
         }
 
-        folderData.data.children[0]?.children?.map(child => dfs(child));
+        folderData.data.data.children[0]?.children?.map(child => dfs(child));
         setTotalFolderSize(total);
     };
 
@@ -99,8 +99,8 @@ export function DownloadFolder({
 
         const zipName = `${download.file.name} - ${formattedDateTime()}`;
         
-        if (folderData.data.children[0]?.children) {
-            await Promise.all(folderData.data.children[0].children?.map(async (child) => await dfs(child, download.file.name)));
+        if (folderData.data.data.children[0]?.children) {
+            await Promise.all(folderData.data.data.children[0].children?.map(async (child) => await dfs(child, download.file.name)));
         }
         
         zip.generateAsync({ type: "blob" }).then(blob => downloadDirectly(blob, `${zipName}.zip`));
