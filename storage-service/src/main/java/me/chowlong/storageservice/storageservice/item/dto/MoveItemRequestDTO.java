@@ -12,4 +12,6 @@ public class MoveItemRequestDTO {
     private String sourceParentId;
     @Nullable
     private String destinationParentId;
+    @Nullable
+    private String ownerUserId;
 }

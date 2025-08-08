@@ -69,7 +69,7 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched children successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/public/children/recursive/{parentId}")
+    @GetMapping("/children/recursive/{parentId}")
     public ResponseEntity<Object> getAccessibleChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
         List<Item> children = this.itemService.getAccessibleChildrenByParentIdRecursive(parentId);
         Map<String, Object> responseData = new HashMap<>();
@@ -104,7 +104,7 @@ public class ItemController {
             responseData.put("ownerUserId", null);
         }
         else {
-            responseData.put("ownerUserId", this.itemService.getItemAccessibleUserRootById(itemId).getName());
+            responseData.put("ownerUserId", this.itemService.getItemUserRootById(itemId).getName());
         }
 
         return ResponseHandler.generateResponse("Fetched owner user ID successfully.", HttpStatus.OK, responseData);
@@ -304,6 +304,12 @@ public class ItemController {
             this.itemService.deleteFromMainAccessibleToTrash(userPrincipal.getUserId(), moveItemRequestDTO);
         }
         return ResponseHandler.generateResponse("Moved item to trash successfully.", HttpStatus.OK, null);
+    }
+
+    @PatchMapping("/delete/shared")
+    public ResponseEntity<Object> deleteSharedItem(@Valid @RequestBody MoveItemRequestDTO moveItemRequestDTO) {
+        this.itemService.deleteFromAccessibleToTrash(moveItemRequestDTO.getOwnerUserId(), moveItemRequestDTO);
+        return ResponseHandler.generateResponse("Moved shared item to owner's trash.", HttpStatus.OK, null);
     }
 
     @PatchMapping("/restore")

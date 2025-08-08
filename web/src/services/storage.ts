@@ -159,6 +159,7 @@ interface MoveItemParams {
     itemId: string;
     sourceParentId?: string;
     destinationParentId?: string;
+    ownerUserId?: string;
 }
 
 export async function moveItem(params: MoveItemParams): Promise<ResponseDto> {
@@ -171,6 +172,14 @@ export async function moveItem(params: MoveItemParams): Promise<ResponseDto> {
 
 export async function deleteItem(params: MoveItemParams): Promise<ResponseDto> {
     const response = await axiosClient.patch("/storage/items/delete", params, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    return response.data;
+}
+
+export async function deleteSharedItem(params: MoveItemParams): Promise<ResponseDto> {
+    const response = await axiosClient.patch("/storage/items/delete/shared", params, {
         headers: { "Content-Type": "application/json" }
     });
 

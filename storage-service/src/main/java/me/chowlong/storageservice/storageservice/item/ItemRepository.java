@@ -19,10 +19,10 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
      * @return root user item node
      */
     @Query("""
-            MATCH path = (item:Item {id: $id})<-[:CONTAINS*]-(root:Item {name: "ACCESSIBLE"})
+            MATCH path = (item:Item {id: $id})<-[:CONTAINS*]-(root:Item {isRoot: TRUE})
             RETURN nodes(path)[length(path) - 1]
     """)
-    Item findItemAccessibleUserRootById(String id);
+    Item findItemUserRootById(String id);
 
     /**
      * Finds the immediate files and/or folders from a given
@@ -69,9 +69,9 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
      * @param parentId
      */
     @Query("""
-            MATCH (root:Item {name: "INACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
-            MATCH subtree = (parent:Item {id: $parentId})-[:CONTAINS*]->()
-            DETACH DELETE subtree
+            MATCH path1 = (root:Item {id: $parentId})-[:CONTAINS*0..]->(child:Item)
+            OPTIONAL MATCH path2 = ()-[:HAS_PERMISSION|IS_STARRED]->(child)
+            DETACH DELETE path1, path2
     """)
     void deleteInaccessibleChildrenByIdRecursive(@Param("parentId") String parentId);
 

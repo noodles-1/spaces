@@ -23,8 +23,8 @@ public class ItemService {
         return this.itemRepository.findItemById(id);
     }
 
-    public Item getItemAccessibleUserRootById(String id) {
-        return this.itemRepository.findItemAccessibleUserRootById(id);
+    public Item getItemUserRootById(String id) {
+        return this.itemRepository.findItemUserRootById(id);
     }
 
     public List<Item> getAccessibleChildrenByParentId(String parentId) {

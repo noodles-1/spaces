@@ -31,7 +31,7 @@ public class PublicEndpointSecurityHandler {
         try {
             String accessToken = this.cookieService.getSessionCookie(request);
             String userId = this.jwtService.extractUserId(accessToken);
-            Item userRoot = this.itemService.getItemAccessibleUserRootById(itemId);
+            Item userRoot = this.itemService.getItemUserRootById(itemId);
 
             if (userRoot.getName().equals(userId)) {
                 return;

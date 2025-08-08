@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/context-menu";
 
 import { fetcher } from "@/services/fetcher";
-import { createItem, deleteFile, deleteItem, deleteItemPermanently, duplicateItem, restoreItem } from "@/services/storage";
+import { createItem, deleteFile, deleteItem, deleteItemPermanently, deleteSharedItem, duplicateItem, restoreItem } from "@/services/storage";
 import { toggleItemStarred } from "@/services/starred";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadToast } from "@/lib/custom/download-toast";
@@ -92,6 +92,10 @@ export function ContextMenuContentDropdown({
     
     const deleteItemMutation = useMutation({
         mutationFn: deleteItem
+    });
+
+    const deleteSharedItemMutation = useMutation({
+        mutationFn: deleteSharedItem
     });
 
     const restoreItemMutation = useMutation({
@@ -179,10 +183,19 @@ export function ContextMenuContentDropdown({
 
     const handleDelete = async () => {
         try {
-            await Promise.all(selectedItems.map(item => deleteItemMutation.mutateAsync({
-                itemId: item.id,
-                sourceParentId
-            })));
+            if (!isOwner && ownerUserId) {
+                await Promise.all(selectedItems.map(item => deleteSharedItemMutation.mutateAsync({
+                    itemId: item.id,
+                    sourceParentId,
+                    ownerUserId
+                })));
+            }
+            else {
+                await Promise.all(selectedItems.map(item => deleteItemMutation.mutateAsync({
+                    itemId: item.id,
+                    sourceParentId
+                })));
+            }
 
             if (sourceParentId) {
                 queryClient.invalidateQueries({
@@ -194,11 +207,6 @@ export function ContextMenuContentDropdown({
                     queryKey: ["user-accessible-items"]
                 });
             }
-            else if (paths[2] === "starred") {
-                queryClient.invalidateQueries({
-                    queryKey: ["user-accessible-starred-items"]
-                });
-            }
 
             queryClient.invalidateQueries({
                 queryKey: ["user-inaccessible-items"]
@@ -208,10 +216,18 @@ export function ContextMenuContentDropdown({
                 queryKey: ["user-accessible-items-recursive"]
             });
             
-            const message = selectedItems.length > 1
-                ? `Moved ${selectedItems.length} items into the trash.`
-                : `Moved ${selectedItems[0].name} into the trash.`;
+            let message: string;
 
+            if (!isOwner) {
+                message = selectedItems.length > 1
+                    ? `Removed ${selectedItems.length} items.`
+                    : `Removed ${selectedItems[0].name}.`;
+            }
+            else {
+                message = selectedItems.length > 1
+                    ? `Moved ${selectedItems.length} items into the trash.`
+                    : `Moved ${selectedItems[0].name} into the trash.`;
+            }
             customToast({
                 icon: <CircleCheck className="w-4 h-4" color="white" />,
                 message,
@@ -485,7 +501,7 @@ export function ContextMenuContentDropdown({
             },
             {
                 id: "INFO",
-                label: "Folder information",
+                label: firstSelectedItem.type === "FILE" ? "File information" : "Folder information",
                 icon: <Info />,
                 onClick: () => {},
             },
@@ -525,7 +541,7 @@ export function ContextMenuContentDropdown({
         [
             {
                 id: "TRASH",
-                label: "Move to trash",
+                label: isOwner ? "Move to trash" : "Remove",
                 icon: <Trash />,
                 onClick: handleDelete,
             },
