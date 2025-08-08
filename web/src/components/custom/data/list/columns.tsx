@@ -6,7 +6,7 @@ import { Item } from "@/types/item-type";
 import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { OwnerColumn } from "@/components/custom/data/list/owner-column";
+import { CreatorColumn } from "@/components/custom/data/list/creator-column";
 import { StarColumn } from "@/components/custom/data/list/star-column";
 
 import { formatFileSize } from "@/lib/custom/file-size";
@@ -39,11 +39,14 @@ export const columns: ColumnDef<Item>[] = [
         },
     },
     {
-        accessorKey: "owner",
-        header: "Owner",
+        accessorKey: "createdBy",
+        header: "Created by",
         cell: ({ row }) => {
+            if (!row.original.createdBy)
+                return null;
+
             return (
-                <OwnerColumn item={row.original} />
+                <CreatorColumn createdBy={row.original.createdBy} />
             );
         },
     },

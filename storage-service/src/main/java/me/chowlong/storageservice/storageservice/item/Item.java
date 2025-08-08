@@ -27,6 +27,9 @@ public class Item {
     @Nonnull
     private String name;
 
+    @Nullable
+    private String createdBy;
+
     @Nonnull
     private ItemType type;
 

@@ -22,7 +22,7 @@ public class ItemResponseDTO {
     @Nonnull
     private String name;
     @Nullable
-    private String ownerUserId;
+    private String createdBy;
     @Nonnull
     private ItemType type;
     @Nullable
@@ -31,8 +31,6 @@ public class ItemResponseDTO {
     private Long size;
     @Nonnull
     private boolean isRoot;
-    @Nullable
-    private boolean isStarred;
     @Nullable
     private List<Item> children;
     @Nullable

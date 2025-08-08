@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import {
     Dialog,
@@ -8,7 +9,8 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 
-import { MoveTreeView } from "@/components/custom/data/move/move-tree-view";
+import { HomeMoveTreeView } from "@/components/custom/data/move/home-move-tree-view";
+import { RootMoveTreeView } from "@/components/custom/data/move/root-move-tree-view";
 
 import { Item } from "@/types/item-type";
 
@@ -23,6 +25,10 @@ export function Move({
     setOpen: Dispatch<SetStateAction<boolean>>
     setSelectedIdx: Dispatch<SetStateAction<Set<number>>>
 }) {
+    const pathname = usePathname();
+    const paths = pathname.split("/");
+    const sourceParentId = paths.length === 4 ? paths[3] : undefined;
+
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
     return (
@@ -37,13 +43,24 @@ export function Move({
                     }
                 </DialogHeader>
                 <main className="flex flex-col gap-2">
-                    <MoveTreeView 
-                        selectedFolderId={selectedFolderId} 
-                        selectedItems={selectedItems}
-                        setSelectedFolderId={setSelectedFolderId} 
-                        setSelectedItemsIdx={setSelectedIdx}
-                        setOpen={setOpen}
-                    />
+                    {sourceParentId ?
+                        <RootMoveTreeView
+                            selectedFolderId={selectedFolderId}
+                            selectedItems={selectedItems}
+                            sourceParentId={sourceParentId}
+                            setSelectedFolderId={setSelectedFolderId}
+                            setSelectedItemsIdx={setSelectedIdx}
+                            setOpen={setOpen}
+                        />
+                    :
+                        <HomeMoveTreeView 
+                            selectedFolderId={selectedFolderId} 
+                            selectedItems={selectedItems}
+                            setSelectedFolderId={setSelectedFolderId} 
+                            setSelectedItemsIdx={setSelectedIdx}
+                            setOpen={setOpen}
+                        />
+                    }
                 </main>
             </DialogContent>
         </Dialog>

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import me.chowlong.storageservice.storageservice.jwt.JwtService;
 import me.chowlong.storageservice.storageservice.jwt.cookie.CookieService;
+import me.chowlong.storageservice.storageservice.principal.UserPrincipal;
 import me.chowlong.storageservice.storageservice.userPermission.dto.NewUserPermissionRequestDTO;
 import me.chowlong.storageservice.storageservice.userPermission.dto.UpdateUserPermissionRequestDTO;
 import me.chowlong.storageservice.storageservice.util.ResponseHandler;
@@ -11,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -37,12 +39,20 @@ public class UserPermissionController {
         this.modelMapper = modelMapper;
     }
 
+    @GetMapping()
+    public ResponseEntity<Object> getUserPermissions(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<UserPermission> userPermissions = this.userPermissionService.getUserPermissionsByUserId(userPrincipal.getUserId());
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("permissions", userPermissions);
+        return ResponseHandler.generateResponse("Fetched user permissions.", HttpStatus.OK, responseData);
+    }
+
     @GetMapping("/ancestors/{descendantId}")
     public ResponseEntity<Object> getUserPermissionsFromAncestorsByDescendantId(@PathVariable("descendantId") String descendantId) {
         List<UserPermission> userPermissions = this.userPermissionService.getUserPermissionsFromAncestorsByDescendantId(descendantId);
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("permissions", userPermissions);
-        return ResponseHandler.generateResponse("Fetched user permissions successfully.", HttpStatus.OK, responseData);
+        return ResponseHandler.generateResponse("Fetched user permission ancestors successfully.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/public/permission/{descendantId}")

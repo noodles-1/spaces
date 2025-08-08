@@ -6,7 +6,7 @@ import { Item } from "@/types/item-type";
 import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { OwnerColumn } from "@/components/custom/data/list/owner-column";
+import { CreatorColumn } from "@/components/custom/data/list/creator-column";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { formatFileSize } from "@/lib/custom/file-size";
@@ -52,8 +52,11 @@ export const inaccessibleColumns: ColumnDef<Item>[] = [
         accessorKey: "owner",
         header: "Owner",
         cell: ({ row }) => {
+            if (!row.original.createdBy)
+                return null;
+
             return (
-                <OwnerColumn item={row.original} />
+                <CreatorColumn createdBy={row.original.createdBy} />
             );
         },
     },

@@ -65,12 +65,12 @@ export function ContextMenuContentDropdown({
     const firstSelectedItem = selectedItems[0];
 
     const { data: ownerUserIdData } = useQuery<AxiosResponse<ResponseDto<{ ownerUserId: string | null }>>>({
-        queryKey: ["item-owner-id", sourceParentId],
+        queryKey: ["item-owner-id", firstSelectedItem.id],
         queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${firstSelectedItem.id}`)
     });
 
     const { data: permissionData } = useQuery<AxiosResponse<ResponseDto<{ permission: UserPermission | null }>>>({
-        queryKey: ["current-user-permission"],
+        queryKey: ["current-user-permission", firstSelectedItem.id],
         queryFn: () => axiosClient.get(`/storage/permissions/public/permission/${firstSelectedItem.id}`)
     });
 
@@ -80,7 +80,7 @@ export function ContextMenuContentDropdown({
     });
 
     const { data: starredExistsData } = useQuery<AxiosResponse<ResponseDto<{ exists: boolean }>>>({
-        queryKey: ["starred-item-exists", selectedItems[0].id],
+        queryKey: ["starred-item-exists", firstSelectedItem.id],
         queryFn: () => axiosClient.get(`/storage/starred/public/check-exists/${firstSelectedItem.id}`)
     });
 
@@ -120,8 +120,8 @@ export function ContextMenuContentDropdown({
     const permission = permissionData.data.data.permission;
     const currentUser = currentUserData.data.data.user;
     
-    const isOwner = ["home"].includes(paths[2]) || currentUser?.id === ownerUserId;
-    const isEditor = (currentUser?.id === permission?.userId) && permission?.type === "EDIT";
+    const isOwner = !["starred", "shared"].includes(paths[2]) && (paths[2] === "home" || currentUser?.id === ownerUserId);
+    const isEditor = !["starred", "shared"].includes(paths[2]) && ((currentUser?.id === permission?.userId) && permission?.type === "EDIT");
     
     const isStarred = starredExistsData.data.data.exists;
 
@@ -538,62 +538,71 @@ export function ContextMenuContentDropdown({
         ],
     ];
 
+    const filteredItemGroups: DropdownItem[][] = [];
+    itemGroups.map(itemGroup => {
+        const newItemGroup = itemGroup.filter(item => {
+            if (!selectedItems) {
+                return false;
+            }
+
+            if (paths[2] === "trash" && !["RESTORE", "INFO", "DELETE"].includes(item.id)) {
+                return false;
+            }
+
+            if (paths[2] !== "trash" && ["RESTORE", "DELETE"].includes(item.id)) {
+                return false;
+            }
+
+            if (["ADD_STARRED", "REMOVE_STARRED", "SHARE"].includes(item.id) && selectedItems.length !== 1) {
+                return false;
+            }
+
+            if (item.id === "ADD_STARRED" && selectedItems.length === 1 && isStarred) {
+                return false;
+            }
+
+            if (item.id === "REMOVE_STARRED" && selectedItems.length === 1 && !isStarred) {
+                return false;
+            }
+
+            if (["RENAME", "INFO"].includes(item.id) && selectedItems.length > 1) {
+                return false;
+            }
+
+            if (!isOwner && !isEditor && ["RENAME", "DUPLICATE", "SHARE", "MOVE", "TRASH"].includes(item.id)) {
+                return false;
+            }
+
+            if (!currentUser && ["ADD_STARRED", "REMOVE_STARRED"].includes(item.id)) {
+                return false;
+            }
+
+            return true;
+        });
+
+        if (newItemGroup.length > 0) {
+            filteredItemGroups.push(newItemGroup);
+        }
+    });
+
     return (
         <ContextMenuContent ref={contextMenuRef} className="bg-zinc-950">
             <div>
-                {itemGroups.map((group, i) => (
+                {filteredItemGroups.map((group, i) => (
                     <section key={i}>
                         <ContextMenuGroup className="space-y-2 p-1">
-                            {group.map((item, j) => {
-                                if (!selectedItems) {
-                                    return;
-                                }
-
-                                if (paths[2] === "trash" && !["RESTORE", "INFO", "DELETE"].includes(item.id)) {
-                                    return;
-                                }
-
-                                if (paths[2] !== "trash" && ["RESTORE", "DELETE"].includes(item.id)) {
-                                    return;
-                                }
-
-                                if (["ADD_STARRED", "REMOVE_STARRED", "SHARE"].includes(item.id) && selectedItems.length !== 1) {
-                                    return;
-                                }
-
-                                if (item.id === "ADD_STARRED" && selectedItems.length === 1 && isStarred) {
-                                    return;
-                                }
-
-                                if (item.id === "REMOVE_STARRED" && selectedItems.length === 1 && !isStarred) {
-                                    return;
-                                }
-
-                                if (item.id === "RENAME" && selectedItems.length > 1) {
-                                    return;
-                                }
-
-                                if (!isOwner && !isEditor && ["RENAME", "DUPLICATE", "SHARE", "MOVE", "TRASH"].includes(item.id)) {
-                                    return;
-                                }
-
-                                if (!currentUser && ["ADD_STARRED", "REMOVE_STARRED"].includes(item.id)) {
-                                    return;
-                                }
-
-                                return (
-                                    <ContextMenuItem
-                                        key={j}
-                                        className={`flex gap-3 pr-12 hover:cursor-pointer ${item.id === "DELETE" && "text-red-300"}`}
-                                        onClick={() => item.onClick()}
-                                    >
-                                        {item.icon}
-                                        {item.label}
-                                    </ContextMenuItem>
-                                )
-                            })}
+                            {group.map((item, j) => 
+                                <ContextMenuItem
+                                    key={j}
+                                    className={`flex gap-3 pr-12 hover:cursor-pointer ${item.id === "DELETE" && "text-red-300"}`}
+                                    onClick={() => item.onClick()}
+                                >
+                                    {item.icon}
+                                    {item.label}
+                                </ContextMenuItem>
+                            )}
                         </ContextMenuGroup>
-                        {i < itemGroups.length - 1 && paths[2] !== "trash" && <ContextMenuSeparator />}
+                        {i < filteredItemGroups.length - 1 && <ContextMenuSeparator />}
                     </section>
                 ))}
             </div>

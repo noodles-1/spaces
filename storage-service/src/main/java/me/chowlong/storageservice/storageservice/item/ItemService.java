@@ -43,8 +43,8 @@ public class ItemService {
         return this.itemRepository.findAccessibleRootChildrenRecursive(userId);
     }
 
-    public List<Item> getAccessibleStarredItems(String userId) {
-        return this.itemRepository.findAccessibleStarredItems(userId);
+    public List<Item> getAccessibleChildrenRecursive(String folderId) {
+        return this.itemRepository.findAccessibleChildrenRecursive(folderId);
     }
 
     public List<Item> getInaccessibleChildrenByParentIdRecursive(String parentId) {
@@ -69,6 +69,10 @@ public class ItemService {
 
     public List<Item> getAllSharedItemsToUser(String userId) {
         return this.itemRepository.findAllSharedItemsToUser(userId);
+    }
+
+    public List<Item> getAllSharedItemsToUserRecursive(String userId) {
+        return this.itemRepository.findAllSharedItemsToUserRecursive(userId);
     }
 
     public Root getItemRootNameById(String itemId) {
@@ -104,6 +108,7 @@ public class ItemService {
         Item newItem = new Item();
         newItem.setId(newItemDTO.getId() != null ? newItemDTO.getId() : UUID.randomUUID().toString());
         newItem.setName(newItemDTO.getName());
+        newItem.setCreatedBy(userId);
         newItem.setType(newItemDTO.getType());
         newItem.setContentType(newItemDTO.getContentType());
         newItem.setSize(newItemDTO.getSize());

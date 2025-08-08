@@ -69,16 +69,11 @@ public class ItemController {
         return ResponseHandler.generateResponse("Fetched children successfully.", HttpStatus.OK, responseData);
     }
 
-    @GetMapping("/children/recursive/{parentId}")
+    @GetMapping("/public/children/recursive/{parentId}")
     public ResponseEntity<Object> getAccessibleChildrenByParentIdRecursive(@PathVariable("parentId") String parentId) {
         List<Item> children = this.itemService.getAccessibleChildrenByParentIdRecursive(parentId);
-        List<ItemResponseDTO> childrenResponse = children
-                .stream()
-                .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
-                .toList();
-
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("children", childrenResponse);
+        responseData.put("children", children);
         return ResponseHandler.generateResponse("Fetched accessible children recursive successfully.", HttpStatus.OK, responseData);
     }
 
@@ -139,6 +134,19 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", childrenResponse);
         return ResponseHandler.generateResponse("Fetched accessible root children recursive successfully.", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/accessible/children/recursive/{folderId}")
+    public ResponseEntity<Object> getAccessibleChildrenRecursive(@PathVariable("folderId") String folderId) {
+        List<Item> children = this.itemService.getAccessibleChildrenRecursive(folderId);
+        List<ItemResponseDTO> childrenResponse = children
+                .stream()
+                .map(child -> this.modelMapper.map(child, ItemResponseDTO.class))
+                .toList();
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", childrenResponse);
+        return ResponseHandler.generateResponse("Fetched accessible children recursive.", HttpStatus.OK, responseData);
     }
 
     @GetMapping("/inaccessible/children")
@@ -230,6 +238,14 @@ public class ItemController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("children", children);
         return ResponseHandler.generateResponse("Fetched current user's shared items", HttpStatus.OK, responseData);
+    }
+
+    @GetMapping("/shared/recursive")
+    public ResponseEntity<Object> getAllSharedItemsToUserRecursive(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Item> children = this.itemService.getAllSharedItemsToUserRecursive(userPrincipal.getUserId());
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("children", children);
+        return ResponseHandler.generateResponse("Fetched current user's shared items recursively.", HttpStatus.OK, responseData);
     }
 
     @PostMapping("/create-main-dirs")

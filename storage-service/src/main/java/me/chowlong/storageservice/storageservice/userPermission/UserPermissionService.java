@@ -20,6 +20,10 @@ public class UserPermissionService {
         this.itemRepository = itemRepository;
     }
 
+    public List<UserPermission> getUserPermissionsByUserId(String userId) {
+        return this.userPermissionRepository.findUserPermissionsByUserId(userId);
+    }
+
     public List<UserPermission> getUserPermissionsFromAncestorsByDescendantId(String descendantId) {
         return this.userPermissionRepository.findUserPermissionsFromAncestorsByDescendantId(descendantId);
     }

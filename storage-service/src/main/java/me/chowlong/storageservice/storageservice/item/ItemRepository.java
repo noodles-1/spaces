@@ -102,6 +102,19 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
     List<Item> findAccessibleRootChildrenRecursive(@Param("userId") String userId);
 
     /**
+     * Finds the immediate files and/or folders and their subfolders from
+     * an accessible directory.
+     * @param folderId
+     * @return tree of items
+     */
+    @Query("""
+            MATCH (root:Item {name: "ACCESSIBLE"})-[:CONTAINS*]->(parent:Item)
+            MATCH subtree = (parent:Item {id: $folderId})-[:CONTAINS*]->(children:Item)
+            RETURN subtree
+    """)
+    List<Item> findAccessibleChildrenRecursive(@Param("folderId") String folderId);
+
+    /**
      * Finds all accessible starred files and/or folders recursively.
      * @param userId
      * @return list of items
@@ -254,4 +267,18 @@ public interface ItemRepository extends Neo4jRepository<Item, String> {
             RETURN item
     """)
     List<Item> findAllSharedItemsToUser(String userId);
+
+    /**
+     * Finds all shared items to a user including its subfolders and files.
+     * @param userId
+     * @return list of items
+     */
+    @Query("""
+            MATCH (permissions:`User Permission` {userId: $userId})
+            UNWIND permissions AS permission
+            MATCH (permission)-[:HAS_PERMISSION]->(item:Item)
+            MATCH subtree = (item)-[:CONTAINS*]->(child:Item)
+            RETURN subtree
+    """)
+    List<Item> findAllSharedItemsToUserRecursive(String userId);
 }

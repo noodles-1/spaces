@@ -1,21 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { Skeleton } from "@/components/ui/skeleton"
-;
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { fetcher } from "@/services/fetcher";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 import { UserRound } from "lucide-react";
 
-export function OwnerColumnAvatar({
-    ownerUserId,
+export function CreatorColumn({
+    createdBy,
 }: {
-    ownerUserId: string
+    createdBy: string
 }) {
     const { data: userData } = useQuery<ResponseDto<User>>({
-        queryKey: ["user-info", ownerUserId],
-        queryFn: () => fetcher(`/user/users/info/${ownerUserId}`)
+        queryKey: ["user-info", createdBy],
+        queryFn: () => fetcher(`/user/users/info/${createdBy}`)
     });
 
     if (!userData) {

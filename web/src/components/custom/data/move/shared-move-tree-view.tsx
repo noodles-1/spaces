@@ -1,7 +1,6 @@
 "use client"
 
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -22,29 +21,30 @@ import { customToast } from "@/lib/custom/custom-toast";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
+import { UserPermission } from "@/types/user-permission-type";
 
-export function MoveTreeView({
+export function SharedMoveTreeView({
     selectedFolderId,
     selectedItems,
+    sourceParentId,
+    permission,
     setSelectedFolderId,
     setSelectedItemsIdx,
     setOpen
 }: {
     selectedFolderId: string | null
     selectedItems: Item[]
+    sourceParentId: string
+    permission: UserPermission
     setSelectedFolderId: Dispatch<SetStateAction<string | null>>
     setSelectedItemsIdx: Dispatch<SetStateAction<Set<number>>>
     setOpen: Dispatch<SetStateAction<boolean>>
 }) {
-    const pathname = usePathname();
-    const paths = pathname.split("/");
-    const sourceParentId = paths.length === 4 ? paths[3] : undefined;
-
     const selectedItemsIdSet = new Set(selectedItems.map(item => item.id));
 
     const { data: rootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
-        queryKey: ["user-accessible-items-recursive"],
-        queryFn: () => fetcher("/storage/items/accessible/children/recursive")
+        queryKey: ["user-accessible-items-recursive", permission.item.id],
+        queryFn: () => fetcher(`/storage/items/accessible/children/recursive/${permission.item.id}`)
     });
 
     const [rootItems, setRootItems] = useState<TreeViewBaseItem[]>([]);
@@ -63,40 +63,23 @@ export function MoveTreeView({
             try {
                 setLoading(true);
 
-                const destinationParentId = selectedFolderId === "HOME" ? undefined : selectedFolderId;
-
                 await Promise.all(selectedItemsRef.current.map(async (file) => await moveItemMutation.mutateAsync({
                     itemId: file.id,
                     sourceParentId,
-                    destinationParentId
+                    destinationParentId: selectedFolderId
                 })));
 
                 queryClient.invalidateQueries({
                     queryKey: ["user-accessible-items-recursive"]
                 });
 
-                if (sourceParentId) {
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-items", sourceParentId]
-                    });
-                }
-                else {
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-items"]
-                    });
-                }
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", sourceParentId]
+                });
 
-                if (destinationParentId) {
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-items", destinationParentId]
-                    });
-                }
-                else {
-                    queryClient.invalidateQueries({
-                        queryKey: ["user-accessible-items"]
-                    });
-                }
-
+                queryClient.invalidateQueries({
+                    queryKey: ["user-accessible-items", selectedFolderId]
+                });
                 
                 const message = selectedItemsRef.current.length > 1
                     ? `Moved ${selectedItemsRef.current.length} items.`
@@ -149,13 +132,9 @@ export function MoveTreeView({
             const rootChildren = rootData.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
             const temp: TreeViewBaseItem[] = [
                 {
-                    id: "HOME",
-                    label: "Home",
+                    id: rootData.data.children[0]?.id,
+                    label: rootData.data.children[0]?.name,
                     children: rootChildren
-                },
-                {
-                    id: "SHARED",
-                    label: "Shared folders",
                 },
             ];
             setRootItems(temp);

@@ -194,6 +194,20 @@ export function DataTable<TData, TValue>({
             setLastSelectedRowIdx(idx);
             setSelectedRowsIdx(() => new Set<number>().add(idx));
         }
+        
+        if (table && table.getSortedRowModel() && table.getSortedRowModel().rows.length > 0) {
+            const item = table.getSortedRowModel().rows[idx].original as Item;
+
+            queryClient.invalidateQueries({
+                queryKey: ["item-owner-id", item.id]
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["current-user-permission", item.id]
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["starred-item-exists", item.id]
+            });
+        }
     };
 
     const handleDragStart = (event: DragStartEvent) => {

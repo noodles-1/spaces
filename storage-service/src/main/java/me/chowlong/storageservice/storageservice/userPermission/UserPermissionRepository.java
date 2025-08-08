@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface UserPermissionRepository extends Neo4jRepository<UserPermission, String> {
     UserPermission findUserPermissionById(String id);
+    List<UserPermission> findUserPermissionsByUserId(String userId);
 
     /**
      * Finds the user permissions from the ancestors of a given item.
