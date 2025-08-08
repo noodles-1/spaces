@@ -83,7 +83,9 @@ export function FolderPage({
                 <DataViews />
             </section>
             <main className="relative flex flex-col flex-1">
-                <Dropzone />
+                {(user?.id === ownerUserId || permission?.type === "EDIT") && 
+                    <Dropzone />
+                }
                 <section className="flex flex-col flex-1 p-6">
                     <Suspense fallback={<GridViewSkeleton />}>
                         {view === "grid" && <FoldersGridView parentId={folderId} />}
