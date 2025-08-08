@@ -5,6 +5,7 @@ import { Item } from "@/types/item-type";
 
 import { Button } from "@/components/ui/button";
 import { FileIcon } from "@/components/custom/data/file-icon";
+import { ImagePreview } from "@/components/custom/data/grid/image-preview";
 
 export function DraggableNonFolderFile({
     idx,
@@ -42,8 +43,12 @@ export function DraggableNonFolderFile({
                         {file.name}
                     </div>
                 </div>
-                <div className="flex-1 w-full">
-                    <div className="w-full h-full rounded bg-zinc-700" />
+                <div className="flex-1 w-full overflow-hidden">
+                    {file.contentType?.startsWith("image/") ?
+                        <ImagePreview file={file} />
+                    :
+                        <div className="w-full h-full rounded bg-zinc-700" />
+                    }
                 </div>
             </Button>
         </div>
