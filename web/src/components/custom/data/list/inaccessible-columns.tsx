@@ -6,7 +6,7 @@ import { Item } from "@/types/item-type";
 import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { CreatorColumn } from "@/components/custom/data/list/creator-column";
+import { Creator } from "@/components/custom/data/avatar/creator";
 import { FileIcon } from "@/components/custom/data/file-icon";
 
 import { formatFileSize } from "@/lib/custom/file-size";
@@ -56,7 +56,7 @@ export const inaccessibleColumns: ColumnDef<Item>[] = [
                 return null;
 
             return (
-                <CreatorColumn createdBy={row.original.createdBy} />
+                <Creator createdBy={row.original.createdBy} />
             );
         },
     },

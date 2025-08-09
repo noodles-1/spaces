@@ -47,6 +47,7 @@ export function ContextMenuContentDropdown({
     setOpenMoveDialog,
     setOpenRenameDialog,
     setOpenShareDialog,
+    setOpenInfoSheet,
     setSelectedIdx,
 }: {
     contextMenuRef: React.RefObject<HTMLDivElement | null>
@@ -54,6 +55,7 @@ export function ContextMenuContentDropdown({
     setOpenMoveDialog: Dispatch<SetStateAction<boolean>>
     setOpenRenameDialog: Dispatch<SetStateAction<boolean>>
     setOpenShareDialog: Dispatch<SetStateAction<boolean>>
+    setOpenInfoSheet: Dispatch<SetStateAction<boolean>>
     setSelectedIdx: Dispatch<SetStateAction<Set<number>>>
 }) {
     const { downloads, addFile } = useDownloadStore(state => state);
@@ -503,7 +505,7 @@ export function ContextMenuContentDropdown({
                 id: "INFO",
                 label: firstSelectedItem.type === "FILE" ? "File information" : "Folder information",
                 icon: <Info />,
-                onClick: () => {},
+                onClick: () => {requestAnimationFrame(() => setOpenInfoSheet(true))},
             },
         ],
         [

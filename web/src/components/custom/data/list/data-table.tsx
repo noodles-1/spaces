@@ -56,6 +56,7 @@ import { Input } from "@/components/ui/input";
 import { Move } from "@/components/custom/data/move/move";
 import { Rename } from "@/components/custom/data/rename/rename";
 import { Share } from "@/components/custom/data/share/share";
+import { Info } from "@/components/custom/data/info/info";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -88,6 +89,7 @@ export function DataTable<TData, TValue>({
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
     const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
     const [openShareDialog, setOpenShareDialog] = useState<boolean>(false);
+    const [openInfoSheet, setOpenInfoSheet] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -592,6 +594,7 @@ export function DataTable<TData, TValue>({
                         setOpenMoveDialog={setOpenMoveDialog}
                         setOpenRenameDialog={setOpenRenameDialog}
                         setOpenShareDialog={setOpenShareDialog}
+                        setOpenInfoSheet={setOpenInfoSheet}
                         setSelectedIdx={setSelectedRowsIdx}
                     />
                 }
@@ -611,6 +614,11 @@ export function DataTable<TData, TValue>({
                 open={openShareDialog}
                 selectedItems={selectedRows}
                 setOpen={setOpenShareDialog}
+            />
+            <Info
+                open={openInfoSheet}
+                selectedItems={selectedRows}
+                setOpen={setOpenInfoSheet}
             />
         </div>
     );

@@ -32,6 +32,7 @@ import { FileIcon } from "@/components/custom/data/file-icon";
 import { Move } from "@/components/custom/data/move/move";
 import { Rename } from "@/components/custom/data/rename/rename";
 import { Share } from "@/components/custom/data/share/share";
+import { Info } from "@/components/custom/data/info/info";
 
 import { moveItem } from "@/services/storage";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -68,6 +69,7 @@ export function GridView({
     const [openMoveDialog, setOpenMoveDialog] = useState<boolean>(false);
     const [openRenameDialog, setOpenRenameDialog] = useState<boolean>(false);
     const [openShareDialog, setOpenShareDialog] = useState<boolean>(false);
+    const [openInfoSheet, setOpenInfoSheet] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -432,6 +434,7 @@ export function GridView({
                         setOpenMoveDialog={setOpenMoveDialog}
                         setOpenRenameDialog={setOpenRenameDialog}
                         setOpenShareDialog={setOpenShareDialog}
+                        setOpenInfoSheet={setOpenInfoSheet}
                         setSelectedIdx={setSelectedItemsIdx}
                     />
                 }
@@ -451,6 +454,11 @@ export function GridView({
                 open={openShareDialog}
                 selectedItems={selectedFiles}
                 setOpen={setOpenShareDialog}
+            />
+            <Info
+                open={openInfoSheet}
+                selectedItems={selectedFiles}
+                setOpen={setOpenInfoSheet}
             />
         </>
     );

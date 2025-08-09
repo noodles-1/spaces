@@ -8,10 +8,12 @@ import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 import { UserRound } from "lucide-react";
 
-export function CreatorColumn({
+export function Creator({
     createdBy,
+    nameOnly,
 }: {
     createdBy: string
+    nameOnly?: boolean
 }) {
     const { data: userData } = useQuery<ResponseDto<User>>({
         queryKey: ["user-info", createdBy],
@@ -34,16 +36,21 @@ export function CreatorColumn({
     const user = userData.data.user;
 
     return (
-        <div className="flex items-center w-full gap-4">
-            <div className="rounded-full outline">
-                {user.profilePictureUrl ?
-                    <img src={user.profilePictureUrl} className="object-cover w-8 h-8 rounded-full" />
-                : 
-                    <UserRound className="w-5 h-5" />
+        <div className="flex items-center gap-4">
+            {!nameOnly &&
+                <div className="rounded-full outline">
+                    {user.profilePictureUrl ?
+                        <img src={user.profilePictureUrl} className="object-cover w-8 h-8 rounded-full" />
+                    : 
+                        <UserRound className="w-5 h-5" />
+                    }
+                </div>
+            }
+            <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap flex gap-1">
+                <span> {user.customUsername} </span>
+                {nameOnly &&
+                    <span className="text-zinc-300"> ({user.providerUsername}) </span>
                 }
-            </div>
-            <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {user.customUsername} 
             </div>
         </div>
     );
