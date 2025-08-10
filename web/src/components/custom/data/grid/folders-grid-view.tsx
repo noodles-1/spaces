@@ -22,7 +22,9 @@ export function FoldersGridView({
         return <GridViewSkeleton />;
     }
 
+    const sortedItems = userItems.data.children.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     return (
-        <GridView userItems={userItems} />
+        <GridView items={sortedItems} />
     );
 }

@@ -60,10 +60,12 @@ export function OwnerMoveTreeView({
             try {
                 setLoading(true);
 
+                const destinationParentId = selectedFolderId === "HOME" ? undefined : selectedFolderId;
+
                 await Promise.all(selectedItemsRef.current.map(async (file) => await moveItemMutation.mutateAsync({
                     itemId: file.id,
                     sourceParentId,
-                    destinationParentId: selectedFolderId
+                    destinationParentId
                 })));
 
                 queryClient.invalidateQueries({

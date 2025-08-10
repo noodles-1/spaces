@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { Progress } from "@/components/ui/progress";
 
@@ -9,7 +9,7 @@ import { Item } from "@/types/item-type";
 import { formatFileSize } from "@/lib/custom/file-size";
 
 export function StorageCapacity() {
-    const { data: rootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useQuery<ResponseDto<{ children: Item[] }>>({
         queryKey: ["user-accessible-items-recursive"],
         queryFn: () => fetcher("/storage/items/accessible/children/recursive")
     });
@@ -19,6 +19,9 @@ export function StorageCapacity() {
 
     useEffect(() => {
         const mapRootItems = () => {
+            if (!rootData)
+                return;
+
             let totalSize = 0;
 
             function dfs(item: Item) {
@@ -31,7 +34,11 @@ export function StorageCapacity() {
         };
         
         mapRootItems();
-    }, [rootData.data.children]);
+    }, [rootData?.data.children]);
+
+    if (!rootData) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col items-start w-full gap-1">

@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/context-menu";
 
 import { fetcher } from "@/services/fetcher";
-import { createItem, deleteFile, deleteItem, deleteItemPermanently, deleteSharedItem, duplicateItem, restoreItem } from "@/services/storage";
+import { createItem, deleteFile, deleteItem, deleteItemPermanently, deleteSharedItem, deleteThumbnail, duplicateItem, duplicateThumbnail, restoreItem } from "@/services/storage";
 import { toggleItemStarred } from "@/services/starred";
 import { customToast } from "@/lib/custom/custom-toast";
 import { downloadToast } from "@/lib/custom/download-toast";
@@ -324,6 +324,10 @@ export function ContextMenuContentDropdown({
         function dfs(item: Item) {
             if (item.type === "FILE") {
                 deleteFile({ file: item });
+
+                if (item.contentType?.startsWith("video/")) {
+                    deleteThumbnail({ file: item });
+                }
             }
             else {
                 if (item.children) {
@@ -390,6 +394,13 @@ export function ContextMenuContentDropdown({
                     sourceKey: item.id,
                     destinationKey: duplicateFile.data.item.id,
                 });
+
+                if (item.contentType?.startsWith("video/")) {
+                    await duplicateThumbnail({
+                        sourceKey: item.id,
+                        destinationKey: duplicateFile.data.item.id,
+                    });
+                }
             }
             else {
                 const duplicateFolder = await createItemMutation.mutateAsync({
@@ -426,6 +437,13 @@ export function ContextMenuContentDropdown({
                     sourceKey: file.id,
                     destinationKey: duplicateFile.data.item.id,
                 });
+
+                if (file.contentType?.startsWith("video/")) {
+                    await duplicateThumbnail({
+                        sourceKey: file.id,
+                        destinationKey: duplicateFile.data.item.id,
+                    });
+                }
             }));
 
             await Promise.all(folders.map(async (folder) => {

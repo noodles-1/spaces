@@ -7,6 +7,6 @@ public class ApplicationConstants {
             "/items/public/**",
             "/permissions/public/**",
             "/starred/public/**",
-            "/generate-download-url"
+            "/public/**"
     };
 }

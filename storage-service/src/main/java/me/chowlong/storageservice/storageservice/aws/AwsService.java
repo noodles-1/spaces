@@ -1,6 +1,7 @@
 package me.chowlong.storageservice.storageservice.aws;
 
 import me.chowlong.storageservice.storageservice.storage.dto.GenerateDownloadRequestDTO;
+import me.chowlong.storageservice.storageservice.storage.dto.GenerateUploadThumbnailRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -49,11 +50,47 @@ public class AwsService {
         return presignedRequest.url().toExternalForm();
     }
 
+    public String generateThumbnailUploadUrl(GenerateUploadThumbnailRequestDTO generateUploadThumbnailRequestDTO) {
+        PutObjectRequest objectRequest = PutObjectRequest
+                .builder()
+                .bucket(this.bucketName)
+                .key(generateUploadThumbnailRequestDTO.getFileId() + "_thumbnail")
+                .contentType(generateUploadThumbnailRequestDTO.getContentType())
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest
+                .builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .putObjectRequest(objectRequest)
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = this.s3Presigner.presignPutObject(presignRequest);
+        return presignedRequest.url().toExternalForm();
+    }
+
     public String generateDownloadUrl(GenerateDownloadRequestDTO generateDownloadRequestDTO) {
         GetObjectRequest objectRequest = GetObjectRequest
                 .builder()
                 .bucket(this.bucketName)
                 .key(generateDownloadRequestDTO.getFileId())
+                .responseContentDisposition("attachment; filename=\"" + generateDownloadRequestDTO.getFilename() + "\"")
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest
+                .builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .getObjectRequest(objectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = this.s3Presigner.presignGetObject(presignRequest);
+        return presignedRequest.url().toExternalForm();
+    }
+
+    public String generateThumbnailDownloadUrl(GenerateDownloadRequestDTO generateDownloadRequestDTO) {
+        GetObjectRequest objectRequest = GetObjectRequest
+                .builder()
+                .bucket(this.bucketName)
+                .key(generateDownloadRequestDTO.getFileId() + "_thumbnail")
                 .responseContentDisposition("attachment; filename=\"" + generateDownloadRequestDTO.getFilename() + "\"")
                 .build();
 
@@ -84,6 +121,23 @@ public class AwsService {
         return presignedRequest.url().toExternalForm();
     }
 
+    public String generateThumbnailDeleteUrl(String keyName) {
+        DeleteObjectRequest objectRequest = DeleteObjectRequest
+                .builder()
+                .bucket(this.bucketName)
+                .key(keyName + "_thumbnail")
+                .build();
+
+        DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest
+                .builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .deleteObjectRequest(objectRequest)
+                .build();
+
+        PresignedDeleteObjectRequest presignedRequest = this.s3Presigner.presignDeleteObject(presignRequest);
+        return presignedRequest.url().toExternalForm();
+    }
+
     public void duplicateObject(String sourceKey, String destinationKey) {
         CopyObjectRequest objectRequest = CopyObjectRequest
                 .builder()
@@ -94,5 +148,17 @@ public class AwsService {
                 .build();
 
         this.s3Client.copyObject(objectRequest);
+    }
+
+    public void duplicateThumbnail(String sourceKey, String destinationKey) {
+        CopyObjectRequest thumbnailRequest = CopyObjectRequest
+                .builder()
+                .sourceBucket(this.bucketName)
+                .destinationBucket(this.bucketName)
+                .sourceKey(sourceKey + "_thumbnail")
+                .destinationKey(destinationKey + "_thumbnail")
+                .build();
+
+        this.s3Client.copyObject(thumbnailRequest);
     }
 }

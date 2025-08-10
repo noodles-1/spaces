@@ -12,7 +12,6 @@ import { Dropzone } from "@/components/custom/data/upload/dropzone";
 
 import axiosClient from "@/lib/axios-client";
 import { ResponseDto } from "@/dto/response-dto";
-import { useEffect } from "react";
 
 const Home = () => {
     const { view } = useDataViewStore(state => state);
@@ -22,12 +21,16 @@ const Home = () => {
         queryKey: ["current-user-authenticated"],
         queryFn: () => axiosClient.get("/user/users/me/authenticated")
     });
+
+    if (!authenticatedData) {
+        return null;
+    }
     
-    useEffect(() => {
-        if (authenticatedData && !authenticatedData.data.data.authenticated) {
-            router.push("/login");
-        }
-    }, [authenticatedData]);
+    const authenticated = authenticatedData.data.data.authenticated;
+
+    if (!authenticated) {
+        router.push("/login");
+    }
 
     return (
         <div className="flex flex-col flex-1 gap-2">

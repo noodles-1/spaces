@@ -41,12 +41,12 @@ import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
 export function GridView({
-    userItems,
+    items,
     starred,
     shared,
     inaccessible,
 }: {
-    userItems: ResponseDto<{ children: Item[] }>
+    items: Item[]
     starred?: boolean
     shared?: boolean
     inaccessible?: boolean
@@ -55,10 +55,8 @@ export function GridView({
     const paths = pathname.split("/");
     const sourceParentId = paths.length === 4 ? paths[3] : undefined;
 
-    const children = userItems.data.children;
-
-    const FOLDERS = children ? children.filter((file) => file.type === "FOLDER") : [];
-    const NON_FOLDERS = children ? children.filter((file) => file.type === "FILE") : [];
+    const FOLDERS = items ? items.filter((file) => file.type === "FOLDER") : [];
+    const NON_FOLDERS = items ? items.filter((file) => file.type === "FILE") : [];
     const ALL_FILES = [...FOLDERS, ...NON_FOLDERS];
 
     const [selectedItemsIdx, setSelectedItemsIdx] = useState<Set<number>>(
@@ -217,7 +215,7 @@ export function GridView({
         }
     };
 
-    if (userItems.data.children.length === 0) {
+    if (items.length === 0) {
         if (starred) {
             return (
                 <section className="flex justify-center">

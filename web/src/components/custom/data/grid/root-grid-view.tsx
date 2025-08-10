@@ -42,25 +42,27 @@ export function RootGridView({
         return <GridViewSkeleton />;
     }
 
+    const sortedItems = userItems.data.children.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
     if (starred) {
         return (
-            <GridView userItems={userItems} starred />
+            <GridView items={sortedItems} starred />
         );
     }
 
     if (shared) {
         return (
-            <GridView userItems={userItems} shared />
+            <GridView items={sortedItems} shared />
         );
     }
 
     if (inaccessible) {
         return (
-            <GridView userItems={userItems} inaccessible />
+            <GridView items={sortedItems} inaccessible />
         );
     }
 
     return (
-        <GridView userItems={userItems} />
+        <GridView items={sortedItems} />
     );
 }

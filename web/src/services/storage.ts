@@ -47,6 +47,33 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
     };
 }
 
+interface UploadThumbnailParams {
+    fileId: string;
+    thumbnail: FileWithPath;
+}
+
+export async function uploadThumbnail(params: UploadThumbnailParams): Promise<void> {
+    const { fileId, thumbnail } = params;
+
+    const response = await axiosClient.post<ResponseDto<{ uploadUrl: string }>>("/storage/generate-thumbnail-upload-url", {
+        fileId,
+        contentType: thumbnail.type
+    }, {
+        headers: { "Content-Type": "application/json" },
+    });
+    const uploadUrl = response.data.data.uploadUrl;
+
+    const uploadResponse = await axios.put(uploadUrl, thumbnail, {
+        headers: { "Content-Type": thumbnail.type },
+    });
+
+    console.log(response)
+
+    if (uploadResponse.status !== 200) {
+        throw new Error(`Failed to upload ${thumbnail.name} due to ${uploadResponse.statusText}.`);
+    }
+}
+
 interface DownloadFileParams {
     file: Item;
     totalFolderSize?: number;
@@ -57,7 +84,7 @@ interface DownloadFileParams {
 export async function downloadFile(params: DownloadFileParams): Promise<{ isDownloaded: boolean, blob: Blob }> {
     const { file, totalFolderSize, setProgress, setDownloadedBits } = params;
 
-    const response = await axiosClient.post<ResponseDto<{ downloadUrl: string }>>("/storage/generate-download-url", {
+    const response = await axiosClient.post<ResponseDto<{ downloadUrl: string }>>("/storage/public/generate-download-url", {
         fileId: file.id,
         filename: file.name
     }, {
@@ -118,12 +145,44 @@ export async function duplicateItem(params: DuplicateItemParams): Promise<boolea
     return true;
 }
 
+export async function duplicateThumbnail(params: DuplicateItemParams): Promise<boolean> {
+    const { sourceKey, destinationKey } = params;
+
+    const response = await axiosClient.post("/storage/duplicate-thumbnail", {
+        sourceKey,
+        destinationKey
+    }, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    if (response.status !== 200) {
+        throw new Error(`Failed to duplicate ${sourceKey} due to ${response.statusText}.`);
+    }
+
+    return true;
+}
+
 interface DeleteItemParams {
     file: Item;
 }
 
 export async function deleteFile(params: DeleteItemParams): Promise<boolean> {
     const response = await axiosClient.delete<ResponseDto<{ deleteUrl: string }>>(`/storage/generate-delete-url/${params.file.id}`, {
+        headers: { "Content-Type": "application/json" }
+    });
+
+    const deleteUrl = response.data.data.deleteUrl;
+    const deleteResponse = await axios.delete(deleteUrl);
+
+    if (deleteResponse.status !== 204) {
+        throw new Error(`Failed to delete ${params.file.name}.`);
+    }
+
+    return true;
+}
+
+export async function deleteThumbnail(params: DeleteItemParams): Promise<boolean> {
+    const response = await axiosClient.delete<ResponseDto<{ deleteUrl: string }>>(`/storage/generate-thumbnail-delete-url/${params.file.id}`, {
         headers: { "Content-Type": "application/json" }
     });
 
