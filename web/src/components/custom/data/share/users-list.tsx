@@ -1,17 +1,16 @@
+import { useEffect, useState } from "react";
 import { AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
-import axiosClient from "@/lib/axios-client";
 
 import { UsersListSkeleton } from "@/components/custom/data/share/users-list-skeleton";
 import { UserWithAccess } from "@/components/custom/data/share/user-with-access";
 
-import { fetcher } from "@/services/fetcher";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 import { User, UserResponse } from "@/types/response/user-type";
 import { UserPermission } from "@/types/user-permission-type";
-import { useEffect, useState } from "react";
 
 export function UsersList({
     selectedItem,
@@ -28,9 +27,9 @@ export function UsersList({
         queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${selectedItem.id}`)
     });
 
-    const { data: permissionsData } = useQuery<ResponseDto<{ permissions: UserPermission[] }>>({
+    const { data: permissionsData } = useQuery<AxiosResponse<ResponseDto<{ permissions: UserPermission[] }>>>({
         queryKey: ["user-permissions", selectedItem.id],
-        queryFn: () => fetcher(`/storage/permissions/ancestors/${selectedItem.id}`)
+        queryFn: () => axiosClient.get(`/storage/permissions/ancestors/${selectedItem.id}`)
     });
 
     const [ownerUser, setOwnerUser] = useState<UserResponse | null>(null);
@@ -40,8 +39,8 @@ export function UsersList({
             return;
 
         const fetchUser = async () => {
-            const response = await fetcher<User>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
-            setOwnerUser(response.data.user);
+            const response = await axiosClient.get<ResponseDto<User>>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
+            setOwnerUser(response.data.data.user);
         };
 
         fetchUser();
@@ -52,7 +51,7 @@ export function UsersList({
     }
 
     const currentUser = currentUserData.data.data.user;
-    const permissions = permissionsData.data.permissions;
+    const permissions = permissionsData.data.data.permissions;
     const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE");
 
     return (

@@ -7,7 +7,6 @@ import AsyncSelect from "react-select/async";
 import { StylesConfig } from "react-select";
 
 import axiosClient from "@/lib/axios-client";
-import { fetcher } from "@/services/fetcher";
 import { createPermission, deletePermission } from "@/services/permission";
 
 import {
@@ -116,10 +115,9 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
         queryFn: () => axiosClient.get(`/storage/items/public/owner-user-id/${selectedItem.id}`)
     });
 
-    const { data: permissionsData } = useQuery<ResponseDto<{ permissions: UserPermission[] }>>({
+    const { data: permissionsData } = useQuery<AxiosResponse<ResponseDto<{ permissions: UserPermission[] }>>>({
         queryKey: ["user-permissions", selectedItem.id],
-        queryFn: () =>
-            fetcher(`/storage/permissions/ancestors/${selectedItem.id}`),
+        queryFn: () => axiosClient.get(`/storage/permissions/ancestors/${selectedItem.id}`),
     });
 
     const createPermissionMutation = useMutation({
@@ -143,8 +141,8 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
             return;
 
         const fetchUser = async () => {
-            const response = await fetcher<User>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
-            setOwnerUser(response.data.user);
+            const response = await axiosClient.get<ResponseDto<User>>(`/user/users/info/${ownerUserIdData.data.data.ownerUserId}`);
+            setOwnerUser(response.data.data.user);
         };
 
         fetchUser();
@@ -155,7 +153,7 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
     }
 
     const currentUser = currentUserData.data.data.user;
-    const permissions = permissionsData.data.permissions;
+    const permissions = permissionsData.data.data.permissions;
 
     const userPermissions = permissions.filter(permission => permission.userId !== "EVERYONE");
     const publicViewPermission = permissions.find(permission => permission.userId === "EVERYONE");
@@ -165,8 +163,8 @@ export function AddUser({ selectedItem }: { selectedItem: Item }) {
     const fetchUsers = async (value: string) => {
         if (value.length === 0) return [];
 
-        const response = await fetcher<{ users: UserResponse[] }>(`/user/users/search/${encodeURIComponent(value)}`);
-        const users = response.data.users.filter(user => !idSet.has(user.id));
+        const response = await axiosClient.get<ResponseDto<{ users: UserResponse[] }>>(`/user/users/search/${encodeURIComponent(value)}`);
+        const users = response.data.data.users.filter(user => !idSet.has(user.id));
 
         return users.map<UserOption>((user) => ({
             value: user.id,

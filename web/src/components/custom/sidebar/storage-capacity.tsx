@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
+import { AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 
 import { Progress } from "@/components/ui/progress";
 
-import { fetcher } from "@/services/fetcher";
+import { formatFileSize } from "@/lib/custom/file-size";
+import axiosClient from "@/lib/axios-client";
+
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
-import { formatFileSize } from "@/lib/custom/file-size";
 
 export function StorageCapacity() {
-    const { data: rootData } = useQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive"],
-        queryFn: () => fetcher("/storage/items/accessible/children/recursive")
+        queryFn: () => axiosClient.get("/storage/items/accessible/children/recursive")
     });
 
     const [used, setUsed] = useState<number>(0);
@@ -29,12 +31,12 @@ export function StorageCapacity() {
                 item.children?.map(child => dfs(child));
             }
 
-            rootData.data.children[0]?.children?.map(child => dfs(child));
+            rootData.data.data.children[0]?.children?.map(child => dfs(child));
             setUsed(totalSize);
         };
         
         mapRootItems();
-    }, [rootData?.data.children]);
+    }, [rootData]);
 
     if (!rootData) {
         return null;

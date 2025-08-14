@@ -2,7 +2,7 @@
 
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Loader2 } from "lucide-react";
@@ -14,10 +14,10 @@ import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MoveTreeItem } from "@/components/custom/data/move/move-tree-item";
 
-import { fetcher } from "@/services/fetcher";
 import { moveItem } from "@/services/storage";
 
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
@@ -38,14 +38,14 @@ export function HomeMoveTreeView({
 }) {
     const selectedItemsIdSet = new Set(selectedItems.map(item => item.id));
 
-    const { data: homeRootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: homeRootData } = useSuspenseQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive"],
-        queryFn: () => fetcher("/storage/items/accessible/children/recursive")
+        queryFn: () => axiosClient.get("/storage/items/accessible/children/recursive")
     });
 
-    const { data: permissionsData } = useSuspenseQuery<ResponseDto<{ permissions: UserPermission[] }>>({
+    const { data: permissionsData } = useSuspenseQuery<AxiosResponse<ResponseDto<{ permissions: UserPermission[] }>>>({
         queryKey: ["user-permissions"],
-        queryFn: () => fetcher("/storage/permissions")
+        queryFn: () => axiosClient.get("/storage/permissions")
     });
 
     const [rootItems, setRootItems] = useState<TreeViewBaseItem[]>([]);
@@ -139,10 +139,10 @@ export function HomeMoveTreeView({
                 };
             }
             
-            const homeRootChildren = homeRootData.data.children[0]?.children
+            const homeRootChildren = homeRootData.data.data.children[0]?.children
                 ?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id))
                 .map(child => dfs(child));
-            const sharedRootChildren = permissionsData.data.permissions
+            const sharedRootChildren = permissionsData.data.data.permissions
                 .filter(permission => permission.item.type === "FOLDER")
                 .map(permission => dfs(permission.item));
             

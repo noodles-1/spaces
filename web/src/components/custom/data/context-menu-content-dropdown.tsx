@@ -28,7 +28,6 @@ import {
     ContextMenuSeparator,
 } from "@/components/ui/context-menu";
 
-import { fetcher } from "@/services/fetcher";
 import { createItem, deleteFile, deleteItem, deleteItemPermanently, deleteSharedItem, deleteThumbnail, duplicateItem, duplicateThumbnail, restoreItem } from "@/services/storage";
 import { toggleItemStarred } from "@/services/starred";
 import { customToast } from "@/lib/custom/custom-toast";
@@ -339,12 +338,12 @@ export function ContextMenuContentDropdown({
         try {
             const files = selectedItems.filter(selectedItem => selectedItem.type === "FILE");
             const folders = selectedItems.filter(selectedItem => selectedItem.type === "FOLDER");
-            const foldersResponse = await Promise.all(folders.map(async (folder) => await fetcher<{ children: Item[] }>(`/storage/items/inaccessible/children/recursive/${folder.id}`)));
+            const foldersResponse = await Promise.all(folders.map(async (folder) => await axiosClient.get<ResponseDto<{ children: Item[] }>>(`/storage/items/inaccessible/children/recursive/${folder.id}`)));
             
             files.map(file => deleteFile({ file }));
             foldersResponse.map(folderResponse => {
-                if (folderResponse.data.children.length > 0) {
-                    folderResponse.data.children[0].children?.map(child => dfs(child));
+                if (folderResponse.data.data.children.length > 0) {
+                    folderResponse.data.data.children[0].children?.map(child => dfs(child));
                 }
             });
             

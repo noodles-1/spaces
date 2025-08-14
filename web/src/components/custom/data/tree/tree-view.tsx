@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react";
+import { AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useStorageTreeStore } from "@/zustand/providers/storage-tree-provider";
 
@@ -19,23 +20,21 @@ import {
     ContextMenu, 
     ContextMenuTrigger 
 } from "@/components/ui/context-menu";
+import { Button } from "@/components/ui/button";
 import { TreeItem } from "@/components/custom/data/tree/tree-item";
 import { TreeViewSkeleton } from "@/components/custom/data/tree/tree-view-skeleton";
 
-import { fetcher } from "@/services/fetcher";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 import { formatFileSize } from "@/lib/custom/file-size";
-import { Button } from "@/components/ui/button";
-
 
 export function TreeView() {
-    const { data: rootData } = useQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive"],
-        queryFn: () => fetcher("/storage/items/accessible/children/recursive")
+        queryFn: () => axiosClient.get("/storage/items/accessible/children/recursive")
     });
-
     
     const { addItem } = useStorageTreeStore(state => state);
     
@@ -96,14 +95,14 @@ export function TreeView() {
                 return res;
             };
             
-            const rootChildren = rootData.data.children[0]?.children?.map(child => dfs(child));
+            const rootChildren = rootData.data.data.children[0]?.children?.map(child => dfs(child));
             const totalSize = rootChildren?.reduce((sum, currentChild) => sum + currentChild.size, 0);
             setItems(rootChildren);
             setUsed(totalSize ?? 0);
         };
         
         mapRootItems();
-    }, [rootData?.data.children]);
+    }, [rootData]);
     
     const handleSelectedItemsChange = (_: React.SyntheticEvent, ids: string[]) => {
         setSelectedItems(ids);

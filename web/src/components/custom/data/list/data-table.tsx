@@ -330,7 +330,7 @@ export function DataTable<TData, TValue>({
                                 return (
                                     <DropdownMenuCheckboxItem
                                         key={column.id}
-                                        className="capitalize cursor-pointer"
+                                        className="cursor-pointer"
                                         checked={column.getIsVisible()}
                                         onCheckedChange={(value) =>
                                             column.toggleVisibility(!!value)
@@ -348,12 +348,12 @@ export function DataTable<TData, TValue>({
                 <Input
                     placeholder="Filter names..."
                     value={
-                        (table.getColumn("name")?.getFilterValue() as string) ??
+                        (table.getColumn("Name")?.getFilterValue() as string) ??
                         ""
                     }
                     onChange={(event) =>
                         table
-                            .getColumn("name")
+                            .getColumn("Name")
                             ?.setFilterValue(event.target.value)
                     }
                     className="w-[15rem] z-50"

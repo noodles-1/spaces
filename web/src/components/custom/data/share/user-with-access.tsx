@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, CircleCheck, CircleX, Eye, Pen, X } from "lucide-react";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 import {
     Tooltip,
@@ -16,10 +16,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
-import { fetcher } from "@/services/fetcher";
 import { deletePermission, updatePermission } from "@/services/permission";
 
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
+
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
 import { UserPermission } from "@/types/user-permission-type";
@@ -35,9 +36,9 @@ export function UserWithAccess({
     selectedItemId: string
     ownerUserId: string
 }) {
-    const { data: ownerUserData } = useQuery<ResponseDto<User>>({
+    const { data: ownerUserData } = useQuery<AxiosResponse<ResponseDto<User>>>({
         queryKey: ["user-info", userPermission.userId],
-        queryFn: () => fetcher(`/user/users/info/${userPermission.userId}`)
+        queryFn: () => axiosClient.get(`/user/users/info/${userPermission.userId}`)
     });
 
     const updatePermissionMutation = useMutation({
@@ -56,7 +57,7 @@ export function UserWithAccess({
         );
     }
 
-    const user = ownerUserData.data.user;
+    const user = ownerUserData.data.data.user;
 
     const handleEditPermission = async (newType: typeof userPermission.type) => {
         try {

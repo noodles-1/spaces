@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
 import { FileWithPath } from "react-dropzone";
-
 import axios from "axios";
+
 import axiosClient from "@/lib/axios-client";
 
-import { fetcher } from "@/services/fetcher";
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
 
@@ -23,9 +22,9 @@ export async function uploadFile(params: UploadFileParams): Promise<{ isUploaded
 
     const endpoint = `/storage/generate-upload-url?contentType=${file.type}`;
 
-    const response = await fetcher<{ uploadUrl: string, fileId: string }>(endpoint);
-    const uploadUrl = response.data.uploadUrl;
-    const fileId = response.data.fileId;
+    const response = await axiosClient.get<ResponseDto<{ uploadUrl: string, fileId: string }>>(endpoint);
+    const uploadUrl = response.data.data.uploadUrl;
+    const fileId = response.data.data.fileId;
     
     const uploadResponse = await axios.put(uploadUrl, file, {
         headers: { "Content-Type": file.type },

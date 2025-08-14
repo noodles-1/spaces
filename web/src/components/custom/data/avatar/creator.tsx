@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { UserRound } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { fetcher } from "@/services/fetcher";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { User } from "@/types/response/user-type";
-import { UserRound } from "lucide-react";
+import { AxiosResponse } from "axios";
 
 export function Creator({
     createdBy,
@@ -15,9 +17,9 @@ export function Creator({
     createdBy: string
     nameOnly?: boolean
 }) {
-    const { data: userData } = useQuery<ResponseDto<User>>({
+    const { data: userData } = useQuery<AxiosResponse<ResponseDto<User>>>({
         queryKey: ["user-info", createdBy],
-        queryFn: () => fetcher(`/user/users/info/${createdBy}`)
+        queryFn: () => axiosClient.get(`/user/users/info/${createdBy}`)
     });
 
     if (!userData) {
@@ -33,7 +35,7 @@ export function Creator({
         );
     }
 
-    const user = userData.data.user;
+    const user = userData.data.data.user;
 
     return (
         <div className="flex items-center gap-4">

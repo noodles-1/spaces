@@ -125,7 +125,7 @@ export function ProfileButton() {
     });
 
     useEffect(() => {
-        if (userData?.data.data.user.customUsername) {
+        if (userData && userData.data.data.user && userData.data.data.user.customUsername) {
             setImageFile(userData.data.data.user.profilePictureUrl);
             form.setValue("customUsername", userData.data.data.user.customUsername);
         }

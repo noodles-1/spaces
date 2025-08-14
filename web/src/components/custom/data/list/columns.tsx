@@ -13,6 +13,7 @@ import { formatFileSize } from "@/lib/custom/file-size";
 
 export const columns: ColumnDef<Item>[] = [
     {
+        id: "Name",
         accessorKey: "name",
         header: ({ column }) => {
             return (
@@ -20,9 +21,7 @@ export const columns: ColumnDef<Item>[] = [
                     <span> Name </span>
                     <Button
                         variant="secondary"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
-                        }
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                         className="rounded-full hover:cursor-pointer hover:bg-zinc-700"
                     >
                         <ArrowUpDown className="w-4 h-4" />
@@ -39,7 +38,7 @@ export const columns: ColumnDef<Item>[] = [
         },
     },
     {
-        accessorKey: "createdBy",
+        accessorKey: "Created by",
         header: "Created by",
         cell: ({ row }) => {
             if (!row.original.createdBy)
@@ -51,16 +50,15 @@ export const columns: ColumnDef<Item>[] = [
         },
     },
     {
-        accessorKey: "lastModified",
+        id: "Last modified",
+        accessorFn: (row) => new Date(row.updatedAt).getTime(),
         header: ({ column }) => {
             return (
                 <div className="flex items-center gap-2">
                     <span> Last modified </span>
                     <Button
                         variant="secondary"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
-                        }
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                         className="rounded-full hover:cursor-pointer hover:bg-zinc-700"
                     >
                         <ArrowUpDown className="w-4 h-4" />
@@ -83,9 +81,11 @@ export const columns: ColumnDef<Item>[] = [
 
             return <span className="text-zinc-300"> {formattedDate} </span>;
         },
+        sortingFn: "basic",
+        sortDescFirst: true,
     },
     {
-        accessorKey: "type",
+        accessorKey: "Type",
         header: "Type",
         cell: ({ row }) => (
             <span className="text-zinc-300">
@@ -98,16 +98,29 @@ export const columns: ColumnDef<Item>[] = [
         ),
     },
     {
-        accessorKey: "size",
-        header: "Size",
+        id: "Size",
+        accessorFn: (row) => row.size ?? 0,
+        header: ({ column }) => {
+            return (
+                <div className="flex items-center gap-2">
+                    <span> Size </span>
+                    <Button
+                        variant="secondary"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="rounded-full hover:cursor-pointer hover:bg-zinc-700"
+                    >
+                        <ArrowUpDown className="w-4 h-4" />
+                    </Button>
+                </div>
+            );
+        },
         cell: ({ row }) => (
             <>
-                {row.original.size ?
-                    <span className="text-zinc-300"> {formatFileSize(row.original.size)} </span>
-                :
-                    <span className="text-zinc-300"> - </span>
+                {row.original.size
+                    ? <span className="text-zinc-300">{formatFileSize(row.original.size)}</span>
+                    : <span className="text-zinc-300">-</span>
                 }
             </>
         ),
-    },
+    }
 ];

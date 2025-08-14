@@ -2,7 +2,7 @@
 
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Loader2 } from "lucide-react";
@@ -14,10 +14,10 @@ import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MoveTreeItem } from "@/components/custom/data/move/move-tree-item";
 
-import { fetcher } from "@/services/fetcher";
 import { moveItem } from "@/services/storage";
 
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
@@ -39,9 +39,9 @@ export function OwnerMoveTreeView({
 }) {
     const selectedItemsIdSet = new Set(selectedItems.map(item => item.id));
 
-    const { data: rootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useSuspenseQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive"],
-        queryFn: () => fetcher("/storage/items/accessible/children/recursive")
+        queryFn: () => axiosClient.get("/storage/items/accessible/children/recursive")
     });
 
     const [rootItems, setRootItems] = useState<TreeViewBaseItem[]>([]);
@@ -128,7 +128,7 @@ export function OwnerMoveTreeView({
                 };
             }
             
-            const rootChildren = rootData.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
+            const rootChildren = rootData.data.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
             const temp: TreeViewBaseItem[] = [
                 {
                     id: "HOME",
@@ -157,7 +157,7 @@ export function OwnerMoveTreeView({
             {selectedItemsRef.current.length > 0 &&
                 <span className="text-[14px] text-zinc-300"> 
                     Item to move: 
-                    <span className="font-semibold"> {selectedItemsRef.current[0].name} </span>
+                    <span className="font-semibold break-all"> {selectedItemsRef.current[0].name} </span>
                 </span>
             }
             <main className="h-[24rem] overflow-auto pt-2">

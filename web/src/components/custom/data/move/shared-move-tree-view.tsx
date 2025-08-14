@@ -2,7 +2,7 @@
 
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { CircleCheck, CircleX, Loader2 } from "lucide-react";
@@ -14,10 +14,10 @@ import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MoveTreeItem } from "@/components/custom/data/move/move-tree-item";
 
-import { fetcher } from "@/services/fetcher";
 import { moveItem } from "@/services/storage";
 
 import { customToast } from "@/lib/custom/custom-toast";
+import axiosClient from "@/lib/axios-client";
 
 import { ResponseDto } from "@/dto/response-dto";
 import { Item } from "@/types/item-type";
@@ -42,9 +42,9 @@ export function SharedMoveTreeView({
 }) {
     const selectedItemsIdSet = new Set(selectedItems.map(item => item.id));
 
-    const { data: rootData } = useSuspenseQuery<ResponseDto<{ children: Item[] }>>({
+    const { data: rootData } = useSuspenseQuery<AxiosResponse<ResponseDto<{ children: Item[] }>>>({
         queryKey: ["user-accessible-items-recursive", permission.item.id],
-        queryFn: () => fetcher(`/storage/items/accessible/children/recursive/${permission.item.id}`)
+        queryFn: () => axiosClient.get(`/storage/items/accessible/children/recursive/${permission.item.id}`)
     });
 
     const [rootItems, setRootItems] = useState<TreeViewBaseItem[]>([]);
@@ -129,11 +129,11 @@ export function SharedMoveTreeView({
                 };
             }
             
-            const rootChildren = rootData.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
+            const rootChildren = rootData.data.data.children[0]?.children?.filter(child => child.type === "FOLDER" && !selectedItemsIdSet.has(child.id)).map(child => dfs(child));
             const temp: TreeViewBaseItem[] = [
                 {
-                    id: rootData.data.children[0]?.id,
-                    label: rootData.data.children[0]?.name,
+                    id: rootData.data.data.children[0]?.id,
+                    label: rootData.data.data.children[0]?.name,
                     children: rootChildren
                 },
             ];
